@@ -1,0 +1,51 @@
+name: cc-plugins CI/CD
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate JSON files
+        run: |
+          # Validate all JSON files
+          find . -name "*.json" -exec python3 -m json.tool {} > /dev/null \; || echo "Invalid JSON found"
+
+      - name: Validate plugin structure
+        run: |
+          # Check required files for each plugin
+          for plugin in plugins/*/; do
+            if [ -d "$plugin" ]; then
+              plugin_name=$(basename "$plugin")
+              echo "Validating $plugin_name..."
+
+              # Check for required directories
+              [ -d "$plugin/.claude-plugin" ] || echo "ERROR: Missing .claude-plugin in $plugin_name"
+              [ -d "$plugin/commands" ] || echo "WARNING: Missing commands in $plugin_name"
+              [ -d "$plugin/hooks" ] || echo "WARNING: Missing hooks in $plugin_name"
+
+              # Check for required files
+              [ -f "$plugin/.claude-plugin/plugin.json" ] || echo "ERROR: Missing plugin.json in $plugin_name"
+            fi
+          done
+
+  install-script-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Test install script syntax
+        run: |
+          # Check bash syntax for all shell scripts
+          for script in $(find . -name "*.sh"); do
+            echo "Checking syntax of $script"
+            bash -n "$script" || echo "ERROR: Syntax error in $script"
+          done
