@@ -1,0 +1,15 @@
+{
+  "name": "ccbell",
+  "description": "Audio notifications for Claude Code events with profiles, quiet hours, cooldowns, and debug mode",
+  "version": "3.0.0",
+  "author": {
+    "name": "Mutlu Polatcan",
+    "email": "mpolatcan@gmail.com"
+  },
+  "repository": "https://github.com/mpolatcan/ccbell",
+  "keywords": ["sound", "notification", "bell", "audio", "alert", "productivity", "profiles", "quiet-hours", "cooldown", "golang"],
+  "license": "MIT",
+  "scripts": {
+    "postinstall": "scripts/install.sh"
+  }
+}

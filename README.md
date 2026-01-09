@@ -26,7 +26,7 @@ A curated marketplace of plugins for Claude Code.
 
 | Plugin | Description | Category |
 |--------|-------------|----------|
-| [ccbell](https://github.com/mpolatcan/ccbell) | Audio notifications for Claude Code events | Productivity |
+| [ccbell](./plugins/ccbell) | Audio notifications for Claude Code events | Productivity |
 
 ## Plugin Details
 
@@ -40,8 +40,8 @@ Audio notifications for Claude Code events - play sounds when Claude finishes re
 ```
 
 **Features:**
-- Play sounds on multiple Claude Code events (stop, permission_prompt, idle_prompt)
-- Support for system sounds, custom audio files, and bundled defaults
+- Play sounds on multiple Claude Code events (stop, permission_prompt, idle_prompt, subagent)
+- Support for bundled sounds, custom audio files
 - Cross-platform support (macOS, Linux, Windows)
 - Easy configuration via slash commands
 
