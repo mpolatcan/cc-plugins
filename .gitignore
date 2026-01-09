@@ -1,3 +1,11 @@
+# Build artifacts
+bin/
+dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
 # Editor and IDE
 .vscode/
 .idea/
@@ -5,13 +13,8 @@
 *.swo
 *~
 
-# OS
-.DS_Store
-Thumbs.db
-
 # Logs
 *.log
 
-# Build artifacts
-bin/
-dist/
+# Claude Code Ralph Loop
+.ralph-loop.local.md

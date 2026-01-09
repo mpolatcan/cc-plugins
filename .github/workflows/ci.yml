@@ -36,6 +36,18 @@ jobs:
             fi
           done
 
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@2.0.0
+        with:
+          check_todos: false
+          severity: error
+
   install-script-test:
     runs-on: ubuntu-latest
     steps:
