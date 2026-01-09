@@ -1,0 +1,26 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claude-plugins",
+  "version": "1.0.0",
+  "description": "A curated marketplace of plugins for Claude Code",
+  "owner": {
+    "name": "Mutlu Polatcan",
+    "email": "mutlupolatcan@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "ccbell",
+      "description": "Audio notifications for Claude Code events - play sounds when Claude finishes responding, needs permission, or is waiting for input",
+      "version": "1.0.0",
+      "author": {
+        "name": "Mutlu Polatcan",
+        "email": "mutlupolatcan@gmail.com"
+      },
+      "source": {
+        "source": "github",
+        "repo": "mpolatcan/ccbell"
+      },
+      "category": "productivity"
+    }
+  ]
+}
