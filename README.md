@@ -1,4 +1,4 @@
-# claude-plugins
+# cc-plugins
 
 A curated marketplace of plugins for Claude Code.
 
@@ -7,7 +7,7 @@ A curated marketplace of plugins for Claude Code.
 ### Add the Marketplace
 
 ```
-/plugin marketplace add mpolatcan/claude-plugins
+/plugin marketplace add mpolatcan/cc-plugins
 ```
 
 ### Browse Available Plugins
