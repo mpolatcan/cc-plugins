@@ -2,7 +2,7 @@
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "cc-plugins",
   "version": "1.0.0",
-  "description": "A curated marketplace of plugins for Claude Code",
+  "description": "A curated collection of plugins for Claude Code",
   "owner": {
     "name": "Mutlu Polatcan",
     "email": "mpolatcan@gmail.com"
@@ -10,10 +10,10 @@
   "plugins": [
     {
       "name": "ccbell",
-      "version": "3.0.0",
-      "description": "Audio notifications for Claude Code events with profiles, quiet hours, cooldowns, and debug mode",
+      "description": "Audio notifications for Claude Code events - play sounds when Claude finishes responding, needs permission, or when a subagent completes",
       "source": "./plugins/ccbell",
-      "category": "productivity"
+      "category": "productivity",
+      "tags": ["sound", "notification", "audio", "alert", "productivity"]
     }
   ]
 }
