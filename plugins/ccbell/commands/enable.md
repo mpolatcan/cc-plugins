@@ -1,5 +1,4 @@
 ---
-name: ccbell:enable
 description: Enable ccbell sound notifications
 allowed-tools: ["Read", "Write", "Bash"]
 ---

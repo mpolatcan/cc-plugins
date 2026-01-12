@@ -1,5 +1,4 @@
 ---
-name: ccbell:disable
 description: Disable ccbell sound notifications
 allowed-tools: ["Read", "Write", "Bash"]
 ---

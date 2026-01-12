@@ -1,5 +1,4 @@
 ---
-name: ccbell:profile
 description: Switch between ccbell sound profiles
 allowed-tools: ["Read", "Write", "AskUserQuestion", "Bash"]
 ---

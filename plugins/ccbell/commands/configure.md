@@ -1,5 +1,4 @@
 ---
-name: ccbell:configure
 description: Configure ccbell sound notifications for different events
 allowed-tools: ["Read", "Write", "AskUserQuestion", "Bash"]
 ---

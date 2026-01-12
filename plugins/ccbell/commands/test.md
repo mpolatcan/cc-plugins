@@ -1,5 +1,4 @@
 ---
-name: ccbell:test
 description: Test ccbell sound notifications
 argument-hint: "[stop|permission_prompt|idle_prompt|subagent|all]"
 allowed-tools: ["Read", "Bash"]

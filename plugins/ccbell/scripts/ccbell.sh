@@ -40,6 +40,12 @@ resolve_plugin_root() {
 # Main
 main() {
     local event="${1:-stop}"
+
+    # Map "notification" to "permission_prompt" for general notifications
+    if [[ "$event" == "notification" ]]; then
+        event="permission_prompt"
+    fi
+
     local plugin_root
     plugin_root=$(resolve_plugin_root)
     local bin_dir="${plugin_root}/bin"

@@ -58,21 +58,11 @@
     ],
     "Notification": [
       {
-        "matcher": "permission_prompt",
+        "matcher": "*",
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh permission_prompt",
-            "timeout": 10
-          }
-        ]
-      },
-      {
-        "matcher": "idle_prompt",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh idle_prompt",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh notification",
             "timeout": 10
           }
         ]
