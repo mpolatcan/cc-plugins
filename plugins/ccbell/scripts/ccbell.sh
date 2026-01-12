@@ -24,24 +24,27 @@ detect_arch() {
     esac
 }
 
-# Detect plugin root - find latest version folder
+# Detect plugin root
 get_plugin_root() {
+    # Use CLAUDE_PLUGIN_ROOT if set (for hooks)
+    if [[ -n "$CLAUDE_PLUGIN_ROOT" ]]; then
+        echo "$CLAUDE_PLUGIN_ROOT"
+        return 0
+    fi
+
+    # Fallback: find latest version folder (for commands)
     local base_dir="$HOME/.claude/plugins/cache/cc-plugins/ccbell"
-    if [[ ! -d "$base_dir" ]]; then
-        echo ""
-        return 1
+    if [[ -d "$base_dir" ]]; then
+        local latest_version
+        latest_version=$(find "$base_dir" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | sort -V | tail -1)
+        if [[ -n "$latest_version" ]]; then
+            echo "$base_dir/$latest_version"
+            return 0
+        fi
     fi
 
-    # Find latest version folder (sort by semantic version)
-    local latest_version
-    latest_version=$(find "$base_dir" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort -V | tail -1)
-
-    if [[ -z "$latest_version" ]]; then
-        echo ""
-        return 1
-    fi
-
-    echo "$base_dir/$latest_version"
+    echo ""
+    return 1
 }
 
 # Main
