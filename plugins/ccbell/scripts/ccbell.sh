@@ -4,7 +4,7 @@ set -euo pipefail
 
 REPO="mpolatcan/ccbell"
 BINARY_NAME="ccbell"
-PLUGIN_VERSION="0.2.12"
+PLUGIN_VERSION="0.2.13"
 
 # Detect platform
 detect_os() {
