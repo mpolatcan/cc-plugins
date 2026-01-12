@@ -9,6 +9,11 @@ Show help and documentation for the ccbell plugin.
 
 ## Response
 
+**Plugin Root:**
+```
+PLUGIN_ROOT="$HOME/.claude/plugins/cache/cc-plugins/ccbell/${PLUGIN_VERSION}"
+```
+
 Provide the following information:
 
 ```
@@ -146,7 +151,7 @@ Project config takes precedence over global config.
 2. Check cooldown settings
 3. Run `/ccbell:status` to verify config
 4. Enable debug mode and check `~/.claude/ccbell.log`
-5. Verify bundled sounds exist in `$CLAUDE_PLUGIN_ROOT/sounds/`
+5. Verify bundled sounds exist in `$PLUGIN_ROOT/sounds/`
 
 **Too many notifications?**
 Configure cooldowns in `/ccbell:configure` to add delays between sounds.
