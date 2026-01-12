@@ -28,17 +28,33 @@ plugins/ccbell/
 
 Plugin schemas and hook events may change. Always consult the official documentation.
 
-| Documentation | URL |
-|--------------|-----|
-| **Plugins Reference** | https://code.claude.com/docs/en/plugins-reference |
-| **Hooks Reference** | https://code.claude.com/docs/en/hooks |
+### Hooks Documentation (ALWAYS refer to these)
 
-### Key Sections
+**Main Hooks Reference:** https://code.claude.com/docs/en/hooks
 
-- **Plugin Manifest** - https://code.claude.com/docs/en/plugins-reference#manifest
-- **Commands** - https://code.claude.com/docs/en/plugins-reference#commands
-- **Hooks** - https://code.claude.com/docs/en/plugins-reference#hooks
-- **Hook Events** - https://code.claude.com/docs/en/hooks#events
+#### Within Hooks Reference:
+| Section | URL |
+|---------|-----|
+| **Events** | https://code.claude.com/docs/en/hooks#events |
+| **Hook Types** | https://code.claude.com/docs/en/hooks#hook-types |
+| **Matcher** | https://code.claude.com/docs/en/hooks#matcher |
+| **Timeout** | https://code.claude.com/docs/en/hooks#timeout |
+| **Input/Output** | https://code.claude.com/docs/en/hooks#inputoutput |
+
+#### Related in Plugins Reference:
+| Section | URL |
+|---------|-----|
+| **Plugin Manifest** | https://code.claude.com/docs/en/plugins-reference#manifest |
+| **Commands** | https://code.claude.com/docs/en/plugins-reference#commands |
+| **Hooks in Plugins** | https://code.claude.com/docs/en/plugins-reference#hooks |
+
+**ALWAYS consult these pages for:**
+- Complete list of available hook events (Stop, PermissionPrompt, Notification, UserPromptSubmit, SubagentStop, etc.)
+- Hook type specifications (command, agent, skill)
+- Matcher patterns and syntax
+- Timeout configuration
+- Input/output handling
+- Plugin manifest schema
 
 ## ccbell Plugin
 
