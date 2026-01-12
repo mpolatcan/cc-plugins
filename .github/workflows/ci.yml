@@ -16,7 +16,10 @@ jobs:
       - name: Validate JSON files
         run: |
           # Validate all JSON files
-          find . -name "*.json" -exec python3 -m json.tool {} > /dev/null \; || echo "Invalid JSON found"
+          if ! find . -name "*.json" -exec python3 -m json.tool {} > /dev/null \; then
+            echo "Invalid JSON found"
+            exit 1
+          fi
 
       - name: Validate plugin structure
         run: |
@@ -36,6 +39,18 @@ jobs:
             fi
           done
 
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@2.0.0
+        with:
+          check_todos: false
+          severity: error
+
   install-script-test:
     runs-on: ubuntu-latest
     steps:
@@ -47,5 +62,8 @@ jobs:
           # Check bash syntax for all shell scripts
           for script in $(find . -name "*.sh"); do
             echo "Checking syntax of $script"
-            bash -n "$script" || echo "ERROR: Syntax error in $script"
+            if ! bash -n "$script"; then
+              echo "ERROR: Syntax error in $script"
+              exit 1
+            fi
           done

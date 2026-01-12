@@ -105,7 +105,12 @@ If you're the maintainer, create a release with:
   git push origin v1.0.0"
     fi
 
-    version=$(echo "$response" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+    # Parse version from JSON response - prefer jq, fallback to grep/sed
+    if command -v jq &>/dev/null; then
+        version=$(echo "$response" | jq -r '.tag_name' 2>/dev/null)
+    else
+        version=$(echo "$response" | grep -o '"tag_name"[[:space:]]*:[[:space:]]*"[^"]*"' | sed -E 's/.*"([^"]+)".*/\1/' | head -1)
+    fi
 
     if [[ -z "$version" ]]; then
         die "Failed to parse version from GitHub API response"
