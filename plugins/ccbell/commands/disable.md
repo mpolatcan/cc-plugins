@@ -30,7 +30,6 @@ If no config exists, create one with `enabled: false`:
   "events": {
     "stop": { "enabled": false, "sound": "bundled:stop", "volume": 0.5, "cooldown": 5 },
     "permission_prompt": { "enabled": false, "sound": "bundled:permission_prompt", "volume": 0.7, "cooldown": 0 },
-    "idle_prompt": { "enabled": false, "sound": "bundled:idle_prompt", "volume": 0.5, "cooldown": 10 },
     "subagent": { "enabled": false, "sound": "bundled:subagent", "volume": 0.5, "cooldown": 5 }
   }
 }

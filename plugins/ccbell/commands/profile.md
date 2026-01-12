@@ -97,7 +97,6 @@ Create profile in config if not exists, then activate:
       "events": {
         "stop": { "enabled": false },
         "permission_prompt": { "enabled": true, "volume": 0.3 },
-        "idle_prompt": { "enabled": false },
         "subagent": { "enabled": false }
       }
     }
@@ -114,7 +113,6 @@ Create profile in config if not exists, then activate:
       "events": {
         "stop": { "enabled": true, "sound": "bundled:stop", "volume": 0.3 },
         "permission_prompt": { "enabled": true, "sound": "bundled:permission_prompt", "volume": 0.4 },
-        "idle_prompt": { "enabled": true, "sound": "bundled:idle_prompt", "volume": 0.3 },
         "subagent": { "enabled": true, "sound": "bundled:subagent", "volume": 0.2 }
       }
     }
@@ -131,7 +129,6 @@ Create profile in config if not exists, then activate:
       "events": {
         "stop": { "enabled": false },
         "permission_prompt": { "enabled": false },
-        "idle_prompt": { "enabled": false },
         "subagent": { "enabled": false }
       }
     }
@@ -148,7 +145,6 @@ Create profile in config if not exists, then activate:
       "events": {
         "stop": { "enabled": true, "sound": "bundled:stop", "volume": 1.0 },
         "permission_prompt": { "enabled": true, "sound": "bundled:permission_prompt", "volume": 1.0 },
-        "idle_prompt": { "enabled": true, "sound": "bundled:idle_prompt", "volume": 1.0 },
         "subagent": { "enabled": true, "sound": "bundled:subagent", "volume": 1.0 }
       }
     }
@@ -182,7 +178,6 @@ Profile changed to: [profile_name]
 Settings active:
 - Stop: enabled/disabled (sound, volume)
 - Permission prompt: enabled/disabled (sound, volume)
-- Idle prompt: enabled/disabled (sound, volume)
 - Subagent: enabled/disabled (sound, volume)
 
 Use /ccbell:test to hear your new notification sounds.

@@ -1,6 +1,6 @@
 ---
 description: Test ccbell sound notifications
-argument-hint: "[stop|permission_prompt|idle_prompt|subagent|all]"
+argument-hint: "[stop|permission_prompt|subagent|all]"
 allowed-tools: ["Read", "Bash"]
 ---
 
@@ -14,9 +14,10 @@ $ARGUMENTS
 
 - `stop` - Test the stop event sound
 - `permission_prompt` - Test the permission prompt sound
-- `idle_prompt` - Test the idle prompt sound
 - `subagent` - Test the subagent completion sound
 - `all` or no argument - Test all enabled sounds
+
+**Note:** `idle_prompt` is not currently supported as a hook event in Claude Code.
 
 ## Instructions
 
@@ -44,7 +45,7 @@ PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$HOME/.claude/plugins/local/ccbell}"
 **For all events:**
 ```bash
 PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$HOME/.claude/plugins/local/ccbell}"
-for event in stop permission_prompt idle_prompt subagent; do
+for event in stop permission_prompt subagent; do
   echo "Testing: $event"
   "$PLUGIN_ROOT/scripts/ccbell.sh" "$event"
   sleep 1.5
@@ -65,7 +66,6 @@ After testing, report which sounds played:
 |-------|--------|-------|-------|
 | Stop | Played | bundled:stop | 0.5 volume |
 | Permission Prompt | Played | bundled:permission_prompt | 0.7 volume |
-| Idle Prompt | Played | bundled:idle_prompt | 0.5 volume |
 | Subagent | Played | bundled:subagent | 0.5 volume |
 
 All enabled sounds working correctly!
