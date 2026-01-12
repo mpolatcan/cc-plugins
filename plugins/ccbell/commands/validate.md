@@ -44,7 +44,7 @@ fi
 echo ""
 echo "=== Sound Files Check ==="
 
-PLUGIN_ROOT="$HOME/.claude/plugins/cache/cc-plugins/ccbell/${PLUGIN_VERSION}"
+PLUGIN_ROOT="$PLUGIN_DIR/$LATEST_VERSION"
 REQUIRED_SOUNDS=("stop" "permission_prompt" "subagent")
 SOUNDS_OK=0
 SOUNDS_MISSING=0
