@@ -23,8 +23,10 @@ $ARGUMENTS
 ### 1. Detect Plugin Root
 
 ```bash
-# Resolve plugin root (handles marketplace and local installations)
-if [[ -d "$HOME/.claude/plugins/marketplace/cc-plugins" ]]; then
+# Resolve plugin root (handles cache, marketplace, and local installations)
+if [[ -d "$HOME/.claude/plugins/cache/cc-plugins/plugins/ccbell" ]]; then
+    PLUGIN_ROOT="$HOME/.claude/plugins/cache/cc-plugins/plugins/ccbell"
+elif [[ -d "$HOME/.claude/plugins/marketplace/cc-plugins/plugins/ccbell" ]]; then
     PLUGIN_ROOT="$HOME/.claude/plugins/marketplace/cc-plugins/plugins/ccbell"
 elif [[ -d "$HOME/.claude/plugins/local/ccbell" ]]; then
     PLUGIN_ROOT="$HOME/.claude/plugins/local/ccbell"

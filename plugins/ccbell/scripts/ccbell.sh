@@ -4,6 +4,7 @@ set -euo pipefail
 
 REPO="mpolatcan/ccbell"
 BINARY_NAME="ccbell"
+PLUGIN_VERSION="0.2.1"
 
 # Detect platform
 detect_os() {
@@ -27,8 +28,10 @@ detect_arch() {
 get_plugin_root() {
     local root="${CLAUDE_PLUGIN_ROOT:-}"
     if [[ -z "$root" ]]; then
-        # Try marketplace location first, then local
-        if [[ -d "$HOME/.claude/plugins/marketplace/cc-plugins" ]]; then
+        # Try cache, marketplace, then local locations
+        if [[ -d "$HOME/.claude/plugins/cache/cc-plugins/plugins/ccbell" ]]; then
+            root="$HOME/.claude/plugins/cache/cc-plugins/plugins/ccbell"
+        elif [[ -d "$HOME/.claude/plugins/marketplace/cc-plugins/plugins/ccbell" ]]; then
             root="$HOME/.claude/plugins/marketplace/cc-plugins/plugins/ccbell"
         elif [[ -d "$HOME/.claude/plugins/local/ccbell" ]]; then
             root="$HOME/.claude/plugins/local/ccbell"
