@@ -13,7 +13,6 @@ ccbell uses bundled sounds by default for consistent cross-platform support:
 
 - `bundled:stop` - Claude finished responding
 - `bundled:permission_prompt` - Claude needs your permission
-- `bundled:idle_prompt` - Claude is waiting for input
 - `bundled:subagent` - Background agent completed
 
 You can also use custom sounds:
@@ -36,13 +35,14 @@ Use AskUserQuestion to ask which events should trigger sounds:
       "options": [
         {"label": "Stop (Claude finishes)", "description": "Play sound when Claude completes responding"},
         {"label": "Permission Prompt", "description": "Play sound when Claude needs permission"},
-        {"label": "Idle Prompt", "description": "Play sound when Claude is waiting for input"},
         {"label": "Subagent Complete", "description": "Play sound when a background agent finishes"}
       ]
     }
   ]
 }
 ```
+
+**Note:** Idle Prompt is not currently supported as a hook event in Claude Code.
 
 ### 2. For Each Selected Event, Ask Sound Choice
 
@@ -165,12 +165,6 @@ Create the configuration file at `.claude/ccbell.config.json` (project) or `~/.c
       "volume": 0.7,
       "cooldown": 0
     },
-    "idle_prompt": {
-      "enabled": true,
-      "sound": "bundled:idle_prompt",
-      "volume": 0.5,
-      "cooldown": 10
-    },
     "subagent": {
       "enabled": true,
       "sound": "bundled:subagent",
@@ -187,7 +181,7 @@ After writing the config, confirm to the user and offer to test the sounds with 
 
 ## Sound Specification Formats
 
-- `bundled:stop`, `bundled:permission_prompt`, `bundled:idle_prompt`, `bundled:subagent` - Bundled sounds (recommended)
+- `bundled:stop`, `bundled:permission_prompt`, `bundled:subagent` - Bundled sounds (recommended)
 - `custom:/path/to/sound.mp3` - Custom audio file (absolute path required)
 
 ## Configuration Options Reference
