@@ -155,7 +155,7 @@ Create the configuration file at `.claude/ccbell.config.json` (project) or `~/.c
       "enabled": true,
       "sound": "bundled:stop",
       "volume": 0.5,
-      "cooldown": 5
+      "cooldown": 0
     },
     "permission_prompt": {
       "enabled": true,
@@ -167,7 +167,7 @@ Create the configuration file at `.claude/ccbell.config.json` (project) or `~/.c
       "enabled": true,
       "sound": "bundled:subagent",
       "volume": 0.5,
-      "cooldown": 5
+      "cooldown": 0
     }
   }
 }

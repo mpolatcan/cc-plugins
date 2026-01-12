@@ -106,7 +106,7 @@ Project config takes precedence over global config.
       "enabled": true,
       "sound": "bundled:stop",
       "volume": 0.5,
-      "cooldown": 5
+      "cooldown": 0
     },
     "permission_prompt": {
       "enabled": true,
@@ -118,7 +118,7 @@ Project config takes precedence over global config.
       "enabled": true,
       "sound": "bundled:subagent",
       "volume": 0.5,
-      "cooldown": 5
+      "cooldown": 0
     }
   },
   "profiles": {

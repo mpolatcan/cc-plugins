@@ -27,9 +27,9 @@ If no config exists, create one with `enabled: false`:
   "debug": false,
   "activeProfile": "default",
   "events": {
-    "stop": { "enabled": false, "sound": "bundled:stop", "volume": 0.5, "cooldown": 5 },
+    "stop": { "enabled": false, "sound": "bundled:stop", "volume": 0.5, "cooldown": 0 },
     "permission_prompt": { "enabled": false, "sound": "bundled:permission_prompt", "volume": 0.7, "cooldown": 0 },
-    "subagent": { "enabled": false, "sound": "bundled:subagent", "volume": 0.5, "cooldown": 5 }
+    "subagent": { "enabled": false, "sound": "bundled:subagent", "volume": 0.5, "cooldown": 0 }
   }
 }
 ```
