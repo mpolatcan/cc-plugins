@@ -1,10 +1,10 @@
 # ccbell
 
-Audio notifications for Claude Code events. Get notified when Claude finishes responding, needs permission, or when a subagent completes.
+Audio notifications for Claude Code events. Get notified when Claude finishes responding, needs permission, is waiting for input, or when a subagent completes.
 
 ## Features
 
-- **Multiple Events** - Stop, Permission Prompt, Subagent completion
+- **Multiple Events** - Stop, Permission Prompt, Idle Prompt, Subagent completion
 - **Sound Profiles** - Switch between default, focus, work, loud, silent, and custom presets
 - **Quiet Hours** - Do-not-disturb time windows
 - **Cooldowns** - Debounce rapid notifications
@@ -47,6 +47,7 @@ Audio notifications for Claude Code events. Get notified when Claude finishes re
 |-------|-----------------|
 | `stop` | Claude finishes responding |
 | `permission_prompt` | Claude needs your permission |
+| `idle_prompt` | Claude is waiting for input |
 | `subagent` | Background agent completes |
 
 ## Sound Profiles
@@ -63,7 +64,7 @@ Audio notifications for Claude Code events. Get notified when Claude finishes re
 
 ### Bundled Sounds (Recommended)
 
-Pre-packaged sounds included with the plugin: `bundled:stop`, `bundled:permission_prompt`, `bundled:subagent`
+Pre-packaged sounds included with the plugin: `bundled:stop`, `bundled:permission_prompt`, `bundled:idle_prompt`, `bundled:subagent`
 
 ### Custom Sounds
 
@@ -99,6 +100,12 @@ Config files (project takes precedence over global):
       "enabled": true,
       "sound": "bundled:permission_prompt",
       "volume": 0.7,
+      "cooldown": 0
+    },
+    "idle_prompt": {
+      "enabled": true,
+      "sound": "bundled:idle_prompt",
+      "volume": 0.5,
       "cooldown": 0
     },
     "subagent": {
