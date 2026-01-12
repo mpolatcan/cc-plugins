@@ -9,43 +9,43 @@ Run a comprehensive validation of the ccbell plugin installation and configurati
 
 ## Validation Steps
 
-### 1. Detect Plugin Root
+### 1. Check Plugin Installation
 
-```bash
-PLUGIN_ROOT="$HOME/.claude/plugins/cache/cc-plugins/ccbell/${PLUGIN_VERSION}"
-```
-
-### 2. Check Plugin Installation
+ccbell.sh automatically detects the plugin root.
 
 ```bash
 echo "=== ccbell Validation ==="
 echo ""
 
 # Check if plugin root exists
-if [ -d "$PLUGIN_ROOT" ]; then
-    echo "Plugin directory: OK ($PLUGIN_ROOT)"
+if [ -d "$HOME/.claude/plugins/cache/cc-plugins/ccbell/${PLUGIN_VERSION}" ]; then
+    echo "Plugin directory: OK ($HOME/.claude/plugins/cache/cc-plugins/ccbell/${PLUGIN_VERSION})"
+elif [ -d "$HOME/.claude/plugins/marketplace/cc-plugins/plugins/ccbell" ]; then
+    echo "Plugin directory: OK (marketplace)"
+elif [ -d "$HOME/.claude/plugins/local/ccbell" ]; then
+    echo "Plugin directory: OK (local)"
 else
-    echo "Plugin directory: MISSING ($PLUGIN_ROOT)"
+    echo "Plugin directory: MISSING"
     echo "Please ensure the plugin is installed."
     exit 1
 fi
 
 # Check if ccbell.sh script exists
-if [ -x "$PLUGIN_ROOT/scripts/ccbell.sh" ]; then
+if [ -x "$HOME/.claude/plugins/cache/cc-plugins/ccbell/${PLUGIN_VERSION}/scripts/ccbell.sh" ]; then
     echo "ccbell.sh script: OK (executable)"
 else
     echo "ccbell.sh script: ERROR (not found or not executable)"
-    echo "Expected at: $PLUGIN_ROOT/scripts/ccbell.sh"
     exit 1
 fi
 ```
 
-### 3. Check Sound Files
+### 2. Check Sound Files
 
 ```bash
 echo ""
 echo "=== Sound Files Check ==="
 
+PLUGIN_ROOT="$HOME/.claude/plugins/cache/cc-plugins/ccbell/${PLUGIN_VERSION}"
 REQUIRED_SOUNDS=("stop" "permission_prompt" "subagent")
 SOUNDS_OK=0
 SOUNDS_MISSING=0
@@ -69,7 +69,7 @@ if [ $SOUNDS_MISSING -gt 0 ]; then
 fi
 ```
 
-### 4. Audio Player & Sound Playback
+### 3. Audio Player & Sound Playback
 
 ```bash
 echo ""
@@ -146,7 +146,7 @@ for sound in "${REQUIRED_SOUNDS[@]}"; do
 done
 ```
 
-### 5. Download/Verify Binary
+### 4. Download/Verify Binary
 
 ```bash
 echo ""
@@ -172,7 +172,7 @@ else
 fi
 ```
 
-### 6. Play Sounds with ccbell Binary
+### 5. Play Sounds with ccbell Binary
 
 ```bash
 echo ""
@@ -189,20 +189,6 @@ for sound in "${REQUIRED_SOUNDS[@]}"; do
     fi
     sleep 0.3
 done
-```
-
-### 7. Check Dependencies
-
-```bash
-echo ""
-echo "=== Dependencies ==="
-
-# Check for jq (optional)
-if command -v jq &>/dev/null; then
-    echo "jq: OK ($(jq --version))"
-else
-    echo "jq: NOT INSTALLED (optional - using fallback defaults)"
-fi
 
 echo ""
 echo "=== Validation Complete ==="
