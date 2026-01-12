@@ -4,7 +4,7 @@ set -euo pipefail
 
 REPO="mpolatcan/ccbell"
 BINARY_NAME="ccbell"
-PLUGIN_VERSION="0.2.6"
+PLUGIN_VERSION="0.2.7"
 
 # Detect platform
 detect_os() {
@@ -71,17 +71,17 @@ main() {
 
     # Download binary if missing
     if [[ ! -f "$binary" ]]; then
-        local os arch archive_ext archive_name url
+        local os arch archive_ext archive_name url tmp_file
         os=$(detect_os)
         arch=$(detect_arch)
         archive_ext="tar.gz"
-        [[ "$os" == "windows" ]] && archive_ext="zip"
+        suffix=".tar.gz"
+        [[ "$os" == "windows" ]] && { archive_ext="zip"; suffix=".zip"; }
         archive_name="${BINARY_NAME}-${os}-${arch}.${archive_ext}"
         url="https://github.com/${REPO}/releases/latest/download/${archive_name}"
 
         echo "ccbell: Downloading binary..." >&2
-        local tmp_file
-        tmp_file=$(mktemp)
+        tmp_file=$(mktempXXXXXX)$suffix
 
         # Cleanup on exit
         trap 'rm -f "$tmp_file"' EXIT
@@ -92,30 +92,30 @@ main() {
         elif command -v wget &>/dev/null; then
             wget -q "$url" -O "$tmp_file" || { echo "ccbell: Download failed" >&2; exit 1; }
         else
-            echo "ccbell: Neither curl nor wget found" >&2
+            echo "ccbell: Error: Neither curl nor wget found" >&2
             exit 1
         fi
 
         # Extract
         if [[ "$archive_ext" == "tar.gz" ]]; then
-            tar -xzf "$tmp_file" -C "$bin_dir" || { echo "ccbell: Extraction failed" >&2; exit 1; }
+            tar -xzf "$tmp_file" -C "$bin_dir" || { echo "ccbell: Error: Extraction failed" >&2; exit 1; }
         else
-            unzip -q "$tmp_file" -d "$bin_dir" || { echo "ccbell: Extraction failed" >&2; exit 1; }
+            unzip -q "$tmp_file" -d "$bin_dir" || { echo "ccbell: Error: Extraction failed" >&2; exit 1; }
         fi
 
         # Rename extracted binary to just 'ccbell'
         local extracted_binary="${bin_dir}/${BINARY_NAME}-${os}-${arch}"
         [[ "$os" == "windows" ]] && extracted_binary="${extracted_binary}.exe"
         if [[ -f "$extracted_binary" ]]; then
-            mv "$extracted_binary" "$binary" || { echo "ccbell: Failed to rename binary" >&2; exit 1; }
+            mv "$extracted_binary" "$binary" || { echo "ccbell: Error: Failed to rename binary" >&2; exit 1; }
         else
-            echo "ccbell: Extracted binary not found at ${extracted_binary}" >&2
+            echo "ccbell: Error: Extracted binary not found at ${extracted_binary}" >&2
             ls -la "$bin_dir" >&2 || true
             exit 1
         fi
 
-        chmod +x "$binary" || { echo "ccbell: Failed to set executable permission" >&2; exit 1; }
-        echo "ccbell: Installed to ${binary}" >&2
+        chmod +x "$binary" || { echo "ccbell: Error: Failed to set executable permission" >&2; exit 1; }
+        echo "ccbell: Downloaded to ${binary}" >&2
     fi
 
     # Run ccbell
