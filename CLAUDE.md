@@ -28,6 +28,25 @@ plugins/ccbell/
 
 Plugin schemas and hook events may change. Always consult the official documentation.
 
+### Plugins Documentation (ALWAYS refer to these)
+
+**Main Plugins Reference:** https://code.claude.com/docs/en/plugins-reference
+
+#### Within Plugins Reference:
+| Section | URL |
+|---------|-----|
+| **Plugin Manifest** | https://code.claude.com/docs/en/plugins-reference#manifest |
+| **Commands** | https://code.claude.com/docs/en/plugins-reference#commands |
+| **Hooks in Plugins** | https://code.claude.com/docs/en/plugins-reference#hooks |
+| **Manifest Schema** | https://code.claude.com/docs/en/plugins-reference#manifest-schema |
+| **Command Spec** | https://code.claude.com/docs/en/plugins-reference#command-spec |
+| **Hook Spec** | https://code.claude.com/docs/en/plugins-reference#hook-spec |
+
+**Also See:**
+- **Plugins Overview** - https://code.claude.com/docs/en/plugins
+- **Discover Plugins** - https://code.claude.com/docs/en/discover-plugins
+- **Plugin Marketplaces** - https://code.claude.com/docs/en/plugin-marketplaces
+
 ### Hooks Documentation (ALWAYS refer to these)
 
 **Main Hooks Reference:** https://code.claude.com/docs/en/hooks
@@ -40,13 +59,6 @@ Plugin schemas and hook events may change. Always consult the official documenta
 | **Matcher** | https://code.claude.com/docs/en/hooks#matcher |
 | **Timeout** | https://code.claude.com/docs/en/hooks#timeout |
 | **Input/Output** | https://code.claude.com/docs/en/hooks#inputoutput |
-
-#### Related in Plugins Reference:
-| Section | URL |
-|---------|-----|
-| **Plugin Manifest** | https://code.claude.com/docs/en/plugins-reference#manifest |
-| **Commands** | https://code.claude.com/docs/en/plugins-reference#commands |
-| **Hooks in Plugins** | https://code.claude.com/docs/en/plugins-reference#hooks |
 
 **ALWAYS consult these pages for:**
 - Complete list of available hook events (Stop, PermissionPrompt, Notification, UserPromptSubmit, SubagentStop, etc.)
