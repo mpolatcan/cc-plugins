@@ -12,203 +12,199 @@ Run a comprehensive validation of the ccbell plugin installation and configurati
 ### 1. Check Plugin Installation
 
 ```bash
-# Check if plugin root exists
+# Set plugin root
 PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$HOME/.claude/plugins/local/ccbell}"
+SCRIPTS_DIR="$PLUGIN_ROOT/scripts"
+
+echo "=== ccbell Validation ==="
+echo ""
+
+# Check if plugin root exists
 if [ -d "$PLUGIN_ROOT" ]; then
     echo "Plugin directory: OK ($PLUGIN_ROOT)"
 else
     echo "Plugin directory: MISSING ($PLUGIN_ROOT)"
+    echo "Please ensure the plugin is installed."
+    exit 1
 fi
 
-# Check if ccbell binary exists and is executable
-if [ -x "$PLUGIN_ROOT/bin/ccbell" ]; then
-    echo "Binary: OK (executable)"
-    echo "  Version: $("$PLUGIN_ROOT/bin/ccbell" --version 2>/dev/null || echo "unknown")"
+# Check if ccbell.sh script exists
+if [ -x "$SCRIPTS_DIR/ccbell.sh" ]; then
+    echo "ccbell.sh script: OK (executable)"
 else
-    echo "Binary: ERROR (not found or not executable at $PLUGIN_ROOT/bin/ccbell)"
+    echo "ccbell.sh script: ERROR (not found or not executable)"
+    echo "Expected at: $SCRIPTS_DIR/ccbell.sh"
+    exit 1
 fi
-
-# Check bundled sounds
-for sound in stop permission_prompt idle_prompt subagent; do
-    if [ -f "$PLUGIN_ROOT/sounds/${sound}.aiff" ]; then
-        echo "Bundled sound ($sound): OK"
-    else
-        echo "Bundled sound ($sound): MISSING"
-    fi
-done
 ```
 
-### 2. Check Dependencies
+### 2. Download/Verify Binary
 
 ```bash
-# Check for jq (optional but recommended)
-if command -v jq &>/dev/null; then
-    echo "jq: OK ($(jq --version))"
-else
-    echo "jq: NOT INSTALLED (using fallback defaults)"
-fi
+echo ""
+echo "=== Binary Check ==="
 
-# Check audio player
-# Use POSIX-compatible shell checks
-case "$(uname 2>/dev/null || echo 'unknown')" in
+BIN_DIR="$PLUGIN_ROOT/bin"
+BINARY="$BIN_DIR/ccbell"
+
+# Try to download/ensure binary exists by running ccbell.sh with stop event
+# This will download the binary if missing
+echo "Checking/.downloading ccbell binary..."
+
+if "$SCRIPTS_DIR/ccbell.sh" stop 2>&1; then
+    echo "Binary: OK (download/verified successfully)"
+
+    # Get version info
+    if [ -x "$BINARY" ]; then
+        VERSION=$("$BINARY" --version 2>/dev/null || echo "unknown")
+        echo "  Version: $VERSION"
+    fi
+else
+    echo "Binary: ERROR (download/verification failed)"
+    exit 1
+fi
+```
+
+### 3. Check Sound Files
+
+```bash
+echo ""
+echo "=== Sound Files Check ==="
+
+SOUNDS_DIR="$PLUGIN_ROOT/sounds"
+REQUIRED_SOUNDS=("stop" "permission_prompt" "idle_prompt" "subagent")
+SOUNDS_OK=0
+SOUNDS_MISSING=0
+
+for sound in "${REQUIRED_SOUNDS[@]}"; do
+    SOUND_FILE="$SOUNDS_DIR/${sound}.aiff"
+    if [ -f "$SOUND_FILE" ]; then
+        echo "Sound ($sound): OK"
+        SOUNDS_OK=$((SOUNDS_OK + 1))
+    else
+        echo "Sound ($sound): MISSING"
+        SOUNDS_MISSING=$((SOUNDS_MISSING + 1))
+    fi
+done
+
+echo ""
+echo "Sounds: $SOUNDS_OK/$((SOUNDS_OK + SOUNDS_MISSING)) found"
+
+if [ $SOUNDS_MISSING -gt 0 ]; then
+    echo "Warning: Some sound files are missing"
+fi
+```
+
+### 4. Execute Sounds (Test Playback)
+
+```bash
+echo ""
+echo "=== Sound Playback Test ==="
+
+# Detect platform and audio player
+OS_TYPE="$(uname 2>/dev/null || echo 'unknown')"
+AUDIO_PLAYER=""
+
+case "$OS_TYPE" in
     Darwin)
         if command -v afplay &>/dev/null; then
-            echo "Audio player (macOS): OK (afplay)"
-        else
-            echo "Audio player (macOS): ERROR (afplay not found)"
+            AUDIO_PLAYER="afplay"
         fi
         ;;
     Linux)
-        players=("paplay" "aplay" "mpv" "ffplay")
-        found=""
-        for player in "${players[@]}"; do
+        for player in paplay aplay mpv ffplay; do
             if command -v "$player" &>/dev/null; then
-                found="$player"
+                AUDIO_PLAYER="$player"
                 break
             fi
         done
-        if [ -n "$found" ]; then
-            echo "Audio player (Linux): OK ($found)"
-        else
-            echo "Audio player (Linux): ERROR (no player found - install pulseaudio, alsa, mpv, or ffmpeg)"
-        fi
         ;;
 esac
-```
 
-### 3. Check Configuration
-
-```bash
-# Check for config files
-PROJECT_CONFIG="${CLAUDE_PROJECT_DIR:-.}/.claude/ccbell.config.json"
-GLOBAL_CONFIG="$HOME/.claude/ccbell.config.json"
-
-if [ -f "$PROJECT_CONFIG" ]; then
-    echo "Project config: FOUND ($PROJECT_CONFIG)"
-    # Validate JSON
-    if command -v jq &>/dev/null && jq empty "$PROJECT_CONFIG" 2>/dev/null; then
-        echo "  JSON syntax: VALID"
-    else
-        echo "  JSON syntax: INVALID or jq not available"
-    fi
-elif [ -f "$GLOBAL_CONFIG" ]; then
-    echo "Global config: FOUND ($GLOBAL_CONFIG)"
-    if command -v jq &>/dev/null && jq empty "$GLOBAL_CONFIG" 2>/dev/null; then
-        echo "  JSON syntax: VALID"
-    else
-        echo "  JSON syntax: INVALID or jq not available"
-    fi
+if [ -z "$AUDIO_PLAYER" ]; then
+    echo "Audio player: ERROR (no suitable player found for $OS_TYPE)"
+    echo "  macOS requires: afplay"
+    echo "  Linux requires: paplay, aplay, mpv, or ffplay"
 else
-    echo "Config: NONE (using defaults)"
-fi
-```
+    echo "Audio player ($OS_TYPE): OK ($AUDIO_PLAYER)"
 
-### 4. Check Configuration Values
-
-If a config file exists and jq is available, validate the configuration structure:
-
-```bash
-CONFIG_FILE=""
-if [ -f "$PROJECT_CONFIG" ]; then
-    CONFIG_FILE="$PROJECT_CONFIG"
-elif [ -f "$GLOBAL_CONFIG" ]; then
-    CONFIG_FILE="$GLOBAL_CONFIG"
-fi
-
-if [ -n "$CONFIG_FILE" ] && command -v jq &>/dev/null; then
+    # Test each sound
     echo ""
-    echo "Configuration Details:"
-    echo "  Enabled: $(jq -r '.enabled // "true (default)"' "$CONFIG_FILE")"
-    echo "  Debug mode: $(jq -r '.debug // "false (default)"' "$CONFIG_FILE")"
-    echo "  Active profile: $(jq -r '.activeProfile // "default"' "$CONFIG_FILE")"
+    echo "Playing test sounds..."
 
-    # Check quiet hours
-    quiet_start=$(jq -r '.quietHours.start // empty' "$CONFIG_FILE")
-    quiet_end=$(jq -r '.quietHours.end // empty' "$CONFIG_FILE")
-    if [ -n "$quiet_start" ] && [ -n "$quiet_end" ]; then
-        echo "  Quiet hours: $quiet_start - $quiet_end"
-    else
-        echo "  Quiet hours: not configured"
-    fi
+    for sound in "${REQUIRED_SOUNDS[@]}"; do
+        SOUND_FILE="$SOUNDS_DIR/${sound}.aiff"
+        if [ -f "$SOUND_FILE" ]; then
+            echo -n "  Testing $sound... "
 
-    echo ""
-    echo "Events:"
-    for event in stop permission_prompt idle_prompt subagent; do
-        enabled=$(jq -r ".events.${event}.enabled // \"true\"" "$CONFIG_FILE")
-        sound=$(jq -r ".events.${event}.sound // \"bundled:${event}\"" "$CONFIG_FILE")
-        volume=$(jq -r ".events.${event}.volume // \"0.5\"" "$CONFIG_FILE")
-        cooldown=$(jq -r ".events.${event}.cooldown // \"0\"" "$CONFIG_FILE")
-        echo "  $event: enabled=$enabled sound=$sound vol=$volume cooldown=${cooldown}s"
+            case "$OS_TYPE" in
+                Darwin)
+                    afplay -v 0.2 "$SOUND_FILE" 2>/dev/null && echo "OK" || echo "FAILED"
+                    sleep 0.5
+                    ;;
+                Linux)
+                    case "$AUDIO_PLAYER" in
+                        paplay)
+                            paplay "$SOUND_FILE" 2>/dev/null && echo "OK" || echo "FAILED"
+                            ;;
+                        aplay)
+                            aplay -q "$SOUND_FILE" && echo "OK" || echo "FAILED"
+                            ;;
+                        mpv)
+                            mpv --no-video --volume=30 "$SOUND_FILE" 2>/dev/null && echo "OK" || echo "FAILED"
+                            ;;
+                        ffplay)
+                            ffplay -nodisp -autoexit -volume=30 "$SOUND_FILE" 2>/dev/null && echo "OK" || echo "FAILED"
+                            ;;
+                    esac
+                    sleep 0.5
+                    ;;
+                *)
+                    echo "SKIPPED (unsupported platform)"
+                    ;;
+            esac
+        else
+            echo "  Testing $sound... SKIPPED (file missing)"
+        fi
     done
-
-    # Check profiles
-    profiles=$(jq -r '.profiles | keys[]? // empty' "$CONFIG_FILE" 2>/dev/null)
-    if [ -n "$profiles" ]; then
-        echo ""
-        echo "Profiles:"
-        echo "$profiles" | while read -r profile; do
-            echo "  - $profile"
-        done
-    fi
 fi
 ```
 
-### 5. Test Sound Playback
+### 5. Check Dependencies
 
 ```bash
-# Quick sound test
 echo ""
-echo "Sound Test:"
-PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$HOME/.claude/plugins/local/ccbell}"
-TEST_SOUND="$PLUGIN_ROOT/sounds/stop.aiff"
+echo "=== Dependencies ==="
 
-if [ -f "$TEST_SOUND" ]; then
-    case "$(uname 2>/dev/null || echo 'unknown')" in
-        Darwin)
-            afplay -v 0.3 "$TEST_SOUND" &
-            echo "  Playing test sound (stop.aiff at 30% volume)"
-            ;;
-        Linux)
-            if command -v paplay &>/dev/null; then
-                paplay "$TEST_SOUND" &
-                echo "  Playing test sound with paplay"
-            else
-                echo "  Skipped (no audio player)"
-            fi
-            ;;
-        *)
-            echo "  Skipped (unsupported platform)"
-            ;;
-    esac
+# Check for jq (optional)
+if command -v jq &>/dev/null; then
+    echo "jq: OK ($(jq --version))"
 else
-    echo "  ERROR: Test sound file not found"
+    echo "jq: NOT INSTALLED (optional - using fallback defaults)"
 fi
+
+echo ""
+echo "=== Validation Complete ==="
 ```
 
-### 6. Check Log File (if debug enabled)
+## Summary
 
-```bash
-LOG_FILE="$HOME/.claude/ccbell.log"
-if [ -f "$LOG_FILE" ]; then
-    echo ""
-    echo "Debug log exists: $LOG_FILE"
-    echo "Last 5 entries:"
-    tail -5 "$LOG_FILE" | sed 's/^/  /'
-fi
-```
+| Component | Status |
+|-----------|--------|
+| Plugin directory | OK/MISSING |
+| ccbell.sh script | OK/ERROR |
+| Binary download | OK/ERROR |
+| Sound files | OK/MISSING (count) |
+| Audio player | OK/ERROR (player name) |
 
-## Output Summary
+## Troubleshooting
 
-Present a summary table:
+If binary download fails:
+- Check internet connectivity
+- Verify GitHub releases are accessible: https://github.com/mpolatcan/ccbell/releases
+- Ensure write permission to `$PLUGIN_ROOT/bin`
 
-| Component | Status | Notes |
-|-----------|--------|-------|
-| Plugin directory | OK/MISSING | Path |
-| ccbell binary | OK/ERROR | Version and executable check |
-| Bundled sounds | OK/PARTIAL | Count found |
-| jq dependency | OK/MISSING | Optional |
-| Audio player | OK/ERROR | Player name |
-| Config file | OK/DEFAULT | Path or default |
-| JSON syntax | VALID/INVALID | If config exists |
-
-If any critical issues are found, provide specific remediation steps.
+If sounds fail to play:
+- Check audio player installation
+- Verify sound files exist in `$PLUGIN_ROOT/sounds`
+- Check system volume settings
