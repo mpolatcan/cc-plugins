@@ -167,5 +167,6 @@ When validating plugin code, ALWAYS use BOTH methods:
 Distributes audio notifications for:
 - :stop_button: `Stop` - Claude finishes responding
 - :question: `Notification` (permission_prompt) - Claude needs permission
-- :hourglass: `Notification` (idle_prompt) - User waiting for input
 - :robot: `SubagentStop` - Subagent task completes
+
+**Note:** `idle_prompt` is not currently supported as a hook event in Claude Code.
