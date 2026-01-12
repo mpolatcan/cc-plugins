@@ -12,7 +12,6 @@ Disable ccbell sound notifications.
 ### 1. Find Configuration File
 
 Check for config at:
-- Project: `.claude/ccbell.config.json`
 - Global: `~/.claude/ccbell.config.json`
 
 ### 2. Update Configuration

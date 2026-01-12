@@ -12,7 +12,6 @@ Enable ccbell sound notifications globally.
 ### 1. Find Configuration File
 
 Check for config at:
-- Project: `.claude/ccbell.config.json`
 - Global: `~/.claude/ccbell.config.json`
 
 ### 2. Update or Create Configuration
@@ -57,8 +56,7 @@ If no config exists, create a default one:
 
 ### 3. Write Configuration
 
-Write the updated config. Project config takes precedence:
-- Project: `.claude/ccbell.config.json`
+Write the updated config to:
 - Global: `~/.claude/ccbell.config.json`
 
 ### 4. Confirm

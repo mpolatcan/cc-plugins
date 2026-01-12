@@ -140,7 +140,7 @@ If custom is selected, ask for start and end times in HH:MM format.
 
 ### 7. Write Configuration
 
-Create the configuration file at `.claude/ccbell.config.json` (project) or `~/.claude/ccbell.config.json` (global):
+Create the configuration file at `~/.claude/ccbell.config.json`:
 
 ```json
 {

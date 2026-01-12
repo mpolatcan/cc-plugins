@@ -76,10 +76,7 @@ Check potential issues:
 
 ```bash
 # Check if currently in quiet hours
-CONFIG_FILE="${CLAUDE_PROJECT_DIR:-.}/.claude/ccbell.config.json"
-if [ ! -f "$CONFIG_FILE" ]; then
-    CONFIG_FILE="$HOME/.claude/ccbell.config.json"
-fi
+CONFIG_FILE="$HOME/.claude/ccbell.config.json"
 
 if [ -f "$CONFIG_FILE" ] && command -v jq &>/dev/null; then
     quiet_start=$(jq -r '.quietHours.start // empty' "$CONFIG_FILE")

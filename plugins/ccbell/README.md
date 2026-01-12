@@ -74,8 +74,7 @@ Use your own audio files (MP3, WAV, AIFF, M4A): `custom:/path/to/sound.mp3`
 
 ## Configuration
 
-Config files (project takes precedence over global):
-- **Project:** `.claude/ccbell.config.json`
+Config file:
 - **Global:** `~/.claude/ccbell.config.json`
 
 ### Example Configuration

@@ -26,12 +26,9 @@ When configuring profiles, offer these presets:
 First, read the config and display the current active profile:
 
 ```bash
-CONFIG_FILE="${CLAUDE_PROJECT_DIR:-.}/.claude/ccbell.config.json"
 GLOBAL_CONFIG="$HOME/.claude/ccbell.config.json"
 
-if [ -f "$CONFIG_FILE" ]; then
-    ACTIVE_CONFIG="$CONFIG_FILE"
-elif [ -f "$GLOBAL_CONFIG" ]; then
+if [ -f "$GLOBAL_CONFIG" ]; then
     ACTIVE_CONFIG="$GLOBAL_CONFIG"
 else
     echo "No config found, using defaults"

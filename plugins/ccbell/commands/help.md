@@ -86,10 +86,7 @@ Format: `custom:/path/to/your/sound.mp3`
 ## Configuration
 
 Config is stored at:
-- Project: `.claude/ccbell.config.json`
 - Global: `~/.claude/ccbell.config.json`
-
-Project config takes precedence over global config.
 
 ### Full Config Example
 

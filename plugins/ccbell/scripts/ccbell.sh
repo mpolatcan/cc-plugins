@@ -4,7 +4,7 @@ set -euo pipefail
 
 REPO="mpolatcan/ccbell"
 BINARY_NAME="ccbell"
-PLUGIN_VERSION="0.2.9"
+PLUGIN_VERSION="0.2.10"
 
 # Detect platform
 detect_os() {
@@ -88,11 +88,6 @@ EOF
 
 # Ensure config file exists
 ensure_config() {
-    # Check for project-level config first
-    if [[ -n "${CLAUDE_PROJECT_DIR:-}" ]] && [[ -f "${CLAUDE_PROJECT_DIR}/.claude/ccbell.config.json" ]]; then
-        return 0
-    fi
-
     # Check global config
     local global_config="$HOME/.claude/ccbell.config.json"
     if [[ -f "$global_config" ]]; then

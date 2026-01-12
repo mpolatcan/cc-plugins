@@ -12,7 +12,6 @@ Show current configuration and status.
 ### 1. Read Configuration
 
 Check for config at:
-- Project: `.claude/ccbell.config.json`
 - Global: `~/.claude/ccbell.config.json`
 
 ### 2. Display Status
@@ -60,10 +59,7 @@ Not configured / 22:00 - 07:00 (currently active/inactive)
 Determine if currently in quiet hours:
 
 ```bash
-CONFIG_FILE="${CLAUDE_PROJECT_DIR:-.}/.claude/ccbell.config.json"
-if [ ! -f "$CONFIG_FILE" ]; then
-    CONFIG_FILE="$HOME/.claude/ccbell.config.json"
-fi
+CONFIG_FILE="$HOME/.claude/ccbell.config.json"
 
 quiet_start=$(jq -r '.quietHours.start // empty' "$CONFIG_FILE")
 quiet_end=$(jq -r '.quietHours.end // empty' "$CONFIG_FILE")
