@@ -10,10 +10,10 @@
   "plugins": [
     {
       "name": "ccbell",
-      "description": "Audio notifications for Claude Code events - play sounds when Claude finishes responding, needs permission, or when a subagent completes",
+      "description": "Audio notifications for Claude Code events - play sounds when Claude finishes responding, needs permission, is waiting for input, or when a subagent completes",
       "source": "./plugins/ccbell",
       "category": "productivity",
-      "tags": ["sound", "notification", "audio", "alert", "productivity"]
+      "tags": ["sound", "notification", "audio", "alert"]
     }
   ]
 }
