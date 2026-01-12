@@ -3,30 +3,48 @@
   "hooks": {
     "Stop": [
       {
-        "type": "command",
-        "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh stop",
-        "timeout": 10
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh stop",
+            "timeout": 10
+          }
+        ]
       }
     ],
     "Notification": [
       {
         "matcher": "permission_prompt",
-        "type": "command",
-        "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh permission_prompt",
-        "timeout": 10
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh permission_prompt",
+            "timeout": 10
+          }
+        ]
       },
       {
         "matcher": "idle_prompt",
-        "type": "command",
-        "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh idle_prompt",
-        "timeout": 10
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh idle_prompt",
+            "timeout": 10
+          }
+        ]
       }
     ],
     "SubagentStop": [
       {
-        "type": "command",
-        "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh subagent",
-        "timeout": 10
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh subagent",
+            "timeout": 10
+          }
+        ]
       }
     ]
   }
