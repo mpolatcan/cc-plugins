@@ -76,7 +76,7 @@ plugins/ccbell/
 **:rotating_light: Critical Plugin Structure Rules (from official claude-code repo):rotating_light:**
 
 - `plugin.json` must be in `.claude-plugin/` folder at plugin root
-- **Do NOT** add `hooks` field to `plugin.json` - hooks are **auto-discovered** from `hooks/hooks.json`
+- `hooks` can be defined inline in `plugin.json` OR in `hooks/hooks.json` (hooks.json preferred for complex plugins)
 - Commands are **auto-discovered** from `commands/` directory
 - See [security-guidance](https://github.com/anthropics/claude-code/tree/main/plugins/security-guidance) as reference plugin
 
@@ -166,13 +166,120 @@ When validating plugin code, ALWAYS use BOTH methods:
 
 **:clipboard: VALIDATION CHECKLIST (NEVER SKIP):**
 - :white_check_mark: Verify `plugin.json` is in `.claude-plugin/` folder (not plugin root)
-- :white_check_mark: **Do NOT** include `hooks` field in `plugin.json` - hooks auto-discovered
-- :white_check_mark: Verify hooks are in `hooks/hooks.json` at plugin root
+- :white_check_mark: `hooks` can be in `plugin.json` (inline) or `hooks/hooks.json` (preferred for complex plugins)
+- :white_check_mark: Verify hooks are in `hooks/hooks.json` at plugin root (if using hooks.json)
 - :white_check_mark: Confirm hook event names are current (e.g., `Notification`, `Stop`, `SubagentStop`)
 - :white_check_mark: Validate hook structure format (wrapper with `description` + `hooks` object)
 - :white_check_mark: Validate hook type specifications (command, agent, skill)
 - :white_check_mark: Check matcher patterns and syntax are up to date
 - :white_check_mark: Confirm timeout defaults and maximum values
+
+## :bookmark: Version Bumping Process :rocket:
+
+**:warning: CRITICAL: ALWAYS bump version on every change. Never skip.**
+
+This project uses **Semantic Versioning (SemVer)** for plugin releases:
+- `MAJOR` - Breaking changes (incompatible API changes)
+- `MINOR` - New features (backward-compatible)
+- `PATCH` - Bug fixes (backward-compatible)
+
+### :clipboard: Version Sync Rule
+
+**:rotating_light: VERSION MUST BE SYNCED BETWEEN BOTH REPOSITORIES :rotating_light:**
+
+| Repository | File | Field |
+|------------|------|-------|
+| cc-plugins | `plugins/ccbell/.claude-plugin/plugin.json` | `version` |
+| cc-plugins | `plugins/ccbell/scripts/ccbell.sh` | `PLUGIN_VERSION` |
+| ccbell | Built binary | `main.version` (via LDFLAGS) |
+
+**When updating either repository, bump BOTH cc-plugins AND ccbell to the same version.**
+
+### :arrows_counterclockwise: Version Bump Type Decision
+
+| Change Type | Version Bump |
+|-------------|--------------|
+| Bug fixes, patches | `PATCH` (x.y.Z+1) |
+| New features (backward-compatible) | `MINOR` (x.Y+1.0) |
+| Breaking changes, removals | `MAJOR` (X+1.0.0) |
+
+### :gear: Version Bump Process (cc-plugins)
+
+**Step 1: Get current version**
+```bash
+cd plugins/ccbell
+CURRENT_VERSION=$(grep '"version"' .claude-plugin/plugin.json | sed 's/.*: *"\([^"]*\)".*/\1/')
+echo "Current version: $CURRENT_VERSION"
+```
+
+**Step 2: Calculate new version**
+
+For **PATCH** release:
+```bash
+IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+PATCH=${PATCH:-0}
+PATCH=$((PATCH + 1))
+NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+```
+
+For **MINOR** release:
+```bash
+IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+MINOR=${MINOR:-0}
+PATCH=0
+MINOR=$((MINOR + 1))
+NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+```
+
+For **MAJOR** release:
+```bash
+IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+MINOR=0
+PATCH=0
+MAJOR=$((MAJOR + 1))
+NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+```
+
+**Step 3: Update cc-plugins files**
+```bash
+# Update plugin.json
+sed -i '' "s/\"version\": *\"${CURRENT_VERSION}\"/\"version\": \"${NEW_VERSION}\"/" .claude-plugin/plugin.json
+
+# Update ccbell.sh
+sed -i '' "s/PLUGIN_VERSION=\"${CURRENT_VERSION}\"/PLUGIN_VERSION=\"${NEW_VERSION}\"/" scripts/ccbell.sh
+
+# Verify
+grep -E '(version|PLUGIN_VERSION)' .claude-plugin/plugin.json scripts/ccbell.sh
+```
+
+**Step 4: Commit cc-plugins**
+```bash
+git add .claude-plugin/plugin.json scripts/ccbell.sh
+git commit -m "chore(ccbell): bump version to v${NEW_VERSION}"
+git push
+```
+
+**Step 5: Tag ccbell source repo**
+```bash
+cd ../../ccbell
+git tag v${NEW_VERSION}
+git push origin v${NEW_VERSION}
+```
+
+### :checklist: Release Checklist
+
+**:rotating_light: MANDATORY - Do not skip any step :rotating_light:**
+
+1. [ ] Determine version bump type (patch/minor/major)
+2. [ ] Get current version from `plugins/ccbell/.claude-plugin/plugin.json`
+3. [ ] Calculate new version
+4. [ ] **ALWAYS bump version** - Never skip, even for "small" changes
+5. [ ] Update `plugin.json` and `ccbell.sh` in cc-plugins
+6. [ ] Commit and push cc-plugins
+7. [ ] Create git tag in ccbell: `git tag v<version>`
+8. [ ] Push tag to ccbell: `git push origin v<version>`
+
+**:no_entry_sign: NEVER skip version bumping - even documentation-only changes require a version bump**
 
 ## ccbell Plugin :bell:
 
@@ -180,4 +287,26 @@ Distributes audio notifications for:
 - :stop_button: `Stop` - Claude finishes responding
 - :question: `Notification` (permission_prompt, idle_prompt) - Claude needs permission or is waiting
 - :robot: `SubagentStop` - Subagent task completes
+
+### Commands
+
+| Command | Description |
+|---------|-------------|
+| `/ccbell:configure` | Interactive setup for sounds, events, cooldowns, and quiet hours |
+| `/ccbell:test [event]` | Test sounds (all or specific event) |
+| `/ccbell:enable` | Enable all notifications |
+| `/ccbell:disable` | Disable all notifications |
+| `/ccbell:status` | Show current configuration |
+| `/ccbell:profile` | Switch between sound profiles |
+| `/ccbell:validate` | Run installation diagnostics |
+| `/ccbell:help` | Show help and documentation |
+
+### Supported Events
+
+| Event | Hook | Description |
+|-------|------|-------------|
+| `stop` | `Stop` | Claude finishes responding |
+| `permission_prompt` | `Notification` | Claude needs your permission |
+| `idle_prompt` | `Notification` | Claude is waiting for input |
+| `subagent` | `SubagentStop` | Background agent completes |
 
