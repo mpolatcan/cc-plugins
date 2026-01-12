@@ -24,25 +24,37 @@ plugins/ccbell/
     └── ccbell.sh       # Auto-downloads binary from GitHub releases
 ```
 
-## CRITICAL: ALWAYS Verify Against Official Documentation
+## CRITICAL: ALWAYS Validate Against Official Documentation
 
-**Plugin schemas, hook events, and manifest formats may change between Claude Code versions.**
+**ALWAYS use `context7` MCP tool to query official Claude Code documentation before validating or modifying any plugin code. NEVER skip this step.**
 
-**NEVER assume existing code is correct. ALWAYS verify against the official documentation before making any changes or validating plugin structures.**
+**NEVER assume existing code is correct. Plugin schemas, hook events, manifest formats, and command specifications change between Claude Code versions. Always verify against the latest official documentation.**
 
-### How to Verify
+### Mandatory Validation Steps
 
-Use the `context7` MCP tool to query the latest official documentation:
+1. **Resolve library ID:**
+   ```
+   mcp__context7__resolve-library-id with libraryName="claude-code" and query="Claude Code plugins hooks manifest"
+   ```
 
-```
-1. Resolve library: mcp__context7__resolve-library-id with libraryName="claude-code"
-2. Query docs: mcp__context7__query-docs with libraryId from step 1
-```
+2. **Query official documentation:**
+   ```
+   mcp__context7__query-docs with libraryId from step 1 and query="plugin manifest schema hooks commands specification"
+   ```
 
-Example queries:
+3. **Validate structure before making changes:**
+   - Verify `plugin.json` format matches official spec
+   - Confirm hook structure (array vs object format)
+   - Validate command specification format
+   - Check timeout and matcher syntax
+
+### Required Queries for Plugin Validation
+
+When validating plugin code, ALWAYS query these topics:
 - "plugin manifest schema JSON structure commands hooks specification"
 - "hooks.json hook event matcher type command timeout configuration"
 - "plugin.json hooks array format with event field inline hooks specification schema"
+- "command specification format name description slash command"
 
 ### Plugins Documentation (ALWAYS refer to these)
 
@@ -63,7 +75,7 @@ Example queries:
 - **Discover Plugins** - https://code.claude.com/docs/en/discover-plugins
 - **Plugin Marketplaces** - https://code.claude.com/docs/en/plugin-marketplaces
 
-### Hooks Documentation (NEVER SKIP - Always verify against these)
+### Hooks Documentation (ALWAYS validate - NEVER skip)
 
 **Main Hooks Reference:** https://code.claude.com/docs/en/hooks
 
