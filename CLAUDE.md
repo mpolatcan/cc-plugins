@@ -12,15 +12,21 @@ Contains plugin distributions that users install via `/plugin install <plugin_na
 
 Claude Code plugins do NOT support `scripts/postinstall` in the plugin manifest. The binary must be installed manually or via a different mechanism.
 
+**Always refer to the official Claude Code documentation for the latest plugin and hooks specifications:**
+- [Plugins Reference](https://code.claude.com/docs/en/plugins-reference)
+- [Hooks Reference](https://code.claude.com/docs/en/hooks)
+
+Plugin schemas and hook events may change. The documentation below reflects the current state at the time of writing.
+
 ## Structure
 
 ```
 plugins/ccbell/
-├── .claude-plugin/     # Plugin manifest (plugin.json, marketplace.json)
+├── plugin.json         # Plugin manifest
 ├── hooks/              # Claude Code hook definitions (hooks.json)
 ├── sounds/             # Audio files (.aiff)
 ├── commands/           # Slash command documentation (.md)
-├── scripts/            # install.sh (not auto-executed - run manually after plugin install)
+├── scripts/            # ccbell.sh (auto-downloads binary from GitHub releases)
 └── README.md           # Plugin documentation
 ```
 
@@ -31,20 +37,38 @@ The `ccbell` plugin distributes:
 - Hook definitions that trigger `ccbell <event>` commands
 - Slash commands (`/ccbell:*`)
 
-**Note:** Binary installation must be done manually after plugin installation:
+**Hook Events Used:**
+| Event | Description |
+|-------|-------------|
+| `Stop` | Claude finishes responding |
+| `PermissionPrompt` | Claude needs permission |
+| `UserPromptSubmit` | User waiting for input |
+| `SubagentStop` | Subagent task completes |
 
-```bash
-# After /plugin install ccbell, run:
-bash ~/.claude/plugins/local/ccbell/plugins/ccbell/scripts/install.sh
+**Hook Structure (hooks.json):**
+```json
+{
+  "Stop": [
+    {
+      "matcher": "*",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "ccbell stop"
+        }
+      ]
+    }
+  ]
+}
 ```
 
-Or download manually from: https://github.com/mpolatcan/ccbell/releases
+**Note:** The `ccbell.sh` script automatically downloads and installs the correct binary for your platform from GitHub releases:
 
 ## Installation Steps
 
 1. Add marketplace: `/plugin marketplace add mpolatcan/cc-plugins`
 2. Install plugin: `/plugin install ccbell`
-3. Download binary: Run `install.sh` manually or download from releases
+3. The `ccbell.sh` script automatically downloads the binary from GitHub releases
 
 ## Note
 
