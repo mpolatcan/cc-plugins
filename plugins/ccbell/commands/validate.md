@@ -11,27 +11,26 @@ Run a comprehensive validation of the ccbell plugin installation and configurati
 
 ### 1. Check Plugin Installation
 
-ccbell.sh automatically detects the plugin root.
+Find latest installed plugin version.
 
 ```bash
 echo "=== ccbell Validation ==="
 echo ""
 
-# Check if plugin root exists
-if [ -d "$HOME/.claude/plugins/cache/cc-plugins/ccbell/${PLUGIN_VERSION}" ]; then
-    echo "Plugin directory: OK ($HOME/.claude/plugins/cache/cc-plugins/ccbell/${PLUGIN_VERSION})"
-elif [ -d "$HOME/.claude/plugins/marketplace/cc-plugins/plugins/ccbell" ]; then
-    echo "Plugin directory: OK (marketplace)"
-elif [ -d "$HOME/.claude/plugins/local/ccbell" ]; then
-    echo "Plugin directory: OK (local)"
-else
+PLUGIN_DIR="$HOME/.claude/plugins/cache/cc-plugins/ccbell"
+LATEST_VERSION=$(find "$PLUGIN_DIR" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | sort -V | tail -1)
+
+if [ -z "$LATEST_VERSION" ]; then
     echo "Plugin directory: MISSING"
     echo "Please ensure the plugin is installed."
     exit 1
 fi
 
+PLUGIN_ROOT="$PLUGIN_DIR/$LATEST_VERSION"
+echo "Plugin directory: OK ($PLUGIN_ROOT)"
+
 # Check if ccbell.sh script exists
-if [ -x "$HOME/.claude/plugins/cache/cc-plugins/ccbell/${PLUGIN_VERSION}/scripts/ccbell.sh" ]; then
+if [ -x "$PLUGIN_ROOT/scripts/ccbell.sh" ]; then
     echo "ccbell.sh script: OK (executable)"
 else
     echo "ccbell.sh script: ERROR (not found or not executable)"

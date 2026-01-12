@@ -9,9 +9,11 @@ Show help and documentation for the ccbell plugin.
 
 ## Response
 
-**Plugin Root:**
-```
-PLUGIN_ROOT="$HOME/.claude/plugins/cache/cc-plugins/ccbell/${PLUGIN_VERSION}"
+**Plugin Root (find latest version):**
+```bash
+PLUGIN_DIR="$HOME/.claude/plugins/cache/cc-plugins/ccbell"
+LATEST_VERSION=$(find "$PLUGIN_DIR" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort -V | tail -1)
+PLUGIN_ROOT="$PLUGIN_DIR/$LATEST_VERSION"
 ```
 
 Provide the following information:

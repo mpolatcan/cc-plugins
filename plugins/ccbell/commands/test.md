@@ -22,18 +22,21 @@ $ARGUMENTS
 
 ### 1. Test Sounds
 
-ccbell.sh automatically detects the plugin root.
+Find latest installed plugin version and test sounds.
 
-**For specific event:**
 ```bash
-"$HOME/.claude/plugins/cache/cc-plugins/ccbell/${PLUGIN_VERSION}/scripts/ccbell.sh" <event_name>
-```
+# Find latest version folder
+PLUGIN_DIR="$HOME/.claude/plugins/cache/cc-plugins/ccbell"
+LATEST_VERSION=$(find "$PLUGIN_DIR" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort -V | tail -1)
+PLUGIN_ROOT="$PLUGIN_DIR/$LATEST_VERSION"
 
-**For all events:**
-```bash
+# Test specific event
+"$PLUGIN_ROOT/scripts/ccbell.sh" <event_name>
+
+# Test all events
 for event in stop permission_prompt subagent; do
   echo "Testing: $event"
-  "$HOME/.claude/plugins/cache/cc-plugins/ccbell/${PLUGIN_VERSION}/scripts/ccbell.sh" "$event"
+  "$PLUGIN_ROOT/scripts/ccbell.sh" "$event"
   sleep 1.5
 done
 ```
@@ -101,7 +104,9 @@ If sounds don't play:
 To test sounds ignoring quiet hours and cooldowns, use ccbell.sh directly:
 
 ```bash
-"$HOME/.claude/plugins/cache/cc-plugins/ccbell/${PLUGIN_VERSION}/scripts/ccbell.sh" stop
+PLUGIN_DIR="$HOME/.claude/plugins/cache/cc-plugins/ccbell"
+LATEST_VERSION=$(find "$PLUGIN_DIR" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort -V | tail -1)
+"$PLUGIN_DIR/$LATEST_VERSION/scripts/ccbell.sh" stop
 ```
 
 This confirms audio output is working independent of ccbell config.
