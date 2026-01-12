@@ -1,7 +1,7 @@
 {
   "name": "ccbell",
   "description": "Audio notifications for Claude Code events with profiles, quiet hours, cooldowns, and debug mode",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "author": {
     "name": "Mutlu Polatcan",
     "email": "mpolatcan@gmail.com"

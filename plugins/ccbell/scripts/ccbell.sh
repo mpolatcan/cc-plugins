@@ -4,7 +4,7 @@ set -euo pipefail
 
 REPO="mpolatcan/ccbell"
 BINARY_NAME="ccbell"
-PLUGIN_VERSION="0.2.8"
+PLUGIN_VERSION="0.2.9"
 
 # Detect platform
 detect_os() {
@@ -45,6 +45,64 @@ get_plugin_root() {
 
     echo ""
     return 1
+}
+
+# Generate default config file
+generate_config() {
+    local config_file="$1"
+
+    cat > "$config_file" << 'EOF'
+{
+  "enabled": true,
+  "debug": false,
+  "activeProfile": "default",
+  "events": {
+    "stop": {
+      "enabled": true,
+      "sound": "bundled:stop",
+      "volume": 0.5,
+      "cooldown": 0
+    },
+    "permission_prompt": {
+      "enabled": true,
+      "sound": "bundled:permission_prompt",
+      "volume": 0.7,
+      "cooldown": 0
+    },
+    "idle_prompt": {
+      "enabled": true,
+      "sound": "bundled:idle_prompt",
+      "volume": 0.5,
+      "cooldown": 0
+    },
+    "subagent": {
+      "enabled": true,
+      "sound": "bundled:subagent",
+      "volume": 0.5,
+      "cooldown": 0
+    }
+  }
+}
+EOF
+}
+
+# Ensure config file exists
+ensure_config() {
+    # Check for project-level config first
+    if [[ -n "${CLAUDE_PROJECT_DIR:-}" ]] && [[ -f "${CLAUDE_PROJECT_DIR}/.claude/ccbell.config.json" ]]; then
+        return 0
+    fi
+
+    # Check global config
+    local global_config="$HOME/.claude/ccbell.config.json"
+    if [[ -f "$global_config" ]]; then
+        return 0
+    fi
+
+    # Create global config if missing
+    mkdir -p "$HOME/.claude"
+    generate_config "$global_config"
+    echo "ccbell: Created default config at ${global_config}" >&2
 }
 
 # Main
@@ -117,6 +175,9 @@ main() {
         chmod +x "$binary" || { echo "ccbell: Error: Failed to set executable permission" >&2; exit 1; }
         echo "ccbell: Downloaded to ${binary}" >&2
     fi
+
+    # Ensure config file exists
+    ensure_config
 
     # Run ccbell
     exec "$binary" "$event"
