@@ -26,7 +26,6 @@ If no config exists, create one with `enabled: false`:
   "enabled": false,
   "debug": false,
   "activeProfile": "default",
-  "quietHours": null,
   "events": {
     "stop": { "enabled": false, "sound": "bundled:stop", "volume": 0.5, "cooldown": 5 },
     "permission_prompt": { "enabled": false, "sound": "bundled:permission_prompt", "volume": 0.7, "cooldown": 0 },

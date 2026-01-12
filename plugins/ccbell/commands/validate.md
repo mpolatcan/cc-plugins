@@ -44,7 +44,6 @@ fi
 echo ""
 echo "=== Sound Files Check ==="
 
-PLUGIN_ROOT="$PLUGIN_DIR/$LATEST_VERSION"
 REQUIRED_SOUNDS=("stop" "permission_prompt" "subagent")
 SOUNDS_OK=0
 SOUNDS_MISSING=0
@@ -92,6 +91,11 @@ case "$OS_TYPE" in
             fi
         done
         ;;
+    MINGW*|MSYS*|CYGWIN*)
+        if command -v powershell &>/dev/null; then
+            AUDIO_PLAYER="powershell"
+        fi
+        ;;
 esac
 
 if [ -z "$AUDIO_PLAYER" ]; then
@@ -133,6 +137,15 @@ for sound in "${REQUIRED_SOUNDS[@]}"; do
                         ffplay -nodisp -autoexit -volume=30 "$SOUND_FILE" 2>/dev/null && echo "OK" || echo "FAILED"
                         ;;
                 esac
+                sleep 0.3
+                ;;
+            MINGW*|MSYS*|CYGWIN*)
+                # Windows with PowerShell
+                if command -v powershell &>/dev/null; then
+                    powershell -c "(New-Object Media.SoundPlayer '$SOUND_FILE').PlaySync()" 2>/dev/null && echo "OK" || echo "FAILED"
+                else
+                    echo "SKIPPED (PowerShell not available)"
+                fi
                 sleep 0.3
                 ;;
             *)

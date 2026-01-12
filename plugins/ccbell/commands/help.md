@@ -30,8 +30,6 @@ other windows without constantly checking if Claude is done.
 - **Permission Prompt** - Plays when Claude needs your permission
 - **Subagent** - Plays when a background agent completes
 
-**Note:** Idle Prompt is not currently supported as a hook event in Claude Code.
-
 ## Commands
 
 | Command | Description |
@@ -153,7 +151,7 @@ Project config takes precedence over global config.
 2. Check cooldown settings
 3. Run `/ccbell:status` to verify config
 4. Enable debug mode and check `~/.claude/ccbell.log`
-5. Verify bundled sounds exist in `$PLUGIN_ROOT/sounds/`
+5. Verify bundled sounds exist in the plugin's sounds/ directory
 
 **Too many notifications?**
 Configure cooldowns in `/ccbell:configure` to add delays between sounds.
