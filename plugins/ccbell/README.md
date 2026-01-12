@@ -5,7 +5,7 @@ Audio notifications for Claude Code events. Get notified when Claude finishes re
 ## Features
 
 - **Multiple Events** - Stop, Permission Prompt, Subagent completion
-- **Sound Profiles** - Switch between work, focus, silent, loud, and custom presets
+- **Sound Profiles** - Switch between default, focus, work, loud, silent, and custom presets
 - **Quiet Hours** - Do-not-disturb time windows
 - **Cooldowns** - Debounce rapid notifications
 - **Cross-Platform** - macOS, Linux, Windows support
