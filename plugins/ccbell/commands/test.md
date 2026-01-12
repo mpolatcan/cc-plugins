@@ -38,7 +38,7 @@ Based on the argument provided, run the appropriate test:
 **For specific event:**
 ```bash
 PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$HOME/.claude/plugins/local/ccbell}"
-"$PLUGIN_ROOT/bin/ccbell" <event_name>
+"$PLUGIN_ROOT/scripts/ccbell.sh" <event_name>
 ```
 
 **For all events:**
@@ -46,7 +46,7 @@ PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$HOME/.claude/plugins/local/ccbell}"
 PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$HOME/.claude/plugins/local/ccbell}"
 for event in stop permission_prompt idle_prompt subagent; do
   echo "Testing: $event"
-  "$PLUGIN_ROOT/bin/ccbell" "$event"
+  "$PLUGIN_ROOT/scripts/ccbell.sh" "$event"
   sleep 1.5
 done
 ```
@@ -113,11 +113,11 @@ If sounds don't play:
 
 ### 7. Force Test (Bypass Checks)
 
-To test sounds ignoring quiet hours and cooldowns, use the ccbell binary directly:
+To test sounds ignoring quiet hours and cooldowns, use ccbell.sh directly:
 
 ```bash
 PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$HOME/.claude/plugins/local/ccbell}"
-"$PLUGIN_ROOT/bin/ccbell" stop
+"$PLUGIN_ROOT/scripts/ccbell.sh" stop
 ```
 
 This confirms audio output is working independent of ccbell config.
