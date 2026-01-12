@@ -178,6 +178,6 @@ When validating plugin code, ALWAYS use BOTH methods:
 
 Distributes audio notifications for:
 - :stop_button: `Stop` - Claude finishes responding
-- :question: `Notification` (permission_prompt) - Claude needs permission
+- :question: `Notification` (permission_prompt, idle_prompt) - Claude needs permission or is waiting
 - :robot: `SubagentStop` - Subagent task completes
 
