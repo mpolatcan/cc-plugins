@@ -8,6 +8,7 @@
     "email": "mpolatcan@gmail.com"
   },
   "repository": "https://github.com/mpolatcan/ccbell",
+  "homepage": "https://github.com/mpolatcan/cc-plugins/tree/main/plugins/ccbell",
   "keywords": ["sound", "notification", "bell", "audio", "alert", "productivity", "profiles", "quiet-hours", "cooldown", "golang"],
   "license": "MIT",
   "commands": [
