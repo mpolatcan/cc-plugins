@@ -8,8 +8,5 @@
   },
   "repository": "https://github.com/mpolatcan/ccbell",
   "keywords": ["sound", "notification", "bell", "audio", "alert", "productivity", "profiles", "quiet-hours", "cooldown", "golang"],
-  "license": "MIT",
-  "scripts": {
-    "postinstall": "scripts/install.sh"
-  }
+  "license": "MIT"
 }
