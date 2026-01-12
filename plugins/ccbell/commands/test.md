@@ -17,7 +17,6 @@ $ARGUMENTS
 - `subagent` - Test the subagent completion sound
 - `all` or no argument - Test all enabled sounds
 
-**Note:** `idle_prompt` is not currently supported as a hook event in Claude Code.
 
 ## Instructions
 
@@ -38,13 +37,13 @@ Based on the argument provided, run the appropriate test:
 
 **For specific event:**
 ```bash
-PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$HOME/.claude/plugins/local/ccbell}"
+PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$HOME/.claude/plugins/marketplace/cc-plugins/plugins/ccbell}"
 "$PLUGIN_ROOT/scripts/ccbell.sh" <event_name>
 ```
 
 **For all events:**
 ```bash
-PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$HOME/.claude/plugins/local/ccbell}"
+PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$HOME/.claude/plugins/marketplace/cc-plugins/plugins/ccbell}"
 for event in stop permission_prompt subagent; do
   echo "Testing: $event"
   "$PLUGIN_ROOT/scripts/ccbell.sh" "$event"
@@ -116,7 +115,7 @@ If sounds don't play:
 To test sounds ignoring quiet hours and cooldowns, use ccbell.sh directly:
 
 ```bash
-PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$HOME/.claude/plugins/local/ccbell}"
+PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$HOME/.claude/plugins/marketplace/cc-plugins/plugins/ccbell}"
 "$PLUGIN_ROOT/scripts/ccbell.sh" stop
 ```
 

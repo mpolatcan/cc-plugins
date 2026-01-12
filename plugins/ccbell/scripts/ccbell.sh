@@ -23,20 +23,6 @@ detect_arch() {
     esac
 }
 
-# Get CLAUDE_PLUGIN_ROOT - resolve symlinks to get real path
-resolve_plugin_root() {
-    local root="${CLAUDE_PLUGIN_ROOT:-}"
-    if [[ -z "$root" ]]; then
-        # Try common locations
-        if [[ -d "$HOME/.claude/plugins/local/ccbell" ]]; then
-            root="$HOME/.claude/plugins/local/ccbell"
-        elif [[ -d "$HOME/.claude/plugins/local/cc-plugins/plugins/ccbell" ]]; then
-            root="$HOME/.claude/plugins/local/cc-plugins/plugins/ccbell"
-        fi
-    fi
-    echo "$root"
-}
-
 # Main
 main() {
     local event="${1:-stop}"
@@ -46,8 +32,8 @@ main() {
         event="permission_prompt"
     fi
 
-    local plugin_root
-    plugin_root=$(resolve_plugin_root)
+    # CLAUDE_PLUGIN_ROOT is set by Claude Code
+    local plugin_root="${CLAUDE_PLUGIN_ROOT:-}"
     local bin_dir="${plugin_root}/bin"
     local binary="${bin_dir}/${BINARY_NAME}"
     [[ "$(detect_os)" == "windows" ]] && binary="${binary}.exe"

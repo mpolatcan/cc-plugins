@@ -181,4 +181,3 @@ Distributes audio notifications for:
 - :question: `Notification` (permission_prompt) - Claude needs permission
 - :robot: `SubagentStop` - Subagent task completes
 
-**Note:** `idle_prompt` is not currently supported as a hook event in Claude Code.

@@ -45,8 +45,6 @@ Audio notifications for Claude Code events - play sounds when Claude finishes re
 - Cross-platform support (macOS, Linux, Windows)
 - Easy configuration via slash commands
 
-**Note:** `idle_prompt` is not currently supported as a hook event in Claude Code.
-
 ## Contributing
 
 Want to add your plugin to this marketplace? Open a pull request!

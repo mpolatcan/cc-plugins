@@ -49,8 +49,6 @@ Audio notifications for Claude Code events. Get notified when Claude finishes re
 | `permission_prompt` | Claude needs your permission |
 | `subagent` | Background agent completes |
 
-**Note:** `idle_prompt` is not currently supported as a hook event in Claude Code.
-
 ## Sound Profiles
 
 | Profile | Description |
