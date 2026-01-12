@@ -54,9 +54,9 @@ Audio notifications for Claude Code events. Get notified when Claude finishes re
 
 | Profile | Description |
 |---------|-------------|
-| `default` | Standard - all events enabled |
-| `focus` | Minimal - only permission prompts |
-| `work` | Professional - subtle sounds |
+| `default` | Standard settings - all events enabled at medium volume |
+| `focus` | Minimal interruptions - only permission prompts at low volume |
+| `work` | Professional mode - subtle sounds for all events |
 | `loud` | Maximum volume for all events |
 | `silent` | All notifications disabled |
 
