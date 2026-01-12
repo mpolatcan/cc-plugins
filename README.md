@@ -32,7 +32,7 @@ A curated marketplace of plugins for Claude Code.
 
 ### ccbell
 
-Audio notifications for Claude Code events - play sounds when Claude finishes responding, needs permission, or when a subagent completes.
+Audio notifications for Claude Code events - play sounds when Claude finishes responding, needs permission, is waiting for input, or when a subagent completes.
 
 **Install:**
 ```
@@ -40,7 +40,7 @@ Audio notifications for Claude Code events - play sounds when Claude finishes re
 ```
 
 **Features:**
-- Play sounds on multiple Claude Code events (stop, permission_prompt, subagent)
+- Play sounds on multiple Claude Code events (stop, permission_prompt, idle_prompt, subagent)
 - Support for bundled sounds, custom audio files
 - Cross-platform support (macOS, Linux, Windows)
 - Easy configuration via slash commands
