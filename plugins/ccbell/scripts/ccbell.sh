@@ -78,19 +78,23 @@ main() {
 
         # Extract
         if [[ "$archive_ext" == "tar.gz" ]]; then
-            tar -xzf "$tmp_file" -C "$bin_dir"
+            tar -xzf "$tmp_file" -C "$bin_dir" || { echo "ccbell: Extraction failed" >&2; exit 1; }
         else
-            unzip -q "$tmp_file" -d "$bin_dir"
+            unzip -q "$tmp_file" -d "$bin_dir" || { echo "ccbell: Extraction failed" >&2; exit 1; }
         fi
 
         # Rename extracted binary to just 'ccbell'
         local extracted_binary="${bin_dir}/${BINARY_NAME}-${os}-${arch}"
         [[ "$os" == "windows" ]] && extracted_binary="${extracted_binary}.exe"
         if [[ -f "$extracted_binary" ]]; then
-            mv "$extracted_binary" "$binary"
+            mv "$extracted_binary" "$binary" || { echo "ccbell: Failed to rename binary" >&2; exit 1; }
+        else
+            echo "ccbell: Extracted binary not found at ${extracted_binary}" >&2
+            ls -la "$bin_dir" >&2 || true
+            exit 1
         fi
 
-        chmod +x "$binary"
+        chmod +x "$binary" || { echo "ccbell: Failed to set executable permission" >&2; exit 1; }
         echo "ccbell: Installed to ${binary}" >&2
     fi
 

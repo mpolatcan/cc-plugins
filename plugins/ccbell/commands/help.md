@@ -1,4 +1,5 @@
 ---
+name: ccbell:help
 description: Show ccbell help and documentation
 allowed-tools: ["Read"]
 ---

@@ -24,6 +24,8 @@ Audio notifications for Claude Code events. Get notified when Claude finishes re
 /ccbell:enable     # Enable notifications
 /ccbell:test       # Test sounds
 /ccbell:configure  # Customize settings
+/ccbell:status     # Check current configuration
+/ccbell:profile    # Switch sound profiles
 ```
 
 ## Commands

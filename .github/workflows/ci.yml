@@ -35,10 +35,14 @@ jobs:
               plugin_name=$(basename "$plugin")
               echo "Validating $plugin_name..."
 
-              # Check for required directories
-              [ -d "$plugin/.claude-plugin" ] || echo "ERROR: Missing .claude-plugin in $plugin_name"
-              [ -d "$plugin/commands" ] || echo "WARNING: Missing commands in $plugin_name"
-              [ -d "$plugin/hooks" ] || echo "WARNING: Missing hooks in $plugin_name"
+              # Check for hooks (either in hooks/ dir or inline in plugin.json)
+              has_hooks_dir=false
+              has_hooks_in_manifest=false
+              [[ -d "$plugin/hooks" ]] && has_hooks_dir=true
+              [[ -f "$plugin/.claude-plugin/plugin.json" ]] && grep -q '"hooks"' "$plugin/.claude-plugin/plugin.json" && has_hooks_in_manifest=true
+              if ! $has_hooks_dir && ! $has_hooks_in_manifest; then
+                echo "WARNING: Missing hooks in $plugin_name (neither hooks/ nor hooks in plugin.json)"
+              fi
 
               # Check for required files
               [ -f "$plugin/.claude-plugin/plugin.json" ] || echo "ERROR: Missing plugin.json in $plugin_name"

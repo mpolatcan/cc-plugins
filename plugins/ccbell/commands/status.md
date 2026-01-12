@@ -1,4 +1,5 @@
 ---
+name: ccbell:status
 description: Show current ccbell configuration status
 argument-hint: ""
 allowed-tools: ["Read", "Bash"]
