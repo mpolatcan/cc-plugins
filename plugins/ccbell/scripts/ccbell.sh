@@ -23,6 +23,20 @@ detect_arch() {
     esac
 }
 
+# Detect plugin root
+get_plugin_root() {
+    local root="${CLAUDE_PLUGIN_ROOT:-}"
+    if [[ -z "$root" ]]; then
+        # Try marketplace location first, then local
+        if [[ -d "$HOME/.claude/plugins/marketplace/cc-plugins" ]]; then
+            root="$HOME/.claude/plugins/marketplace/cc-plugins/plugins/ccbell"
+        elif [[ -d "$HOME/.claude/plugins/local/ccbell" ]]; then
+            root="$HOME/.claude/plugins/local/ccbell"
+        fi
+    fi
+    echo "$root"
+}
+
 # Main
 main() {
     local event="${1:-stop}"
@@ -32,8 +46,8 @@ main() {
         event="permission_prompt"
     fi
 
-    # CLAUDE_PLUGIN_ROOT is set by Claude Code
-    local plugin_root="${CLAUDE_PLUGIN_ROOT:-}"
+    local plugin_root
+    plugin_root=$(get_plugin_root)
     local bin_dir="${plugin_root}/bin"
     local binary="${bin_dir}/${BINARY_NAME}"
     [[ "$(detect_os)" == "windows" ]] && binary="${binary}.exe"

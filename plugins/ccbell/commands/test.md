@@ -20,32 +20,49 @@ $ARGUMENTS
 
 ## Instructions
 
-### 1. Check Current Status
+### 1. Detect Plugin Root
+
+```bash
+# Resolve plugin root (handles marketplace and local installations)
+if [[ -d "$HOME/.claude/plugins/marketplace/cc-plugins" ]]; then
+    PLUGIN_ROOT="$HOME/.claude/plugins/marketplace/cc-plugins/plugins/ccbell"
+elif [[ -d "$HOME/.claude/plugins/local/ccbell" ]]; then
+    PLUGIN_ROOT="$HOME/.claude/plugins/local/ccbell"
+elif [[ -n "$CLAUDE_PLUGIN_ROOT" ]]; then
+    PLUGIN_ROOT="$CLAUDE_PLUGIN_ROOT"
+else
+    echo "Error: Could not determine plugin root"
+    exit 1
+fi
+```
+
+### 2. Check Current Status
 
 Before testing, optionally show:
 - If quiet hours are active (sounds may be suppressed)
 - If any cooldowns are in effect
 - Current profile
 
-### 2. Test Sounds
+### 3. Test Sounds
 
-Based on the argument provided, run the appropriate test. CLAUDE_PLUGIN_ROOT is automatically set by Claude Code.
+Based on the argument provided, run the appropriate test:
 
 **For specific event:**
 ```bash
-"$CLAUDE_PLUGIN_ROOT/scripts/ccbell.sh" <event_name>
+"$PLUGIN_ROOT/scripts/ccbell.sh" <event_name>
 ```
 
 **For all events:**
 ```bash
+PLUGIN_ROOT="$(...)"  # From step 1
 for event in stop permission_prompt subagent; do
   echo "Testing: $event"
-  "$CLAUDE_PLUGIN_ROOT/scripts/ccbell.sh" "$event"
+  "$PLUGIN_ROOT/scripts/ccbell.sh" "$event"
   sleep 1.5
 done
 ```
 
-### 3. Report Results
+### 4. Report Results
 
 After testing, report which sounds played:
 
@@ -66,7 +83,7 @@ All enabled sounds working correctly!
 To change sounds, run /ccbell:configure
 ```
 
-### 4. If Sounds Didn't Play
+### 5. If Sounds Didn't Play
 
 Check potential issues:
 
@@ -93,7 +110,7 @@ if [ -f "$HOME/.claude/ccbell.log" ]; then
 fi
 ```
 
-### 5. Troubleshooting Tips
+### 6. Troubleshooting Tips
 
 If sounds don't play:
 1. **Quiet hours active?** Check if current time is in quiet period
@@ -102,14 +119,15 @@ If sounds don't play:
 4. **Plugin enabled?** Check `enabled: true` in config
 5. **Audio working?** Test with platform-specific player (afplay on macOS, paplay/mpv on Linux, PowerShell on Windows)
 6. **Enable debug mode:** Set `"debug": true` in config and check `~/.claude/ccbell.log`
-7. **Verify sounds exist:** Check `$CLAUDE_PLUGIN_ROOT/sounds/` directory
+7. **Verify sounds exist:** Check `$PLUGIN_ROOT/sounds/` directory
 
-### 6. Force Test (Bypass Checks)
+### 7. Force Test (Bypass Checks)
 
 To test sounds ignoring quiet hours and cooldowns, use ccbell.sh directly:
 
 ```bash
-"$CLAUDE_PLUGIN_ROOT/scripts/ccbell.sh" stop
+PLUGIN_ROOT="$(...)"  # From step 1
+"$PLUGIN_ROOT/scripts/ccbell.sh" stop
 ```
 
 This confirms audio output is working independent of ccbell config.

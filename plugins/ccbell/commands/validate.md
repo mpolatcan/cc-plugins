@@ -9,34 +9,48 @@ Run a comprehensive validation of the ccbell plugin installation and configurati
 
 ## Validation Steps
 
-### 1. Check Plugin Installation
+### 1. Detect Plugin Root
 
-CLAUDE_PLUGIN_ROOT is automatically set by Claude Code.
+```bash
+# Resolve plugin root (handles marketplace and local installations)
+if [[ -d "$HOME/.claude/plugins/marketplace/cc-plugins" ]]; then
+    PLUGIN_ROOT="$HOME/.claude/plugins/marketplace/cc-plugins/plugins/ccbell"
+elif [[ -d "$HOME/.claude/plugins/local/ccbell" ]]; then
+    PLUGIN_ROOT="$HOME/.claude/plugins/local/ccbell"
+elif [[ -n "$CLAUDE_PLUGIN_ROOT" ]]; then
+    PLUGIN_ROOT="$CLAUDE_PLUGIN_ROOT"
+else
+    echo "Error: Could not determine plugin root"
+    exit 1
+fi
+```
+
+### 2. Check Plugin Installation
 
 ```bash
 echo "=== ccbell Validation ==="
 echo ""
 
 # Check if plugin root exists
-if [ -d "$CLAUDE_PLUGIN_ROOT" ]; then
-    echo "Plugin directory: OK ($CLAUDE_PLUGIN_ROOT)"
+if [ -d "$PLUGIN_ROOT" ]; then
+    echo "Plugin directory: OK ($PLUGIN_ROOT)"
 else
-    echo "Plugin directory: MISSING ($CLAUDE_PLUGIN_ROOT)"
+    echo "Plugin directory: MISSING ($PLUGIN_ROOT)"
     echo "Please ensure the plugin is installed."
     exit 1
 fi
 
 # Check if ccbell.sh script exists
-if [ -x "$CLAUDE_PLUGIN_ROOT/scripts/ccbell.sh" ]; then
+if [ -x "$PLUGIN_ROOT/scripts/ccbell.sh" ]; then
     echo "ccbell.sh script: OK (executable)"
 else
     echo "ccbell.sh script: ERROR (not found or not executable)"
-    echo "Expected at: $CLAUDE_PLUGIN_ROOT/scripts/ccbell.sh"
+    echo "Expected at: $PLUGIN_ROOT/scripts/ccbell.sh"
     exit 1
 fi
 ```
 
-### 2. Check Sound Files
+### 3. Check Sound Files
 
 ```bash
 echo ""
@@ -47,7 +61,7 @@ SOUNDS_OK=0
 SOUNDS_MISSING=0
 
 for sound in "${REQUIRED_SOUNDS[@]}"; do
-    SOUND_FILE="$CLAUDE_PLUGIN_ROOT/sounds/${sound}.aiff"
+    SOUND_FILE="$PLUGIN_ROOT/sounds/${sound}.aiff"
     if [ -f "$SOUND_FILE" ]; then
         echo "Sound ($sound): OK"
         SOUNDS_OK=$((SOUNDS_OK + 1))
@@ -65,7 +79,7 @@ if [ $SOUNDS_MISSING -gt 0 ]; then
 fi
 ```
 
-### 3. Audio Player & Sound Playback
+### 4. Audio Player & Sound Playback
 
 ```bash
 echo ""
@@ -106,7 +120,7 @@ echo "=== Sound Playback (Direct) ==="
 echo "Playing sounds with native audio player..."
 
 for sound in "${REQUIRED_SOUNDS[@]}"; do
-    SOUND_FILE="$CLAUDE_PLUGIN_ROOT/sounds/${sound}.aiff"
+    SOUND_FILE="$PLUGIN_ROOT/sounds/${sound}.aiff"
     if [ -f "$SOUND_FILE" ]; then
         echo -n "  Testing $sound... "
 
@@ -142,19 +156,19 @@ for sound in "${REQUIRED_SOUNDS[@]}"; do
 done
 ```
 
-### 4. Download/Verify Binary
+### 5. Download/Verify Binary
 
 ```bash
 echo ""
 echo "=== Binary Check ==="
 
-BINARY="$CLAUDE_PLUGIN_ROOT/bin/ccbell"
+BINARY="$PLUGIN_ROOT/bin/ccbell"
 
 # Try to download/ensure binary exists by running ccbell.sh with stop event
 # This will download the binary if missing
 echo "Checking/downloading ccbell binary..."
 
-if "$CLAUDE_PLUGIN_ROOT/scripts/ccbell.sh" stop 2>&1; then
+if "$PLUGIN_ROOT/scripts/ccbell.sh" stop 2>&1; then
     echo "Binary: OK (download/verified successfully)"
 
     # Get version info
@@ -168,7 +182,7 @@ else
 fi
 ```
 
-### 5. Play Sounds with ccbell Binary
+### 6. Play Sounds with ccbell Binary
 
 ```bash
 echo ""
@@ -187,7 +201,7 @@ for sound in "${REQUIRED_SOUNDS[@]}"; do
 done
 ```
 
-### 6. Check Dependencies
+### 7. Check Dependencies
 
 ```bash
 echo ""
@@ -220,9 +234,9 @@ echo "=== Validation Complete ==="
 If binary download fails:
 - Check internet connectivity
 - Verify GitHub releases are accessible: https://github.com/mpolatcan/ccbell/releases
-- Ensure write permission to `$CLAUDE_PLUGIN_ROOT/bin`
+- Ensure write permission to `$PLUGIN_ROOT/bin`
 
 If sounds fail to play:
 - Check audio player installation
-- Verify sound files exist in `$CLAUDE_PLUGIN_ROOT/sounds`
+- Verify sound files exist in `$PLUGIN_ROOT/sounds`
 - Check system volume settings
