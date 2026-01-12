@@ -26,18 +26,7 @@ detect_arch() {
 
 # Detect plugin root
 get_plugin_root() {
-    local root="${CLAUDE_PLUGIN_ROOT:-}"
-    if [[ -z "$root" ]]; then
-        # Try cache, marketplace, then local locations
-        if [[ -d "$HOME/.claude/plugins/cache/cc-plugins/plugins/ccbell" ]]; then
-            root="$HOME/.claude/plugins/cache/cc-plugins/plugins/ccbell"
-        elif [[ -d "$HOME/.claude/plugins/marketplace/cc-plugins/plugins/ccbell" ]]; then
-            root="$HOME/.claude/plugins/marketplace/cc-plugins/plugins/ccbell"
-        elif [[ -d "$HOME/.claude/plugins/local/ccbell" ]]; then
-            root="$HOME/.claude/plugins/local/ccbell"
-        fi
-    fi
-    echo "$root"
+    echo "$HOME/.claude/plugins/cache/cc-plugins/ccbell/${PLUGIN_VERSION}"
 }
 
 # Main

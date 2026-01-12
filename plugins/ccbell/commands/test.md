@@ -23,19 +23,7 @@ $ARGUMENTS
 ### 1. Detect Plugin Root
 
 ```bash
-# Resolve plugin root (handles cache, marketplace, and local installations)
-if [[ -d "$HOME/.claude/plugins/cache/cc-plugins/plugins/ccbell" ]]; then
-    PLUGIN_ROOT="$HOME/.claude/plugins/cache/cc-plugins/plugins/ccbell"
-elif [[ -d "$HOME/.claude/plugins/marketplace/cc-plugins/plugins/ccbell" ]]; then
-    PLUGIN_ROOT="$HOME/.claude/plugins/marketplace/cc-plugins/plugins/ccbell"
-elif [[ -d "$HOME/.claude/plugins/local/ccbell" ]]; then
-    PLUGIN_ROOT="$HOME/.claude/plugins/local/ccbell"
-elif [[ -n "$CLAUDE_PLUGIN_ROOT" ]]; then
-    PLUGIN_ROOT="$CLAUDE_PLUGIN_ROOT"
-else
-    echo "Error: Could not determine plugin root"
-    exit 1
-fi
+PLUGIN_ROOT="$HOME/.claude/plugins/cache/cc-plugins/ccbell/${PLUGIN_VERSION}"
 ```
 
 ### 2. Check Current Status
