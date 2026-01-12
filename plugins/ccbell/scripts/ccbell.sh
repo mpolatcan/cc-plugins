@@ -4,14 +4,13 @@ set -euo pipefail
 
 REPO="mpolatcan/ccbell"
 BINARY_NAME="ccbell"
-PLUGIN_VERSION="0.2.10"
+PLUGIN_VERSION="0.2.11"
 
 # Detect platform
 detect_os() {
     case "$(uname -s)" in
         Darwin*)  echo "darwin" ;;
         Linux*)   echo "linux" ;;
-        MINGW*|MSYS*|CYGWIN*) echo "windows" ;;
         *)        echo "darwin" ;;  # Default to darwin
     esac
 }
@@ -33,13 +32,20 @@ get_plugin_root() {
     fi
 
     # Fallback: find latest version folder (for commands)
-    local base_dir="$HOME/.claude/plugins/cache/cc-plugins/ccbell"
+    # Support any marketplace path by scanning for ccbell plugin
+    local base_dir="$HOME/.claude/plugins/cache"
     if [[ -d "$base_dir" ]]; then
-        local latest_version
-        latest_version=$(find "$base_dir" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | sort -V | tail -1)
-        if [[ -n "$latest_version" ]]; then
-            echo "$base_dir/$latest_version"
-            return 0
+        # Find the ccbell plugin directory in any marketplace subdirectory
+        local ccbell_path
+        ccbell_path=$(find "$base_dir" -mindepth 3 -maxdepth 3 -type d -name "ccbell" 2>/dev/null | head -1)
+        if [[ -n "$ccbell_path" ]]; then
+            # Get the version subdirectory
+            local latest_version
+            latest_version=$(find "$ccbell_path" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | sort -V | tail -1)
+            if [[ -n "$latest_version" ]]; then
+                echo "$ccbell_path/$latest_version"
+                return 0
+            fi
         fi
     fi
 
@@ -56,6 +62,10 @@ generate_config() {
   "enabled": true,
   "debug": false,
   "activeProfile": "default",
+  "quietHours": {
+    "start": null,
+    "end": null
+  },
   "events": {
     "stop": {
       "enabled": true,
@@ -117,24 +127,20 @@ main() {
 
     local bin_dir="${plugin_root}/bin"
     local binary="${bin_dir}/${BINARY_NAME}"
-    [[ "$(detect_os)" == "windows" ]] && binary="${binary}.exe"
 
     # Create bin directory if missing
     mkdir -p "$bin_dir"
 
     # Download binary if missing
     if [[ ! -f "$binary" ]]; then
-        local os arch archive_ext archive_name url tmp_file
+        local os arch archive_name url tmp_file
         os=$(detect_os)
         arch=$(detect_arch)
-        archive_ext="tar.gz"
-        suffix=".tar.gz"
-        [[ "$os" == "windows" ]] && { archive_ext="zip"; suffix=".zip"; }
-        archive_name="${BINARY_NAME}-${os}-${arch}.${archive_ext}"
+        archive_name="${BINARY_NAME}-${os}-${arch}.tar.gz"
         url="https://github.com/${REPO}/releases/latest/download/${archive_name}"
 
         echo "ccbell: Downloading binary..." >&2
-        tmp_file=$(mktempXXXXXX)$suffix
+        tmp_file=$(mktempXXXXXX).tar.gz
 
         # Cleanup on exit
         trap 'rm -f "$tmp_file"' EXIT
@@ -150,15 +156,10 @@ main() {
         fi
 
         # Extract
-        if [[ "$archive_ext" == "tar.gz" ]]; then
-            tar -xzf "$tmp_file" -C "$bin_dir" || { echo "ccbell: Error: Extraction failed" >&2; exit 1; }
-        else
-            unzip -q "$tmp_file" -d "$bin_dir" || { echo "ccbell: Error: Extraction failed" >&2; exit 1; }
-        fi
+        tar -xzf "$tmp_file" -C "$bin_dir" || { echo "ccbell: Error: Extraction failed" >&2; exit 1; }
 
         # Rename extracted binary to just 'ccbell'
         local extracted_binary="${bin_dir}/${BINARY_NAME}-${os}-${arch}"
-        [[ "$os" == "windows" ]] && extracted_binary="${extracted_binary}.exe"
         if [[ -f "$extracted_binary" ]]; then
             mv "$extracted_binary" "$binary" || { echo "ccbell: Error: Failed to rename binary" >&2; exit 1; }
         else
