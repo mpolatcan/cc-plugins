@@ -4,7 +4,7 @@ set -euo pipefail
 
 REPO="mpolatcan/ccbell"
 BINARY_NAME="ccbell"
-PLUGIN_VERSION="0.2.4"
+PLUGIN_VERSION="0.2.5"
 
 # Detect platform
 detect_os() {
@@ -51,10 +51,8 @@ get_plugin_root() {
 main() {
     local event="${1:-stop}"
 
-    # Map "notification" to "permission_prompt" for general notifications
-    if [[ "$event" == "notification" ]]; then
-        event="permission_prompt"
-    fi
+    # Events are passed directly from hooks (permission_prompt, idle_prompt, stop, subagent)
+    # No mapping needed - hooks use explicit matchers
 
     local plugin_root
     plugin_root=$(get_plugin_root)
