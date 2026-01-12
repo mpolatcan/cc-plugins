@@ -9,39 +9,5 @@
   "repository": "https://github.com/mpolatcan/ccbell",
   "homepage": "https://github.com/mpolatcan/cc-plugins/tree/main/plugins/ccbell",
   "keywords": ["sound", "notification", "bell", "audio", "alert", "productivity", "profiles", "quiet-hours", "cooldown", "golang"],
-  "license": "MIT",
-  "commands": [
-    {
-      "name": "ccbell:configure",
-      "description": "Configure ccbell sound notifications for different events"
-    },
-    {
-      "name": "ccbell:test",
-      "description": "Test ccbell sound notifications"
-    },
-    {
-      "name": "ccbell:enable",
-      "description": "Enable ccbell sound notifications"
-    },
-    {
-      "name": "ccbell:disable",
-      "description": "Disable ccbell sound notifications"
-    },
-    {
-      "name": "ccbell:status",
-      "description": "Show current ccbell configuration status"
-    },
-    {
-      "name": "ccbell:profile",
-      "description": "Switch between ccbell sound profiles"
-    },
-    {
-      "name": "ccbell:validate",
-      "description": "Validate ccbell installation and configuration"
-    },
-    {
-      "name": "ccbell:help",
-      "description": "Show ccbell help and documentation"
-    }
-  ]
+  "license": "MIT"
 }
