@@ -153,14 +153,11 @@ echo "=== Binary Check ==="
 
 BINARY="$PLUGIN_ROOT/bin/ccbell"
 
-# Try to download/ensure binary exists by running ccbell.sh with stop event
-# This will download the binary if missing
 echo "Checking/downloading ccbell binary..."
 
 if "$PLUGIN_ROOT/scripts/ccbell.sh" stop 2>&1; then
     echo "Binary: OK (download/verified successfully)"
 
-    # Get version info
     if [ -x "$BINARY" ]; then
         VERSION=$("$BINARY" --version 2>/dev/null || echo "unknown")
         echo "  Version: $VERSION"

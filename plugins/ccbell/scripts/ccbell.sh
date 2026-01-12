@@ -23,23 +23,17 @@ detect_arch() {
     esac
 }
 
-# Detect plugin root
 get_plugin_root() {
-    # Use CLAUDE_PLUGIN_ROOT if set (for hooks)
     if [[ -n "${CLAUDE_PLUGIN_ROOT:-}" ]]; then
         echo "$CLAUDE_PLUGIN_ROOT"
         return 0
     fi
 
-    # Fallback: find latest version folder (for commands)
-    # Support any marketplace path by scanning for ccbell plugin
     local base_dir="$HOME/.claude/plugins/cache"
     if [[ -d "$base_dir" ]]; then
-        # Find the ccbell plugin directory in any marketplace subdirectory
         local ccbell_path
         ccbell_path=$(find "$base_dir" -mindepth 3 -maxdepth 3 -type d -name "ccbell" 2>/dev/null | head -1)
         if [[ -n "$ccbell_path" ]]; then
-            # Get the version subdirectory
             local latest_version
             latest_version=$(find "$ccbell_path" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | sort -V | tail -1)
             if [[ -n "$latest_version" ]]; then
@@ -53,7 +47,6 @@ get_plugin_root() {
     return 1
 }
 
-# Generate default config file
 generate_config() {
     local config_file="$1"
 
@@ -96,15 +89,12 @@ generate_config() {
 EOF
 }
 
-# Ensure config file exists
 ensure_config() {
-    # Check global config
     local global_config="$HOME/.claude/ccbell.config.json"
     if [[ -f "$global_config" ]]; then
         return 0
     fi
 
-    # Create global config if missing
     mkdir -p "$HOME/.claude"
     generate_config "$global_config"
     echo "ccbell: Created default config at ${global_config}" >&2
@@ -113,9 +103,6 @@ ensure_config() {
 # Main
 main() {
     local event="${1:-stop}"
-
-    # Events are passed directly from hooks (permission_prompt, idle_prompt, stop, subagent)
-    # No mapping needed - hooks use explicit matchers
 
     local plugin_root
     plugin_root=$(get_plugin_root)
@@ -128,10 +115,8 @@ main() {
     local bin_dir="${plugin_root}/bin"
     local binary="${bin_dir}/${BINARY_NAME}"
 
-    # Create bin directory if missing
     mkdir -p "$bin_dir"
 
-    # Download binary if missing
     if [[ ! -f "$binary" ]]; then
         local os arch archive_name url tmp_file
         os=$(detect_os)
@@ -142,10 +127,8 @@ main() {
         echo "ccbell: Downloading binary..." >&2
         tmp_file=$(mktempXXXXXX).tar.gz
 
-        # Cleanup on exit
         trap 'rm -f "$tmp_file"' EXIT
 
-        # Download
         if command -v curl &>/dev/null; then
             curl -fsSL "$url" -o "$tmp_file" || { echo "ccbell: Download failed" >&2; exit 1; }
         elif command -v wget &>/dev/null; then
@@ -155,10 +138,8 @@ main() {
             exit 1
         fi
 
-        # Extract
         tar -xzf "$tmp_file" -C "$bin_dir" || { echo "ccbell: Error: Extraction failed" >&2; exit 1; }
 
-        # Rename extracted binary to just 'ccbell'
         local extracted_binary="${bin_dir}/${BINARY_NAME}-${os}-${arch}"
         if [[ -f "$extracted_binary" ]]; then
             mv "$extracted_binary" "$binary" || { echo "ccbell: Error: Failed to rename binary" >&2; exit 1; }
@@ -172,10 +153,8 @@ main() {
         echo "ccbell: Downloaded to ${binary}" >&2
     fi
 
-    # Ensure config file exists
     ensure_config
 
-    # Run ccbell
     exec "$binary" "$event"
 }
 

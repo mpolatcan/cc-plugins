@@ -68,7 +68,6 @@ if [ -n "$quiet_start" ] && [ -n "$quiet_end" ]; then
     current_time=$(date '+%H:%M')
     echo "Quiet hours: $quiet_start - $quiet_end"
     echo "Current time: $current_time"
-    # Determine if currently in quiet period
 fi
 ```
 

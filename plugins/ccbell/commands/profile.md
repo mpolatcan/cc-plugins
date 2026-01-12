@@ -160,12 +160,8 @@ Use the Write tool to update the config file. Merge the new profile settings wit
 Example of reading, modifying, and writing config:
 
 ```bash
-# If jq is available, merge configs properly
 if command -v jq &>/dev/null; then
-    # Read existing config
     existing=$(cat "$ACTIVE_CONFIG")
-    # Merge with new profile settings
-    # This preserves other settings while updating profile
 fi
 ```
 
