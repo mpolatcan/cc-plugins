@@ -3,46 +3,30 @@
   "hooks": {
     "Stop": [
       {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/bin/ccbell stop",
-            "timeout": 5
-          }
-        ]
+        "type": "command",
+        "command": "${CLAUDE_PLUGIN_ROOT}/bin/ccbell stop",
+        "timeout": 5
       }
     ],
     "Notification": [
       {
         "matcher": "permission_prompt",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/bin/ccbell permission_prompt",
-            "timeout": 5
-          }
-        ]
+        "type": "command",
+        "command": "${CLAUDE_PLUGIN_ROOT}/bin/ccbell permission_prompt",
+        "timeout": 5
       },
       {
         "matcher": "idle_prompt",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/bin/ccbell idle_prompt",
-            "timeout": 5
-          }
-        ]
+        "type": "command",
+        "command": "${CLAUDE_PLUGIN_ROOT}/bin/ccbell idle_prompt",
+        "timeout": 5
       }
     ],
     "SubagentStop": [
       {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/bin/ccbell subagent",
-            "timeout": 5
-          }
-        ]
+        "type": "command",
+        "command": "${CLAUDE_PLUGIN_ROOT}/bin/ccbell subagent",
+        "timeout": 5
       }
     ]
   }
