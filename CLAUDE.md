@@ -73,23 +73,27 @@ plugins/ccbell/
 
 ## :rotating_light: CRITICAL: ALWAYS Validate Against Official Documentation :rotating_light:
 
-**:warning: ALWAYS use `context7` MCP tool to query official Claude Code documentation before validating or modifying any plugin code. NEVER skip this step. :warning:**
+**:warning: ALWAYS use BOTH `context7` MCP tool AND the official documentation links below to query official Claude Code documentation before validating or modifying any plugin code. NEVER skip either step. :warning:**
 
-**:no_entry: NEVER assume existing code is correct. Plugin schemas, hook events, manifest formats, and command specifications change between Claude Code versions. Always verify against the latest official documentation. :no_entry:**
+**:no_entry: NEVER assume existing code is correct. Plugin schemas, hook events, manifest formats, and command specifications change between Claude Code versions. Always verify against the latest official documentation using BOTH methods. :no_entry:**
 
-### :gear: Mandatory Validation Steps
+### :gear: Mandatory Validation Steps (ALWAYS DO BOTH)
 
-1. **Resolve library ID:**
+1. **Resolve library ID with context7:**
    ```
    mcp__context7__resolve-library-id with libraryName="claude-code" and query="Claude Code plugins hooks manifest"
    ```
 
-2. **Query official documentation:**
+2. **Query official documentation with context7:**
    ```
    mcp__context7__query-docs with libraryId from step 1 and query="plugin manifest schema hooks commands specification"
    ```
 
-3. **Validate structure before making changes:**
+3. **Read official documentation from the provided links:**
+   - Read the Plugins Reference sections listed below
+   - Read the Hooks Reference sections listed below
+
+4. **Validate structure before making changes:**
    - :mag: Verify `plugin.json` format matches official spec
    - :hook: Confirm hook structure (array vs object format)
    - :memo: Validate command specification format
@@ -97,11 +101,25 @@ plugins/ccbell/
 
 ### :bookmark: Required Queries for Plugin Validation
 
-When validating plugin code, ALWAYS query these topics:
+When validating plugin code, ALWAYS use BOTH methods:
+
+**With context7 MCP tool, query these topics:**
 - :mag_right: "plugin manifest schema JSON structure commands hooks specification"
 - :mag_right: "hooks.json hook event matcher type command timeout configuration"
 - :mag_right: "plugin.json hooks array format with event field inline hooks specification schema"
 - :mag_right: "command specification format name description slash command"
+
+**Additionally, read these official documentation sections:**
+- :book: Plugin Manifest section
+- :keyboard: Commands section
+- :hook: Hooks in Plugins section
+- :card_file_box: Manifest Schema section
+- :speech_balloon: Command Spec section
+- :hook: Hook Spec section
+- :zap: Events section
+- :toolbox: Hook Types section
+- :mag: Matcher section
+- :stopwatch: Timeout section
 
 ### :books: Plugins Documentation (ALWAYS READ - NEVER skip) :books:
 
