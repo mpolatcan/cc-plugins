@@ -56,9 +56,11 @@ When validating plugin code, ALWAYS query these topics:
 - "plugin.json hooks array format with event field inline hooks specification schema"
 - "command specification format name description slash command"
 
-### Plugins Documentation (ALWAYS refer to these)
+### Plugins Documentation (ALWAYS READ - NEVER skip)
 
 **Main Plugins Reference:** https://code.claude.com/docs/en/plugins-reference
+
+**CRITICAL: You MUST READ the content at these URLs. Do NOT just list them.**
 
 #### Within Plugins Reference:
 | Section | URL |
@@ -75,9 +77,11 @@ When validating plugin code, ALWAYS query these topics:
 - **Discover Plugins** - https://code.claude.com/docs/en/discover-plugins
 - **Plugin Marketplaces** - https://code.claude.com/docs/en/plugin-marketplaces
 
-### Hooks Documentation (ALWAYS validate - NEVER skip)
+### Hooks Documentation (ALWAYS READ - NEVER skip)
 
 **Main Hooks Reference:** https://code.claude.com/docs/en/hooks
+
+**CRITICAL: You MUST READ the content at these URLs. Do NOT just list them.**
 
 #### Within Hooks Reference:
 | Section | URL |
