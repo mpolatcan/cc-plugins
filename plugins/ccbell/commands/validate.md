@@ -17,16 +17,17 @@ Find latest installed plugin version.
 echo "=== ccbell Validation ==="
 echo ""
 
-PLUGIN_DIR="$HOME/.claude/plugins/cache/cc-plugins/ccbell"
-LATEST_VERSION=$(find "$PLUGIN_DIR" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | sort -V | tail -1)
+# Find ccbell plugin in any marketplace path
+CCBELL_PATH=$(find "$HOME/.claude/plugins/cache" -mindepth 3 -maxdepth 3 -type d -name "ccbell" 2>/dev/null | head -1)
+LATEST_VERSION=$(find "$CCBELL_PATH" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | sort -V | tail -1)
 
 if [ -z "$LATEST_VERSION" ]; then
-    echo "Plugin directory: MISSING ($PLUGIN_DIR)"
+    echo "Plugin directory: MISSING"
     echo "Please ensure the plugin is installed."
     exit 1
 fi
 
-PLUGIN_ROOT="$PLUGIN_DIR/$LATEST_VERSION"
+PLUGIN_ROOT="$CCBELL_PATH/$LATEST_VERSION"
 echo "Plugin directory: OK ($PLUGIN_ROOT)"
 
 # Check if ccbell.sh script exists
@@ -91,18 +92,12 @@ case "$OS_TYPE" in
             fi
         done
         ;;
-    MINGW*|MSYS*|CYGWIN*)
-        if command -v powershell &>/dev/null; then
-            AUDIO_PLAYER="powershell"
-        fi
-        ;;
 esac
 
 if [ -z "$AUDIO_PLAYER" ]; then
     echo "Audio player: ERROR (no suitable player found for $OS_TYPE)"
     echo "  macOS requires: afplay"
     echo "  Linux requires: paplay, aplay, mpv, or ffplay"
-    echo "  Windows requires: PowerShell"
     exit 1
 fi
 
@@ -138,15 +133,6 @@ for sound in "${REQUIRED_SOUNDS[@]}"; do
                         ffplay -nodisp -autoexit -volume=30 "$SOUND_FILE" 2>/dev/null && echo "OK" || echo "FAILED"
                         ;;
                 esac
-                sleep 0.3
-                ;;
-            MINGW*|MSYS*|CYGWIN*)
-                # Windows with PowerShell
-                if command -v powershell &>/dev/null; then
-                    powershell -c "(New-Object Media.SoundPlayer '$SOUND_FILE').PlaySync()" 2>/dev/null && echo "OK" || echo "FAILED"
-                else
-                    echo "SKIPPED (PowerShell not available)"
-                fi
                 sleep 0.3
                 ;;
             *)

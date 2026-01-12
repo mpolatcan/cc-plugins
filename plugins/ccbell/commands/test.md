@@ -26,16 +26,16 @@ $ARGUMENTS
 Find latest installed plugin version and test sounds.
 
 ```bash
-# Find latest version folder
-PLUGIN_DIR="$HOME/.claude/plugins/cache/cc-plugins/ccbell"
-LATEST_VERSION=$(find "$PLUGIN_DIR" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | sort -V | tail -1)
+# Find ccbell plugin in any marketplace path
+CCBELL_PATH=$(find "$HOME/.claude/plugins/cache" -mindepth 3 -maxdepth 3 -type d -name "ccbell" 2>/dev/null | head -1)
+LATEST_VERSION=$(find "$CCBELL_PATH" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | sort -V | tail -1)
 
 if [ -z "$LATEST_VERSION" ]; then
     echo "Error: Could not find installed plugin version"
     exit 1
 fi
 
-PLUGIN_ROOT="$PLUGIN_DIR/$LATEST_VERSION"
+PLUGIN_ROOT="$CCBELL_PATH/$LATEST_VERSION"
 
 # Test specific event
 "$PLUGIN_ROOT/scripts/ccbell.sh" <event_name>
@@ -109,9 +109,10 @@ If sounds don't play:
 To test sounds ignoring quiet hours and cooldowns, use ccbell.sh directly:
 
 ```bash
-PLUGIN_DIR="$HOME/.claude/plugins/cache/cc-plugins/ccbell"
-LATEST_VERSION=$(find "$PLUGIN_DIR" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | sort -V | tail -1)
-"$PLUGIN_DIR/$LATEST_VERSION/scripts/ccbell.sh" stop
+# Find ccbell plugin in any marketplace path
+CCBELL_PATH=$(find "$HOME/.claude/plugins/cache" -mindepth 3 -maxdepth 3 -type d -name "ccbell" 2>/dev/null | head -1)
+LATEST_VERSION=$(find "$CCBELL_PATH" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | sort -V | tail -1)
+"$CCBELL_PATH/$LATEST_VERSION/scripts/ccbell.sh" stop
 ```
 
 This confirms audio output is working independent of ccbell config.
