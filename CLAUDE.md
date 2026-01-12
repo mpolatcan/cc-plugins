@@ -6,70 +6,50 @@ Claude Code plugin marketplace - hosts distributable plugins.
 
 ## Purpose
 
-Contains plugin distributions that users install via `/plugin install <plugin_name>`. Currently hosts the `ccbell` plugin.
+Contains plugin distributions installed via `/plugin install <plugin_name>`. Currently hosts the `ccbell` plugin.
 
 ## Important: No Postinstall Script Support
 
-Claude Code plugins do NOT support `scripts/postinstall` in the plugin manifest. The binary must be installed manually or via a different mechanism.
-
-**Always refer to the official Claude Code documentation for the latest plugin and hooks specifications:**
-- [Plugins Reference](https://code.claude.com/docs/en/plugins-reference)
-- [Hooks Reference](https://code.claude.com/docs/en/hooks)
-
-Plugin schemas and hook events may change. The documentation below reflects the current state at the time of writing.
+Claude Code plugins do NOT support `scripts/postinstall` in the plugin manifest. The binary must be installed via `scripts/ccbell.sh` which downloads from GitHub releases on first use.
 
 ## Structure
 
 ```
 plugins/ccbell/
-├── plugin.json         # Plugin manifest
-├── hooks/              # Claude Code hook definitions (hooks.json)
+├── .claude-plugin/
+│   └── plugin.json     # Plugin manifest with commands and hooks
 ├── sounds/             # Audio files (.aiff)
 ├── commands/           # Slash command documentation (.md)
-├── scripts/            # ccbell.sh (auto-downloads binary from GitHub releases)
-└── README.md           # Plugin documentation
+└── scripts/
+    └── ccbell.sh       # Auto-downloads binary from GitHub releases
 ```
+
+## Official Documentation (ALWAYS refer to these)
+
+Plugin schemas and hook events may change. Always consult the official documentation.
+
+| Documentation | URL |
+|--------------|-----|
+| **Plugins Reference** | https://code.claude.com/docs/en/plugins-reference |
+| **Hooks Reference** | https://code.claude.com/docs/en/hooks |
+
+### Key Sections
+
+- **Plugin Manifest** - https://code.claude.com/docs/en/plugins-reference#manifest
+- **Commands** - https://code.claude.com/docs/en/plugins-reference#commands
+- **Hooks** - https://code.claude.com/docs/en/plugins-reference#hooks
+- **Hook Events** - https://code.claude.com/docs/en/hooks#events
 
 ## ccbell Plugin
 
-The `ccbell` plugin distributes:
-- Audio files for notifications
-- Hook definitions that trigger `ccbell <event>` commands
-- Slash commands (`/ccbell:*`)
+Distributes audio notifications for:
+- `Stop` - Claude finishes responding
+- `Notification` (permission_prompt) - Claude needs permission
+- `Notification` (idle_prompt) - User waiting for input
+- `SubagentStop` - Subagent task completes
 
-**Hook Events Used:**
-| Event | Description |
-|-------|-------------|
-| `Stop` | Claude finishes responding |
-| `PermissionPrompt` | Claude needs permission |
-| `UserPromptSubmit` | User waiting for input |
-| `SubagentStop` | Subagent task completes |
-
-**Hook Structure (hooks.json):**
-```json
-{
-  "Stop": [
-    {
-      "matcher": "*",
-      "hooks": [
-        {
-          "type": "command",
-          "command": "ccbell stop"
-        }
-      ]
-    }
-  ]
-}
-```
-
-**Note:** The `ccbell.sh` script automatically downloads and installs the correct binary for your platform from GitHub releases:
-
-## Installation Steps
+## Installation
 
 1. Add marketplace: `/plugin marketplace add mpolatcan/cc-plugins`
 2. Install plugin: `/plugin install ccbell`
-3. The `ccbell.sh` script automatically downloads the binary from GitHub releases
-
-## Note
-
-This is a distribution repository - no build commands needed. Plugins are installed directly from this repository.
+3. Binary is downloaded automatically by `ccbell.sh` on first use
