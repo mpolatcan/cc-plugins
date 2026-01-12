@@ -83,6 +83,13 @@ main() {
             unzip -q "$tmp_file" -d "$bin_dir"
         fi
 
+        # Rename extracted binary to just 'ccbell'
+        local extracted_binary="${bin_dir}/${BINARY_NAME}-${os}-${arch}"
+        [[ "$os" == "windows" ]] && extracted_binary="${extracted_binary}.exe"
+        if [[ -f "$extracted_binary" ]]; then
+            mv "$extracted_binary" "$binary"
+        fi
+
         chmod +x "$binary"
         echo "ccbell: Installed to ${binary}" >&2
     fi
