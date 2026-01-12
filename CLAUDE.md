@@ -24,9 +24,25 @@ plugins/ccbell/
     └── ccbell.sh       # Auto-downloads binary from GitHub releases
 ```
 
-## Official Documentation (ALWAYS refer to these)
+## CRITICAL: ALWAYS Verify Against Official Documentation
 
-Plugin schemas and hook events may change. Always consult the official documentation.
+**Plugin schemas, hook events, and manifest formats may change between Claude Code versions.**
+
+**NEVER assume existing code is correct. ALWAYS verify against the official documentation before making any changes or validating plugin structures.**
+
+### How to Verify
+
+Use the `context7` MCP tool to query the latest official documentation:
+
+```
+1. Resolve library: mcp__context7__resolve-library-id with libraryName="claude-code"
+2. Query docs: mcp__context7__query-docs with libraryId from step 1
+```
+
+Example queries:
+- "plugin manifest schema JSON structure commands hooks specification"
+- "hooks.json hook event matcher type command timeout configuration"
+- "plugin.json hooks array format with event field inline hooks specification schema"
 
 ### Plugins Documentation (ALWAYS refer to these)
 
@@ -47,7 +63,7 @@ Plugin schemas and hook events may change. Always consult the official documenta
 - **Discover Plugins** - https://code.claude.com/docs/en/discover-plugins
 - **Plugin Marketplaces** - https://code.claude.com/docs/en/plugin-marketplaces
 
-### Hooks Documentation (ALWAYS refer to these)
+### Hooks Documentation (NEVER SKIP - Always verify against these)
 
 **Main Hooks Reference:** https://code.claude.com/docs/en/hooks
 
@@ -60,13 +76,12 @@ Plugin schemas and hook events may change. Always consult the official documenta
 | **Timeout** | https://code.claude.com/docs/en/hooks#timeout |
 | **Input/Output** | https://code.claude.com/docs/en/hooks#inputoutput |
 
-**ALWAYS consult these pages for:**
-- Complete list of available hook events (Stop, PermissionPrompt, Notification, UserPromptSubmit, SubagentStop, etc.)
-- Hook type specifications (command, agent, skill)
-- Matcher patterns and syntax
-- Timeout configuration
-- Input/output handling
-- Plugin manifest schema
+**VALIDATION CHECKLIST (NEVER SKIP):**
+- [ ] Verify hook structure format (array with `event` vs object with event as key)
+- [ ] Confirm hook event names are current (e.g., `Notification` vs separate events)
+- [ ] Validate hook type specifications (command, agent, skill)
+- [ ] Check matcher patterns and syntax are up to date
+- [ ] Confirm timeout defaults and maximum values
 
 ## ccbell Plugin
 
