@@ -20,38 +20,32 @@ $ARGUMENTS
 
 ## Instructions
 
-### 1. Determine Plugin Location
-
-The plugin is located at `$CLAUDE_PLUGIN_ROOT` or `~/.claude/plugins/local/ccbell`.
-
-### 2. Check Current Status
+### 1. Check Current Status
 
 Before testing, optionally show:
 - If quiet hours are active (sounds may be suppressed)
 - If any cooldowns are in effect
 - Current profile
 
-### 3. Test Sounds
+### 2. Test Sounds
 
-Based on the argument provided, run the appropriate test:
+Based on the argument provided, run the appropriate test. CLAUDE_PLUGIN_ROOT is automatically set by Claude Code.
 
 **For specific event:**
 ```bash
-PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$HOME/.claude/plugins/marketplace/cc-plugins/plugins/ccbell}"
-"$PLUGIN_ROOT/scripts/ccbell.sh" <event_name>
+"$CLAUDE_PLUGIN_ROOT/scripts/ccbell.sh" <event_name>
 ```
 
 **For all events:**
 ```bash
-PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$HOME/.claude/plugins/marketplace/cc-plugins/plugins/ccbell}"
 for event in stop permission_prompt subagent; do
   echo "Testing: $event"
-  "$PLUGIN_ROOT/scripts/ccbell.sh" "$event"
+  "$CLAUDE_PLUGIN_ROOT/scripts/ccbell.sh" "$event"
   sleep 1.5
 done
 ```
 
-### 4. Report Results
+### 3. Report Results
 
 After testing, report which sounds played:
 
@@ -72,7 +66,7 @@ All enabled sounds working correctly!
 To change sounds, run /ccbell:configure
 ```
 
-### 5. If Sounds Didn't Play
+### 4. If Sounds Didn't Play
 
 Check potential issues:
 
@@ -99,7 +93,7 @@ if [ -f "$HOME/.claude/ccbell.log" ]; then
 fi
 ```
 
-### 6. Troubleshooting Tips
+### 5. Troubleshooting Tips
 
 If sounds don't play:
 1. **Quiet hours active?** Check if current time is in quiet period
@@ -110,13 +104,12 @@ If sounds don't play:
 6. **Enable debug mode:** Set `"debug": true` in config and check `~/.claude/ccbell.log`
 7. **Verify sounds exist:** Check `$CLAUDE_PLUGIN_ROOT/sounds/` directory
 
-### 7. Force Test (Bypass Checks)
+### 6. Force Test (Bypass Checks)
 
 To test sounds ignoring quiet hours and cooldowns, use ccbell.sh directly:
 
 ```bash
-PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$HOME/.claude/plugins/marketplace/cc-plugins/plugins/ccbell}"
-"$PLUGIN_ROOT/scripts/ccbell.sh" stop
+"$CLAUDE_PLUGIN_ROOT/scripts/ccbell.sh" stop
 ```
 
 This confirms audio output is working independent of ccbell config.

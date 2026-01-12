@@ -11,20 +11,20 @@ Run a comprehensive validation of the ccbell plugin installation and configurati
 
 ### 1. Check Plugin Installation
 
+CLAUDE_PLUGIN_ROOT is automatically set by Claude Code.
+
 ```bash
-# Set plugin root
-PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$HOME/.claude/plugins/local/ccbell}"
-SCRIPTS_DIR="$PLUGIN_ROOT/scripts"
-SOUNDS_DIR="$PLUGIN_ROOT/sounds"
+SCRIPTS_DIR="$CLAUDE_PLUGIN_ROOT/scripts"
+SOUNDS_DIR="$CLAUDE_PLUGIN_ROOT/sounds"
 
 echo "=== ccbell Validation ==="
 echo ""
 
 # Check if plugin root exists
-if [ -d "$PLUGIN_ROOT" ]; then
-    echo "Plugin directory: OK ($PLUGIN_ROOT)"
+if [ -d "$CLAUDE_PLUGIN_ROOT" ]; then
+    echo "Plugin directory: OK ($CLAUDE_PLUGIN_ROOT)"
 else
-    echo "Plugin directory: MISSING ($PLUGIN_ROOT)"
+    echo "Plugin directory: MISSING ($CLAUDE_PLUGIN_ROOT)"
     echo "Please ensure the plugin is installed."
     exit 1
 fi
@@ -151,7 +151,7 @@ done
 echo ""
 echo "=== Binary Check ==="
 
-BIN_DIR="$PLUGIN_ROOT/bin"
+BIN_DIR="$CLAUDE_PLUGIN_ROOT/bin"
 BINARY="$BIN_DIR/ccbell"
 
 # Try to download/ensure binary exists by running ccbell.sh with stop event
@@ -224,9 +224,9 @@ echo "=== Validation Complete ==="
 If binary download fails:
 - Check internet connectivity
 - Verify GitHub releases are accessible: https://github.com/mpolatcan/ccbell/releases
-- Ensure write permission to `$PLUGIN_ROOT/bin`
+- Ensure write permission to `$CLAUDE_PLUGIN_ROOT/bin`
 
 If sounds fail to play:
 - Check audio player installation
-- Verify sound files exist in `$PLUGIN_ROOT/sounds`
+- Verify sound files exist in `$CLAUDE_PLUGIN_ROOT/sounds`
 - Check system volume settings
