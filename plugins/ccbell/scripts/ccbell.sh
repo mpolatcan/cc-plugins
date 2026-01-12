@@ -4,7 +4,7 @@ set -euo pipefail
 
 REPO="mpolatcan/ccbell"
 BINARY_NAME="ccbell"
-PLUGIN_VERSION="0.2.7"
+PLUGIN_VERSION="0.2.8"
 
 # Detect platform
 detect_os() {
@@ -27,7 +27,7 @@ detect_arch() {
 # Detect plugin root
 get_plugin_root() {
     # Use CLAUDE_PLUGIN_ROOT if set (for hooks)
-    if [[ -n "$CLAUDE_PLUGIN_ROOT" ]]; then
+    if [[ -n "${CLAUDE_PLUGIN_ROOT:-}" ]]; then
         echo "$CLAUDE_PLUGIN_ROOT"
         return 0
     fi
