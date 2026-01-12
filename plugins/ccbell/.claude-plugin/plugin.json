@@ -43,50 +43,52 @@
       "description": "Show ccbell help and documentation"
     }
   ],
-  "hooks": [
-    {
-      "event": "Stop",
-      "matcher": "*",
-      "hooks": [
-        {
-          "type": "command",
-          "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh stop",
-          "timeout": 10
-        }
-      ]
-    },
-    {
-      "event": "Notification",
-      "matcher": "permission_prompt",
-      "hooks": [
-        {
-          "type": "command",
-          "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh permission_prompt",
-          "timeout": 10
-        }
-      ]
-    },
-    {
-      "event": "Notification",
-      "matcher": "idle_prompt",
-      "hooks": [
-        {
-          "type": "command",
-          "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh idle_prompt",
-          "timeout": 10
-        }
-      ]
-    },
-    {
-      "event": "SubagentStop",
-      "matcher": "*",
-      "hooks": [
-        {
-          "type": "command",
-          "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh subagent",
-          "timeout": 10
-        }
-      ]
-    }
-  ]
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh stop",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "permission_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh permission_prompt",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "idle_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh idle_prompt",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh subagent",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
 }
