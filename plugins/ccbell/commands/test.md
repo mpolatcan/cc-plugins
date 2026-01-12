@@ -20,39 +20,25 @@ $ARGUMENTS
 
 ## Instructions
 
-### 1. Detect Plugin Root
+### 1. Test Sounds
 
-```bash
-PLUGIN_ROOT="$HOME/.claude/plugins/cache/cc-plugins/ccbell/${PLUGIN_VERSION}"
-```
-
-### 2. Check Current Status
-
-Before testing, optionally show:
-- If quiet hours are active (sounds may be suppressed)
-- If any cooldowns are in effect
-- Current profile
-
-### 3. Test Sounds
-
-Based on the argument provided, run the appropriate test:
+ccbell.sh automatically detects the plugin root.
 
 **For specific event:**
 ```bash
-"$PLUGIN_ROOT/scripts/ccbell.sh" <event_name>
+"$HOME/.claude/plugins/cache/cc-plugins/ccbell/${PLUGIN_VERSION}/scripts/ccbell.sh" <event_name>
 ```
 
 **For all events:**
 ```bash
-PLUGIN_ROOT="$(...)"  # From step 1
 for event in stop permission_prompt subagent; do
   echo "Testing: $event"
-  "$PLUGIN_ROOT/scripts/ccbell.sh" "$event"
+  "$HOME/.claude/plugins/cache/cc-plugins/ccbell/${PLUGIN_VERSION}/scripts/ccbell.sh" "$event"
   sleep 1.5
 done
 ```
 
-### 4. Report Results
+### 2. Report Results
 
 After testing, report which sounds played:
 
@@ -73,7 +59,7 @@ All enabled sounds working correctly!
 To change sounds, run /ccbell:configure
 ```
 
-### 5. If Sounds Didn't Play
+### 3. If Sounds Didn't Play
 
 Check potential issues:
 
@@ -100,7 +86,7 @@ if [ -f "$HOME/.claude/ccbell.log" ]; then
 fi
 ```
 
-### 6. Troubleshooting Tips
+### 4. Troubleshooting Tips
 
 If sounds don't play:
 1. **Quiet hours active?** Check if current time is in quiet period
@@ -109,15 +95,13 @@ If sounds don't play:
 4. **Plugin enabled?** Check `enabled: true` in config
 5. **Audio working?** Test with platform-specific player (afplay on macOS, paplay/mpv on Linux, PowerShell on Windows)
 6. **Enable debug mode:** Set `"debug": true` in config and check `~/.claude/ccbell.log`
-7. **Verify sounds exist:** Check `$PLUGIN_ROOT/sounds/` directory
 
-### 7. Force Test (Bypass Checks)
+### 5. Force Test (Bypass Checks)
 
 To test sounds ignoring quiet hours and cooldowns, use ccbell.sh directly:
 
 ```bash
-PLUGIN_ROOT="$(...)"  # From step 1
-"$PLUGIN_ROOT/scripts/ccbell.sh" stop
+"$HOME/.claude/plugins/cache/cc-plugins/ccbell/${PLUGIN_VERSION}/scripts/ccbell.sh" stop
 ```
 
 This confirms audio output is working independent of ccbell config.
