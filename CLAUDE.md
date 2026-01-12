@@ -118,11 +118,9 @@ When validating plugin code, ALWAYS query these topics:
 | :card_file_box: **Manifest Schema** | https://code.claude.com/docs/en/plugins-reference#manifest-schema |
 | :speech_balloon: **Command Spec** | https://code.claude.com/docs/en/plugins-reference#command-spec |
 | :hook: **Hook Spec** | https://code.claude.com/docs/en/plugins-reference#hook-spec |
-
-**:eyes: Also See:**
-- :package: **Plugins Overview** - https://code.claude.com/docs/en/plugins
-- :mag: **Discover Plugins** - https://code.claude.com/docs/en/discover-plugins
-- :shopping_cart: **Plugin Marketplaces** - https://code.claude.com/docs/en/plugin-marketplaces
+| :package: **Plugins Overview** | https://code.claude.com/docs/en/plugins |
+| :mag: **Discover Plugins** | https://code.claude.com/docs/en/discover-plugins |
+| :shopping_cart: **Plugin Marketplaces** | https://code.claude.com/docs/en/plugin-marketplaces |
 
 ### :hook: Hooks Documentation (ALWAYS READ - NEVER skip) :hook:
 
