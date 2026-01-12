@@ -14,9 +14,6 @@ Run a comprehensive validation of the ccbell plugin installation and configurati
 CLAUDE_PLUGIN_ROOT is automatically set by Claude Code.
 
 ```bash
-SCRIPTS_DIR="$CLAUDE_PLUGIN_ROOT/scripts"
-SOUNDS_DIR="$CLAUDE_PLUGIN_ROOT/sounds"
-
 echo "=== ccbell Validation ==="
 echo ""
 
@@ -30,11 +27,11 @@ else
 fi
 
 # Check if ccbell.sh script exists
-if [ -x "$SCRIPTS_DIR/ccbell.sh" ]; then
+if [ -x "$CLAUDE_PLUGIN_ROOT/scripts/ccbell.sh" ]; then
     echo "ccbell.sh script: OK (executable)"
 else
     echo "ccbell.sh script: ERROR (not found or not executable)"
-    echo "Expected at: $SCRIPTS_DIR/ccbell.sh"
+    echo "Expected at: $CLAUDE_PLUGIN_ROOT/scripts/ccbell.sh"
     exit 1
 fi
 ```
@@ -50,7 +47,7 @@ SOUNDS_OK=0
 SOUNDS_MISSING=0
 
 for sound in "${REQUIRED_SOUNDS[@]}"; do
-    SOUND_FILE="$SOUNDS_DIR/${sound}.aiff"
+    SOUND_FILE="$CLAUDE_PLUGIN_ROOT/sounds/${sound}.aiff"
     if [ -f "$SOUND_FILE" ]; then
         echo "Sound ($sound): OK"
         SOUNDS_OK=$((SOUNDS_OK + 1))
@@ -109,7 +106,7 @@ echo "=== Sound Playback (Direct) ==="
 echo "Playing sounds with native audio player..."
 
 for sound in "${REQUIRED_SOUNDS[@]}"; do
-    SOUND_FILE="$SOUNDS_DIR/${sound}.aiff"
+    SOUND_FILE="$CLAUDE_PLUGIN_ROOT/sounds/${sound}.aiff"
     if [ -f "$SOUND_FILE" ]; then
         echo -n "  Testing $sound... "
 
@@ -151,14 +148,13 @@ done
 echo ""
 echo "=== Binary Check ==="
 
-BIN_DIR="$CLAUDE_PLUGIN_ROOT/bin"
-BINARY="$BIN_DIR/ccbell"
+BINARY="$CLAUDE_PLUGIN_ROOT/bin/ccbell"
 
 # Try to download/ensure binary exists by running ccbell.sh with stop event
 # This will download the binary if missing
 echo "Checking/downloading ccbell binary..."
 
-if "$SCRIPTS_DIR/ccbell.sh" stop 2>&1; then
+if "$CLAUDE_PLUGIN_ROOT/scripts/ccbell.sh" stop 2>&1; then
     echo "Binary: OK (download/verified successfully)"
 
     # Get version info
