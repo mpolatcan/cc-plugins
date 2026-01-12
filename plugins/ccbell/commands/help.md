@@ -28,6 +28,7 @@ other windows without constantly checking if Claude is done.
 
 - **Stop** - Plays when Claude finishes responding
 - **Permission Prompt** - Plays when Claude needs your permission
+- **Idle Prompt** - Plays when Claude is waiting for input
 - **Subagent** - Plays when a background agent completes
 
 ## Commands
@@ -75,7 +76,7 @@ Enable logging for troubleshooting:
 ### Bundled Sounds
 Pre-packaged sounds included with the plugin. These work consistently across all platforms.
 
-Available: `bundled:stop`, `bundled:permission_prompt`, `bundled:subagent`
+Available: `bundled:stop`, `bundled:permission_prompt`, `bundled:idle_prompt`, `bundled:subagent`
 
 ### Custom Sounds
 Use your own audio files (MP3, WAV, AIFF, M4A).
@@ -112,6 +113,12 @@ Project config takes precedence over global config.
       "enabled": true,
       "sound": "bundled:permission_prompt",
       "volume": 0.7,
+      "cooldown": 0
+    },
+    "idle_prompt": {
+      "enabled": true,
+      "sound": "bundled:idle_prompt",
+      "volume": 0.5,
       "cooldown": 0
     },
     "subagent": {

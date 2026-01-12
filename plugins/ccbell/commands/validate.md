@@ -44,7 +44,7 @@ fi
 echo ""
 echo "=== Sound Files Check ==="
 
-REQUIRED_SOUNDS=("stop" "permission_prompt" "subagent")
+REQUIRED_SOUNDS=("stop" "permission_prompt" "idle_prompt" "subagent")
 SOUNDS_OK=0
 SOUNDS_MISSING=0
 

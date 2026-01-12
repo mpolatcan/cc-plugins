@@ -13,6 +13,7 @@ ccbell uses bundled sounds by default for consistent cross-platform support:
 
 - `bundled:stop` - Claude finished responding
 - `bundled:permission_prompt` - Claude needs your permission
+- `bundled:idle_prompt` - Claude is waiting for input
 - `bundled:subagent` - Background agent completed
 
 You can also use custom sounds:
@@ -163,6 +164,12 @@ Create the configuration file at `.claude/ccbell.config.json` (project) or `~/.c
       "volume": 0.7,
       "cooldown": 0
     },
+    "idle_prompt": {
+      "enabled": true,
+      "sound": "bundled:idle_prompt",
+      "volume": 0.5,
+      "cooldown": 0
+    },
     "subagent": {
       "enabled": true,
       "sound": "bundled:subagent",
@@ -179,7 +186,7 @@ After writing the config, confirm to the user and offer to test the sounds with 
 
 ## Sound Specification Formats
 
-- `bundled:stop`, `bundled:permission_prompt`, `bundled:subagent` - Bundled sounds (recommended)
+- `bundled:stop`, `bundled:permission_prompt`, `bundled:idle_prompt`, `bundled:subagent` - Bundled sounds (recommended)
 - `custom:/path/to/sound.mp3` - Custom audio file (absolute path required)
 
 ## Configuration Options Reference

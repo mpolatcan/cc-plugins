@@ -39,6 +39,12 @@ If no config exists, create a default one:
       "volume": 0.7,
       "cooldown": 0
     },
+    "idle_prompt": {
+      "enabled": true,
+      "sound": "bundled:idle_prompt",
+      "volume": 0.5,
+      "cooldown": 0
+    },
     "subagent": {
       "enabled": true,
       "sound": "bundled:subagent",
@@ -64,6 +70,7 @@ ccbell sound notifications enabled!
 Sounds will play for:
 - Stop (Claude finishes responding)
 - Permission Prompt (needs approval)
+- Idle Prompt (waiting for input)
 - Subagent (background agent completes)
 
 Run /ccbell:test to verify sounds work.

@@ -1,6 +1,5 @@
 ---
 description: Show current ccbell configuration status
-argument-hint: ""
 allowed-tools: ["Read", "Bash"]
 ---
 
@@ -35,9 +34,9 @@ Not configured / 22:00 - 07:00 (currently active/inactive)
 
 | Event | Enabled | Sound | Volume | Cooldown |
 |-------|---------|-------|--------|----------|
-| Stop | Yes | bundled:stop | 0.5 | 5s |
+| Stop | Yes | bundled:stop | 0.5 | 0s |
 | Permission Prompt | Yes | bundled:permission_prompt | 0.7 | 0s |
-| Subagent | Yes | bundled:subagent | 0.5 | 5s |
+| Subagent | Yes | bundled:subagent | 0.5 | 0s |
 
 ### Profiles Available
 - default (active)
