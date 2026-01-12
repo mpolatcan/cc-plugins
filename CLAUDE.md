@@ -8,10 +8,6 @@ Claude Code plugin marketplace - hosts distributable plugins.
 
 Contains plugin distributions installed via `/plugin install <plugin_name>`. Currently hosts the `ccbell` plugin.
 
-## Important: No Postinstall Script Support
-
-Claude Code plugins do NOT support `scripts/postinstall` in the plugin manifest. The binary must be installed via `scripts/ccbell.sh` which downloads from GitHub releases on first use.
-
 ## CRITICAL: ALWAYS Use TodoWrite for Task Tracking
 
 **For every development task, you MUST create and maintain a todo list using the `TodoWrite` tool.**
@@ -157,9 +153,3 @@ Distributes audio notifications for:
 - `Notification` (permission_prompt) - Claude needs permission
 - `Notification` (idle_prompt) - User waiting for input
 - `SubagentStop` - Subagent task completes
-
-## Installation
-
-1. Add marketplace: `/plugin marketplace add mpolatcan/cc-plugins`
-2. Install plugin: `/plugin install ccbell`
-3. Binary is downloaded automatically by `ccbell.sh` on first use
