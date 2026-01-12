@@ -58,6 +58,12 @@ main() {
 
     local plugin_root
     plugin_root=$(get_plugin_root)
+
+    if [[ -z "$plugin_root" ]]; then
+        echo "ccbell: Could not determine plugin root" >&2
+        exit 1
+    fi
+
     local bin_dir="${plugin_root}/bin"
     local binary="${bin_dir}/${BINARY_NAME}"
     [[ "$(detect_os)" == "windows" ]] && binary="${binary}.exe"

@@ -51,7 +51,9 @@ If no config exists, create a default one:
 
 ### 3. Write Configuration
 
-Write the updated config to `~/.claude/ccbell.config.json`.
+Write the updated config. Project config takes precedence:
+- Project: `.claude/ccbell.config.json`
+- Global: `~/.claude/ccbell.config.json`
 
 ### 4. Confirm
 

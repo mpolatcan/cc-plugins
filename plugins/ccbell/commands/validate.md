@@ -21,7 +21,7 @@ PLUGIN_DIR="$HOME/.claude/plugins/cache/cc-plugins/ccbell"
 LATEST_VERSION=$(find "$PLUGIN_DIR" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | sort -V | tail -1)
 
 if [ -z "$LATEST_VERSION" ]; then
-    echo "Plugin directory: MISSING"
+    echo "Plugin directory: MISSING ($PLUGIN_DIR)"
     echo "Please ensure the plugin is installed."
     exit 1
 fi

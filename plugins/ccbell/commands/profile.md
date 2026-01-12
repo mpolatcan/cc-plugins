@@ -16,8 +16,8 @@ When configuring profiles, offer these presets:
 | **default** | Standard settings - all events enabled at medium volume |
 | **focus** | Minimal interruptions - only permission prompts at low volume |
 | **work** | Professional mode - subtle sounds for all events |
-| **silent** | All notifications disabled |
 | **loud** | Maximum volume for all events |
+| **silent** | All notifications disabled |
 
 ## Profile Command Workflow
 

@@ -44,6 +44,7 @@ Not configured / 22:00 - 07:00 (currently active/inactive)
 - work
 - focus
 - silent
+- loud
 
 ### Quick Commands
 

@@ -63,7 +63,7 @@ Set time windows when notifications are suppressed:
 ### Cooldowns (Debounce)
 Prevent notification spam with per-event cooldowns:
 - Set minimum seconds between same event notifications
-- Example: 5-second cooldown on stop events
+- Example: `"cooldown": 5` means at least 5 seconds between sounds
 
 ### Debug Mode
 Enable logging for troubleshooting:
@@ -152,6 +152,7 @@ Project config takes precedence over global config.
 3. Run `/ccbell:status` to verify config
 4. Enable debug mode and check `~/.claude/ccbell.log`
 5. Verify bundled sounds exist in the plugin's sounds/ directory
+6. Run `/ccbell:validate` to diagnose installation issues
 
 **Too many notifications?**
 Configure cooldowns in `/ccbell:configure` to add delays between sounds.
@@ -167,4 +168,3 @@ The installer automatically downloads the correct binary for your platform.
 ## Source Code
 
 The ccbell binary is built from: https://github.com/mpolatcan/ccbell
-```
