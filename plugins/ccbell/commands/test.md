@@ -27,7 +27,13 @@ Find latest installed plugin version and test sounds.
 ```bash
 # Find latest version folder
 PLUGIN_DIR="$HOME/.claude/plugins/cache/cc-plugins/ccbell"
-LATEST_VERSION=$(find "$PLUGIN_DIR" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort -V | tail -1)
+LATEST_VERSION=$(find "$PLUGIN_DIR" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | sort -V | tail -1)
+
+if [ -z "$LATEST_VERSION" ]; then
+    echo "Error: Could not find installed plugin version"
+    exit 1
+fi
+
 PLUGIN_ROOT="$PLUGIN_DIR/$LATEST_VERSION"
 
 # Test specific event
@@ -105,7 +111,7 @@ To test sounds ignoring quiet hours and cooldowns, use ccbell.sh directly:
 
 ```bash
 PLUGIN_DIR="$HOME/.claude/plugins/cache/cc-plugins/ccbell"
-LATEST_VERSION=$(find "$PLUGIN_DIR" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort -V | tail -1)
+LATEST_VERSION=$(find "$PLUGIN_DIR" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | sort -V | tail -1)
 "$PLUGIN_DIR/$LATEST_VERSION/scripts/ccbell.sh" stop
 ```
 

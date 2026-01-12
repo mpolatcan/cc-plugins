@@ -102,6 +102,7 @@ if [ -z "$AUDIO_PLAYER" ]; then
     echo "Audio player: ERROR (no suitable player found for $OS_TYPE)"
     echo "  macOS requires: afplay"
     echo "  Linux requires: paplay, aplay, mpv, or ffplay"
+    echo "  Windows requires: PowerShell"
     exit 1
 fi
 
