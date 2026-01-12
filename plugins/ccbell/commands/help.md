@@ -50,8 +50,8 @@ Create and switch between different notification presets:
 - **default** - Standard settings
 - **focus** - Minimal interruptions
 - **work** - Professional, subtle sounds
-- **silent** - All notifications disabled
 - **loud** - Maximum volume for all events
+- **silent** - All notifications disabled
 
 Use `/ccbell:profile` to switch profiles.
 

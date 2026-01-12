@@ -41,10 +41,10 @@ Not configured / 22:00 - 07:00 (currently active/inactive)
 
 ### Profiles Available
 - default (active)
-- work
 - focus
-- silent
+- work
 - loud
+- silent
 
 ### Quick Commands
 

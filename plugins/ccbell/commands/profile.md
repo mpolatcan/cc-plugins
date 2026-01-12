@@ -120,22 +120,6 @@ Create profile in config if not exists, then activate:
 }
 ```
 
-#### silent
-```json
-{
-  "activeProfile": "silent",
-  "profiles": {
-    "silent": {
-      "events": {
-        "stop": { "enabled": false },
-        "permission_prompt": { "enabled": false },
-        "subagent": { "enabled": false }
-      }
-    }
-  }
-}
-```
-
 #### loud
 ```json
 {
@@ -146,6 +130,22 @@ Create profile in config if not exists, then activate:
         "stop": { "enabled": true, "sound": "bundled:stop", "volume": 1.0 },
         "permission_prompt": { "enabled": true, "sound": "bundled:permission_prompt", "volume": 1.0 },
         "subagent": { "enabled": true, "sound": "bundled:subagent", "volume": 1.0 }
+      }
+    }
+  }
+}
+```
+
+#### silent
+```json
+{
+  "activeProfile": "silent",
+  "profiles": {
+    "silent": {
+      "events": {
+        "stop": { "enabled": false },
+        "permission_prompt": { "enabled": false },
+        "subagent": { "enabled": false }
       }
     }
   }
