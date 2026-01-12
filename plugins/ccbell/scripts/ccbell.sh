@@ -137,7 +137,7 @@ main() {
         os=$(detect_os)
         arch=$(detect_arch)
         archive_name="${BINARY_NAME}-${os}-${arch}.tar.gz"
-        url="https://github.com/${REPO}/releases/latest/download/${archive_name}"
+        url="https://github.com/${REPO}/releases/download/v${PLUGIN_VERSION}/${archive_name}"
 
         echo "ccbell: Downloading binary..." >&2
         tmp_file=$(mktempXXXXXX).tar.gz
