@@ -8,7 +8,7 @@ Audio notifications for Claude Code events. Get notified when Claude finishes re
 - **Sound Profiles** - Switch between default, focus, work, loud, silent, and custom presets
 - **Quiet Hours** - Do-not-disturb time windows
 - **Cooldowns** - Debounce rapid notifications
-- **Cross-Platform** - macOS, Linux, Windows support
+- **Cross-Platform** - macOS and Linux support
 - **Flexible Sounds** - Bundled sounds, custom audio files
 
 ## Installation
@@ -39,7 +39,7 @@ Audio notifications for Claude Code events. Get notified when Claude finishes re
 | `/ccbell:status` | Show current configuration |
 | `/ccbell:profile` | Switch between sound profiles |
 | `/ccbell:validate` | Run installation diagnostics |
-| `/ccbell:help` | Show help documentation |
+| `/ccbell:help` | Show help and documentation |
 
 ## Supported Events
 
@@ -136,7 +136,6 @@ Config file:
 |----------|--------------|--------|
 | macOS | `afplay` | Full support |
 | Linux | `paplay`, `aplay`, `mpv`, `ffplay` | Requires one |
-| Windows | PowerShell | Basic support |
 
 ## Troubleshooting
 

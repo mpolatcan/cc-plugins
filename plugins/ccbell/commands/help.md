@@ -11,9 +11,10 @@ Show help and documentation for the ccbell plugin.
 
 **Plugin Root (find latest version):**
 ```bash
-PLUGIN_DIR="$HOME/.claude/plugins/cache/cc-plugins/ccbell"
-LATEST_VERSION=$(find "$PLUGIN_DIR" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | sort -V | tail -1)
-PLUGIN_ROOT="$PLUGIN_DIR/$LATEST_VERSION"
+# Find ccbell plugin in any marketplace path
+CCBELL_PATH=$(find "$HOME/.claude/plugins/cache" -mindepth 3 -maxdepth 3 -type d -name "ccbell" 2>/dev/null | head -1)
+LATEST_VERSION=$(find "$CCBELL_PATH" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | sort -V | tail -1)
+PLUGIN_ROOT="$CCBELL_PATH/$LATEST_VERSION"
 ```
 
 Provide the following information:
@@ -139,8 +140,6 @@ Config is stored at:
 
 - **macOS:** Full support (uses afplay)
 - **Linux:** Requires paplay, aplay, mpv, or ffplay
-- **Windows:** Uses PowerShell Media.SoundPlayer
-- **WSL:** Detected and handled as Linux
 
 ## Quick Start
 

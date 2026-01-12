@@ -1,5 +1,6 @@
 {
   "description": "Audio notification hooks for Claude Code events",
+  "homepage": "https://github.com/mpolatcan/cc-plugins/tree/main/plugins/ccbell",
   "hooks": {
     "Stop": [
       {

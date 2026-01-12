@@ -42,7 +42,7 @@ Audio notifications for Claude Code events - play sounds when Claude finishes re
 **Features:**
 - Play sounds on multiple Claude Code events (stop, permission_prompt, idle_prompt, subagent)
 - Support for bundled sounds, custom audio files
-- Cross-platform support (macOS, Linux, Windows)
+- Cross-platform support (macOS, Linux)
 - Easy configuration via slash commands
 
 ## Contributing
