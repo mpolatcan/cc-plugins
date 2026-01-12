@@ -16,8 +16,14 @@ jobs:
       - name: Validate JSON files
         run: |
           # Validate all JSON files
-          if ! find . -name "*.json" -exec python3 -m json.tool {} > /dev/null \; then
-            echo "Invalid JSON found"
+          invalid=0
+          while IFS= read -r -d '' file; do
+            if ! python3 -m json.tool "$file" > /dev/null 2>&1; then
+              echo "ERROR: Invalid JSON in $file"
+              invalid=1
+            fi
+          done < <(find . -name "*.json" -not -path "./.git/*" -print0)
+          if [ $invalid -eq 1 ]; then
             exit 1
           fi
 
