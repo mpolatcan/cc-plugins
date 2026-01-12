@@ -12,6 +12,57 @@ Contains plugin distributions installed via `/plugin install <plugin_name>`. Cur
 
 Claude Code plugins do NOT support `scripts/postinstall` in the plugin manifest. The binary must be installed via `scripts/ccbell.sh` which downloads from GitHub releases on first use.
 
+## CRITICAL: ALWAYS Use TodoWrite for Task Tracking
+
+**For every development task, you MUST create and maintain a todo list using the `TodoWrite` tool.**
+
+### Why Use TodoWrite
+
+- Tracks progress across complex multi-step tasks
+- Ensures no steps are forgotten
+- Provides visibility into task completion status
+- Helps break down complex work into manageable steps
+
+### Mandatory Todo Usage
+
+1. **Create todo list at task start:**
+   ```
+   TodoWrite with todos containing:
+   - content: "Task description"
+   - status: "pending|in_progress|completed"
+   - activeForm: "Current action being performed"
+   ```
+
+2. **Update as you work:**
+   - Mark `in_progress` when starting a task
+   - Mark `completed` when finished
+   - Add new todos discovered during work
+   - Remove completed todos (or keep as history)
+
+3. **Never have more than one `in_progress` task at a time**
+
+### Example Todo Structure
+
+```json
+[
+  {
+    "content": "Validate plugin.json against official schema",
+    "status": "in_progress",
+    "activeForm": "Validating plugin.json against official schema"
+  },
+  {
+    "content": "Fix hook structure format issues",
+    "status": "pending",
+    "activeForm": "Fixing hook structure format issues"
+  },
+  {
+    "content": "Update CLAUDE.md with findings",
+    "status": "pending",
+    "activeForm": "Updating CLAUDE.md with findings"
+  }
+]
+```
+
 ## Structure
 
 ```
