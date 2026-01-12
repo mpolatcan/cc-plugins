@@ -64,12 +64,21 @@ Contains plugin distributions installed via `/plugin install <plugin_name>`. Cur
 ```
 plugins/ccbell/
 ├── .claude-plugin/
-│   └── plugin.json     # Plugin manifest with commands and hooks
+│   └── plugin.json     # Plugin manifest (metadata + commands only)
+├── hooks/
+│   └── hooks.json      # Auto-discovered from plugin root
 ├── sounds/             # Audio files (.aiff)
 ├── commands/           # Slash command documentation (.md)
 └── scripts/
     └── ccbell.sh       # Auto-downloads binary from GitHub releases
 ```
+
+**:rotating_light: Critical Plugin Structure Rules (from official claude-code repo):rotating_light:**
+
+- `plugin.json` must be in `.claude-plugin/` folder at plugin root
+- **Do NOT** add `hooks` field to `plugin.json` - hooks are **auto-discovered** from `hooks/hooks.json`
+- Commands are **auto-discovered** from `commands/` directory
+- See [security-guidance](https://github.com/anthropics/claude-code/tree/main/plugins/security-guidance) as reference plugin
 
 ## :rotating_light: CRITICAL: ALWAYS Validate Against Official Documentation :rotating_light:
 
@@ -156,8 +165,11 @@ When validating plugin code, ALWAYS use BOTH methods:
 | :arrows_counterclockwise: **Input/Output** | https://code.claude.com/docs/en/hooks#inputoutput |
 
 **:clipboard: VALIDATION CHECKLIST (NEVER SKIP):**
-- :white_check_mark: Verify hook structure format (array with `event` vs object with event as key)
-- :white_check_mark: Confirm hook event names are current (e.g., `Notification` vs separate events)
+- :white_check_mark: Verify `plugin.json` is in `.claude-plugin/` folder (not plugin root)
+- :white_check_mark: **Do NOT** include `hooks` field in `plugin.json` - hooks auto-discovered
+- :white_check_mark: Verify hooks are in `hooks/hooks.json` at plugin root
+- :white_check_mark: Confirm hook event names are current (e.g., `Notification`, `Stop`, `SubagentStop`)
+- :white_check_mark: Validate hook structure format (wrapper with `description` + `hooks` object)
 - :white_check_mark: Validate hook type specifications (command, agent, skill)
 - :white_check_mark: Check matcher patterns and syntax are up to date
 - :white_check_mark: Confirm timeout defaults and maximum values

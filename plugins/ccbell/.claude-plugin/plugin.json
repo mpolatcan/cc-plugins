@@ -44,6 +44,5 @@
       "name": "ccbell:help",
       "description": "Show ccbell help and documentation"
     }
-  ],
-  "hooks": "./hooks/hooks.json"
+  ]
 }
