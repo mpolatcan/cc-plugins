@@ -15,6 +15,7 @@ Run a comprehensive validation of the ccbell plugin installation and configurati
 # Set plugin root
 PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$HOME/.claude/plugins/local/ccbell}"
 SCRIPTS_DIR="$PLUGIN_ROOT/scripts"
+SOUNDS_DIR="$PLUGIN_ROOT/sounds"
 
 echo "=== ccbell Validation ==="
 echo ""
@@ -38,40 +39,12 @@ else
 fi
 ```
 
-### 2. Download/Verify Binary
-
-```bash
-echo ""
-echo "=== Binary Check ==="
-
-BIN_DIR="$PLUGIN_ROOT/bin"
-BINARY="$BIN_DIR/ccbell"
-
-# Try to download/ensure binary exists by running ccbell.sh with stop event
-# This will download the binary if missing
-echo "Checking/.downloading ccbell binary..."
-
-if "$SCRIPTS_DIR/ccbell.sh" stop 2>&1; then
-    echo "Binary: OK (download/verified successfully)"
-
-    # Get version info
-    if [ -x "$BINARY" ]; then
-        VERSION=$("$BINARY" --version 2>/dev/null || echo "unknown")
-        echo "  Version: $VERSION"
-    fi
-else
-    echo "Binary: ERROR (download/verification failed)"
-    exit 1
-fi
-```
-
-### 3. Check Sound Files
+### 2. Check Sound Files
 
 ```bash
 echo ""
 echo "=== Sound Files Check ==="
 
-SOUNDS_DIR="$PLUGIN_ROOT/sounds"
 REQUIRED_SOUNDS=("stop" "permission_prompt" "idle_prompt" "subagent")
 SOUNDS_OK=0
 SOUNDS_MISSING=0
@@ -95,11 +68,11 @@ if [ $SOUNDS_MISSING -gt 0 ]; then
 fi
 ```
 
-### 4. Execute Sounds (Test Playback)
+### 3. Audio Player & Sound Playback
 
 ```bash
 echo ""
-echo "=== Sound Playback Test ==="
+echo "=== Audio Player Check ==="
 
 # Detect platform and audio player
 OS_TYPE="$(uname 2>/dev/null || echo 'unknown')"
@@ -125,52 +98,100 @@ if [ -z "$AUDIO_PLAYER" ]; then
     echo "Audio player: ERROR (no suitable player found for $OS_TYPE)"
     echo "  macOS requires: afplay"
     echo "  Linux requires: paplay, aplay, mpv, or ffplay"
+    exit 1
+fi
+
+echo "Audio player ($OS_TYPE): OK ($AUDIO_PLAYER)"
+
+# Test each sound with audio player
+echo ""
+echo "=== Sound Playback (Direct) ==="
+echo "Playing sounds with native audio player..."
+
+for sound in "${REQUIRED_SOUNDS[@]}"; do
+    SOUND_FILE="$SOUNDS_DIR/${sound}.aiff"
+    if [ -f "$SOUND_FILE" ]; then
+        echo -n "  Testing $sound... "
+
+        case "$OS_TYPE" in
+            Darwin)
+                afplay -v 0.2 "$SOUND_FILE" 2>/dev/null && echo "OK" || echo "FAILED"
+                sleep 0.3
+                ;;
+            Linux)
+                case "$AUDIO_PLAYER" in
+                    paplay)
+                        paplay "$SOUND_FILE" 2>/dev/null && echo "OK" || echo "FAILED"
+                        ;;
+                    aplay)
+                        aplay -q "$SOUND_FILE" && echo "OK" || echo "FAILED"
+                        ;;
+                    mpv)
+                        mpv --no-video --volume=30 "$SOUND_FILE" 2>/dev/null && echo "OK" || echo "FAILED"
+                        ;;
+                    ffplay)
+                        ffplay -nodisp -autoexit -volume=30 "$SOUND_FILE" 2>/dev/null && echo "OK" || echo "FAILED"
+                        ;;
+                esac
+                sleep 0.3
+                ;;
+            *)
+                echo "SKIPPED (unsupported platform)"
+                ;;
+        esac
+    else
+        echo "  Testing $sound... SKIPPED (file missing)"
+    fi
+done
+```
+
+### 4. Download/Verify Binary
+
+```bash
+echo ""
+echo "=== Binary Check ==="
+
+BIN_DIR="$PLUGIN_ROOT/bin"
+BINARY="$BIN_DIR/ccbell"
+
+# Try to download/ensure binary exists by running ccbell.sh with stop event
+# This will download the binary if missing
+echo "Checking/downloading ccbell binary..."
+
+if "$SCRIPTS_DIR/ccbell.sh" stop 2>&1; then
+    echo "Binary: OK (download/verified successfully)"
+
+    # Get version info
+    if [ -x "$BINARY" ]; then
+        VERSION=$("$BINARY" --version 2>/dev/null || echo "unknown")
+        echo "  Version: $VERSION"
+    fi
 else
-    echo "Audio player ($OS_TYPE): OK ($AUDIO_PLAYER)"
-
-    # Test each sound
-    echo ""
-    echo "Playing test sounds..."
-
-    for sound in "${REQUIRED_SOUNDS[@]}"; do
-        SOUND_FILE="$SOUNDS_DIR/${sound}.aiff"
-        if [ -f "$SOUND_FILE" ]; then
-            echo -n "  Testing $sound... "
-
-            case "$OS_TYPE" in
-                Darwin)
-                    afplay -v 0.2 "$SOUND_FILE" 2>/dev/null && echo "OK" || echo "FAILED"
-                    sleep 0.5
-                    ;;
-                Linux)
-                    case "$AUDIO_PLAYER" in
-                        paplay)
-                            paplay "$SOUND_FILE" 2>/dev/null && echo "OK" || echo "FAILED"
-                            ;;
-                        aplay)
-                            aplay -q "$SOUND_FILE" && echo "OK" || echo "FAILED"
-                            ;;
-                        mpv)
-                            mpv --no-video --volume=30 "$SOUND_FILE" 2>/dev/null && echo "OK" || echo "FAILED"
-                            ;;
-                        ffplay)
-                            ffplay -nodisp -autoexit -volume=30 "$SOUND_FILE" 2>/dev/null && echo "OK" || echo "FAILED"
-                            ;;
-                    esac
-                    sleep 0.5
-                    ;;
-                *)
-                    echo "SKIPPED (unsupported platform)"
-                    ;;
-            esac
-        else
-            echo "  Testing $sound... SKIPPED (file missing)"
-        fi
-    done
+    echo "Binary: ERROR (download/verification failed)"
+    exit 1
 fi
 ```
 
-### 5. Check Dependencies
+### 5. Play Sounds with ccbell Binary
+
+```bash
+echo ""
+echo "=== Sound Playback (ccbell) ==="
+echo "Playing sounds through ccbell binary..."
+
+# Test each sound using ccbell
+for sound in "${REQUIRED_SOUNDS[@]}"; do
+    echo -n "  Testing $sound... "
+    if "$BINARY" "$sound" 2>/dev/null; then
+        echo "OK"
+    else
+        echo "FAILED"
+    fi
+    sleep 0.3
+done
+```
+
+### 6. Check Dependencies
 
 ```bash
 echo ""
@@ -193,9 +214,10 @@ echo "=== Validation Complete ==="
 |-----------|--------|
 | Plugin directory | OK/MISSING |
 | ccbell.sh script | OK/ERROR |
-| Binary download | OK/ERROR |
 | Sound files | OK/MISSING (count) |
 | Audio player | OK/ERROR (player name) |
+| Binary download | OK/ERROR |
+| ccbell playback | OK/FAILED |
 
 ## Troubleshooting
 
