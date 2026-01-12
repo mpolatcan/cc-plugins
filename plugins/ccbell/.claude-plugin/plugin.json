@@ -1,4 +1,5 @@
 {
+  "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
   "name": "ccbell",
   "description": "Audio notifications for Claude Code events with profiles, quiet hours, cooldowns, and debug mode",
   "version": "3.0.0",

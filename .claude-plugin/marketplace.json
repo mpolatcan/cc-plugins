@@ -10,6 +10,7 @@
   "plugins": [
     {
       "name": "ccbell",
+      "version": "3.0.0",
       "description": "Audio notifications for Claude Code events with profiles, quiet hours, and cooldowns",
       "source": "./plugins/ccbell",
       "category": "productivity"
