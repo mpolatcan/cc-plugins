@@ -39,8 +39,6 @@ Not configured / 22:00 - 07:00 (currently active/inactive)
 | Permission Prompt | Yes | bundled:permission_prompt | 0.7 | 0s |
 | Subagent | Yes | bundled:subagent | 0.5 | 5s |
 
-**Note:** Idle Prompt is not currently supported as a hook event in Claude Code.
-
 ### Profiles Available
 - default (active)
 - work

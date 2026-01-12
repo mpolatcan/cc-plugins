@@ -65,8 +65,6 @@ Sounds will play for:
 - Permission Prompt (needs approval)
 - Subagent (background agent completes)
 
-Note: Idle Prompt is not currently supported as a hook event in Claude Code.
-
 Run /ccbell:test to verify sounds work.
 Run /ccbell:configure to customize sounds.
 ```

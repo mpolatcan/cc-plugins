@@ -42,8 +42,6 @@ Use AskUserQuestion to ask which events should trigger sounds:
 }
 ```
 
-**Note:** Idle Prompt is not currently supported as a hook event in Claude Code.
-
 ### 2. For Each Selected Event, Ask Sound Choice
 
 For each enabled event, ask the user to choose a sound:
