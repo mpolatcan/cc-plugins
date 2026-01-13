@@ -20,11 +20,24 @@ echo ""
 
 # Find ccbell plugin in any marketplace path
 CCBELL_PATH=$(find "$HOME/.claude/plugins/cache" -mindepth 3 -maxdepth 3 -type d -name "ccbell" 2>/dev/null | head -1)
+
+if [ -z "$CCBELL_PATH" ]; then
+    echo "Plugin directory: MISSING"
+    echo ""
+    echo "ccbell is NOT installed. To install, run:"
+    echo "  /plugin marketplace add mpolatcan/cc-plugins"
+    echo "  /plugin install ccbell"
+    echo ""
+    echo "For manual validation, ensure ccbell exists at:"
+    echo "  ~/.claude/plugins/cache/<marketplace>/ccbell/<version>/"
+    exit 1
+fi
+
 LATEST_VERSION=$(find "$CCBELL_PATH" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | sort -V | tail -1)
 
 if [ -z "$LATEST_VERSION" ]; then
-    echo "Plugin directory: MISSING"
-    echo "Please ensure the plugin is installed."
+    echo "Plugin directory: ERROR (no version found)"
+    echo "Please reinstall: /plugin install ccbell"
     exit 1
 fi
 
