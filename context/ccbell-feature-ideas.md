@@ -37,7 +37,7 @@ Audio notification enhancements for Claude Code.
 
 | # | Feature | Description |
 |---|---------|-------------|
-| 12 | **TTS Announcements** | Text-to-speech: "Claude finished", "Permission needed". Customizable phrases per event. |
+| 12 | **TTS Announcements** | Text-to-speech: "Claude finished", "Permission needed". Customizable phrases per event. Uses free offline TTS engines like [Piper](https://github.com/rhasspy/piper) or [Kokoro](https://github.com/hexgrad/Kokoro-82M). Small footprint (82M-100M params), runs locally, no cloud APIs. |
 | 13 | **Sound Randomization** | Play random sound from a set per event. Create sound pools for variety (e.g., 3 different "stop" sounds). |
 | 14 | **Export/Import Config** | Share configurations via JSON. Copy profile settings between machines or share with team. |
 | 15 | **Notification Stacking** | Queue rapid notifications and play them as a sequence. Prevent audio chaos during burst events. |
@@ -57,7 +57,6 @@ Audio notification enhancements for Claude Code.
 ## Potential Integration Ideas
 
 - **Claude Code Hook** - Support Extensions new hook types as they're released
-- **MCP Integration** - Expose ccbell functionality via MCP for other tools
 - **Shell Completion** - Add shell completion for event names and commands
 - **Config Schema Validation** - JSON Schema for config file with helpful error messages
 
