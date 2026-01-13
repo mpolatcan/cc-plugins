@@ -37,7 +37,7 @@ Audio notification enhancements for Claude Code.
 
 | # | Feature | Description |
 |---|---------|-------------|
-| 12 | **TTS Announcements** | Text-to-speech: "Claude finished", "Permission needed". Customizable phrases per event. Uses free offline TTS engines like [Piper](https://github.com/rhasspy/piper) or [Kokoro](https://github.com/hexgrad/Kokoro-82M). Small footprint (82M-100M params), runs locally, no cloud APIs. |
+| 12 | **TTS Announcements** | Text-to-speech: "Claude finished", "Permission needed". Customizable phrases per event. Lightweight options: [Flite](http://cmuflite.org/) (~2MB, Go bindings via [flite-go](https://github.com/gen2brain/flite-go)), [eSpeak NG](https://github.com/espeak-ng/espeak-ng) (~3MB). For higher quality: [Piper](https://github.com/rhasspy/piper), [Kokoro](https://github.com/hexgrad/Kokoro-82M). |
 | 13 | **Sound Randomization** | Play random sound from a set per event. Create sound pools for variety (e.g., 3 different "stop" sounds). |
 | 14 | **Export/Import Config** | Share configurations via JSON. Copy profile settings between machines or share with team. |
 | 15 | **Notification Stacking** | Queue rapid notifications and play them as a sequence. Prevent audio chaos during burst events. |
