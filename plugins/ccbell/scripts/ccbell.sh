@@ -19,7 +19,7 @@ download_binary() {
     check_download_tool || { echo "ccbell: Error: curl or wget required" >&2; exit 1; }
 
     OS=$(uname -s | tr '[:upper:]' '[:lower:]')
-    ARCH=$(uname -m | sed 's/x86_64/amd64/;s/arm64/aarch64/')
+    ARCH=$(uname -m | sed 's/x86_64/amd64/')
     URL="https://github.com/${REPO}/releases/download/v${VERSION}/ccbell-${OS}-${ARCH}.tar.gz"
 
     echo "ccbell: Downloading..." >&2
