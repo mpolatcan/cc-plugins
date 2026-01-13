@@ -1,4 +1,5 @@
 ---
+name: ccbell:status
 description: Show current ccbell configuration status
 allowed-tools: ["Read", "Bash"]
 ---
@@ -35,6 +36,7 @@ Not configured / 22:00 - 07:00 (currently active/inactive)
 |-------|---------|-------|--------|----------|
 | Stop | Yes | bundled:stop | 0.5 | 0s |
 | Permission Prompt | Yes | bundled:permission_prompt | 0.7 | 0s |
+| Idle Prompt | Yes | bundled:idle_prompt | 0.5 | 0s |
 | Subagent | Yes | bundled:subagent | 0.5 | 0s |
 
 ### Profiles Available

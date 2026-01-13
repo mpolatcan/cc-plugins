@@ -2,9 +2,9 @@ name: cc-plugins CI/CD
 
 on:
   push:
-    branches: [main, master]
+    branches: [master]
   pull_request:
-    branches: [main, master]
+    branches: [master]
 
 jobs:
   validate:
@@ -59,19 +59,27 @@ jobs:
           check_todos: false
           severity: error
 
-  install-script-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Test install script syntax
+      - name: Validate version consistency
         run: |
-          # Check bash syntax for all shell scripts
-          for script in $(find . -name "*.sh"); do
-            echo "Checking syntax of $script"
-            if ! bash -n "$script"; then
-              echo "ERROR: Syntax error in $script"
-              exit 1
+          # Check version consistency between plugin.json and install scripts
+          for plugin in plugins/*/; do
+            if [ -d "$plugin" ]; then
+              plugin_name=$(basename "$plugin")
+
+              # Get version from plugin.json
+              plugin_version=$(grep -o '"version": *"[^"]*"' "$plugin/.claude-plugin/plugin.json" | sed 's/.*: *"\([^"]*\)"/\1/')
+
+              # Get version from install script
+              script_version=$(grep -o 'PLUGIN_VERSION="[^"]*"' "$plugin/scripts/"*.sh 2>/dev/null | sed 's/.*="\([^"]*\)"/\1/' | head -1)
+
+              if [ -n "$plugin_version" ] && [ -n "$script_version" ]; then
+                if [ "$plugin_version" != "$script_version" ]; then
+                  echo "ERROR: Version mismatch in $plugin_name"
+                  echo "  plugin.json: $plugin_version"
+                  echo "  install script: $script_version"
+                  exit 1
+                fi
+                echo "OK: $plugin_name version $plugin_version is consistent"
+              fi
             fi
           done

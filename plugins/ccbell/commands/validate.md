@@ -1,4 +1,5 @@
 ---
+name: ccbell:validate
 description: Validate ccbell installation and configuration
 allowed-tools: ["Read", "Bash"]
 ---

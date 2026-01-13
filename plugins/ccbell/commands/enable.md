@@ -1,4 +1,5 @@
 ---
+name: ccbell:enable
 description: Enable ccbell sound notifications
 allowed-tools: ["Read", "Write", "Bash"]
 ---
@@ -25,6 +26,10 @@ If no config exists, create a default one:
   "enabled": true,
   "debug": false,
   "activeProfile": "default",
+  "quietHours": {
+    "start": null,
+    "end": null
+  },
   "events": {
     "stop": {
       "enabled": true,

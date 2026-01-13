@@ -1,4 +1,5 @@
 ---
+name: ccbell:help
 description: Show ccbell help and documentation
 allowed-tools: ["Read"]
 ---
@@ -128,6 +129,10 @@ Config is stored at:
   },
   "profiles": {
     "work": {
+      "quietHours": {
+        "start": "22:00",
+        "end": "07:00"
+      },
       "events": {
         "stop": { "sound": "bundled:stop", "volume": 0.3 }
       }

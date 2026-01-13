@@ -125,7 +125,7 @@ main() {
         url="https://github.com/${REPO}/releases/download/v${PLUGIN_VERSION}/${archive_name}"
 
         echo "ccbell: Downloading binary..." >&2
-        tmp_file=$(mktempXXXXXX).tar.gz
+        tmp_file=$(mktemp).tar.gz
 
         trap 'rm -f "$tmp_file"' EXIT
 
