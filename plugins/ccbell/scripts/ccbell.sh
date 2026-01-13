@@ -5,7 +5,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_DIR="$(dirname "$SCRIPT_DIR")"
 BINARY="$PLUGIN_DIR/bin/ccbell"
-readonly VERSION="0.2.24"
+readonly VERSION="0.2.25"
 readonly REPO="mpolatcan/ccbell"
 
 # Check if download tool exists
@@ -37,6 +37,8 @@ download_binary() {
     fi
 
     tar -xzf "$TMP" -C "$PLUGIN_DIR/bin"
+    # Rename extracted binary from ccbell-darwin-amd64 to ccbell
+    mv "$PLUGIN_DIR/bin/ccbell-${OS}-${ARCH}" "$BINARY"
     chmod +x "$BINARY"
 }
 
