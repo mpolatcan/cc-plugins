@@ -28,7 +28,7 @@ Find latest installed plugin version and test sounds.
 
 ```bash
 # Find ccbell plugin in any marketplace path
-CCBELL_PATH=$(find "$HOME/.claude/plugins/cache" -mindepth 3 -maxdepth 3 -type d -name "ccbell" 2>/dev/null | head -1)
+CCBELL_PATH=$(find "$HOME/.claude/plugins/cache" -mindepth 2 -maxdepth 2 -type d -name "ccbell" 2>/dev/null | head -1)
 LATEST_VERSION=$(find "$CCBELL_PATH" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | sort -V | tail -1)
 
 if [ -z "$LATEST_VERSION" ]; then
@@ -111,7 +111,7 @@ To test sounds ignoring quiet hours and cooldowns, use ccbell.sh directly:
 
 ```bash
 # Find ccbell plugin in any marketplace path
-CCBELL_PATH=$(find "$HOME/.claude/plugins/cache" -mindepth 3 -maxdepth 3 -type d -name "ccbell" 2>/dev/null | head -1)
+CCBELL_PATH=$(find "$HOME/.claude/plugins/cache" -mindepth 2 -maxdepth 2 -type d -name "ccbell" 2>/dev/null | head -1)
 LATEST_VERSION=$(find "$CCBELL_PATH" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | sort -V | tail -1)
 "$CCBELL_PATH/$LATEST_VERSION/scripts/ccbell.sh" stop
 ```

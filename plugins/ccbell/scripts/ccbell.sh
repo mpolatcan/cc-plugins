@@ -4,7 +4,7 @@ set -euo pipefail
 
 REPO="mpolatcan/ccbell"
 BINARY_NAME="ccbell"
-PLUGIN_VERSION="0.2.19"
+PLUGIN_VERSION="0.2.20"
 
 # Detect platform
 detect_os() {
@@ -32,7 +32,7 @@ get_plugin_root() {
     local base_dir="$HOME/.claude/plugins/cache"
     if [[ -d "$base_dir" ]]; then
         local ccbell_path
-        ccbell_path=$(find "$base_dir" -mindepth 3 -maxdepth 3 -type d -name "ccbell" 2>/dev/null | head -1)
+        ccbell_path=$(find "$base_dir" -mindepth 2 -maxdepth 2 -type d -name "ccbell" 2>/dev/null | head -1)
         if [[ -n "$ccbell_path" ]]; then
             local latest_version
             latest_version=$(find "$ccbell_path" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | sort -V | tail -1)

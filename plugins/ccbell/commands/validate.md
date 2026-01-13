@@ -19,7 +19,7 @@ echo "=== ccbell Validation ==="
 echo ""
 
 # Find ccbell plugin in any marketplace path
-CCBELL_PATH=$(find "$HOME/.claude/plugins/cache" -mindepth 3 -maxdepth 3 -type d -name "ccbell" 2>/dev/null | head -1)
+CCBELL_PATH=$(find "$HOME/.claude/plugins/cache" -mindepth 2 -maxdepth 2 -type d -name "ccbell" 2>/dev/null | head -1)
 
 if [ -z "$CCBELL_PATH" ]; then
     echo "Plugin directory: MISSING"
