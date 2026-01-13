@@ -108,7 +108,11 @@ This project uses **Semantic Versioning (SemVer)**:
 | cc-plugins | `plugins/ccbell/scripts/ccbell.sh` | `PLUGIN_VERSION` |
 | ccbell | Built binary | `main.version` (via LDFLAGS) |
 
-When updating either repository, bump BOTH cc-plugins AND ccbell to the same version.
+**IMPORTANT: When bumping version in cc-plugins, you MUST also:**
+1. Bump version in ccbell repository to the SAME version
+2. Tag ccbell with the SAME version (e.g., `v1.0.0`)
+3. Release ccbell to create GitHub Release
+4. Then sync the version to cc-plugins
 
 ### Release Process
 
