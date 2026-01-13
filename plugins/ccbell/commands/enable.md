@@ -26,10 +26,7 @@ If no config exists, create a default one:
   "enabled": true,
   "debug": false,
   "activeProfile": "default",
-  "quietHours": {
-    "start": null,
-    "end": null
-  },
+  "quietHours": null,
   "events": {
     "stop": {
       "enabled": true,
