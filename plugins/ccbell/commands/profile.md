@@ -1,6 +1,7 @@
 ---
 name: ccbell:profile
 description: Switch between ccbell sound profiles
+argument-hint: "[default|focus|work|loud|silent]"
 allowed-tools: ["Read", "Write", "AskUserQuestion", "Bash"]
 ---
 

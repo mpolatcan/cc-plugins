@@ -31,10 +31,10 @@ For every development task, you MUST create and maintain a todo list using the `
 plugins/ccbell/
 ├── .claude-plugin/
 │   └── plugin.json     # Plugin manifest (metadata only)
+├── commands/           # Slash command documentation (.md)
 ├── hooks/
 │   └── hooks.json      # Hook definitions
 ├── sounds/             # Audio files (.aiff)
-├── commands/           # Slash command documentation (.md)
 └── scripts/
     └── ccbell.sh       # Auto-downloads binary from GitHub releases
 ```
@@ -135,7 +135,6 @@ This project uses **Semantic Versioning (SemVer)**:
 3. Wait for GitHub Release to be created
 4. Sync version to cc-plugins (run from **ccbell** directory - Makefile is in ccbell repo):
    ```bash
-   cd ../ccbell
    make sync-version VERSION=v1.0.0
    ```
 5. Commit and push cc-plugins:
