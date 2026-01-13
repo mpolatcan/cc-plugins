@@ -105,7 +105,7 @@ This project uses **Semantic Versioning (SemVer)**:
 | Repository | File | Field |
 |------------|------|-------|
 | cc-plugins | `plugins/ccbell/.claude-plugin/plugin.json` | `version` |
-| cc-plugins | `plugins/ccbell/scripts/ccbell.sh` | `PLUGIN_VERSION` |
+| cc-plugins | `plugins/ccbell/scripts/ccbell.sh` | `VERSION` |
 | ccbell | Built binary | `main.version` (via LDFLAGS) |
 
 **IMPORTANT: When bumping version in cc-plugins, you MUST also:**
@@ -134,7 +134,7 @@ This project uses **Semantic Versioning (SemVer)**:
    git push origin v1.0.0
    ```
 3. Wait for GitHub Release to be created
-4. Sync version to cc-plugins (run from ccbell directory):
+4. Sync version to cc-plugins (run from **ccbell** directory - Makefile is in ccbell repo):
    ```bash
    cd ../ccbell
    make sync-version VERSION=v1.0.0

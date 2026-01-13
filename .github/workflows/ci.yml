@@ -70,7 +70,7 @@ jobs:
               plugin_version=$(grep -o '"version": *"[^"]*"' "$plugin/.claude-plugin/plugin.json" | sed 's/.*: *"\([^"]*\)"/\1/')
 
               # Get version from install script
-              script_version=$(grep -o 'PLUGIN_VERSION="[^"]*"' "$plugin/scripts/"*.sh 2>/dev/null | sed 's/.*="\([^"]*\)"/\1/' | head -1)
+              script_version=$(grep -o 'VERSION="[^"]*"' "$plugin/scripts/"*.sh 2>/dev/null | sed 's/.*="\([^"]*\)"/\1/' | head -1)
 
               if [ -n "$plugin_version" ] && [ -n "$script_version" ]; then
                 if [ "$plugin_version" != "$script_version" ]; then

@@ -37,6 +37,7 @@ Use AskUserQuestion to ask which events should trigger sounds:
       "options": [
         {"label": "Stop (Claude finishes)", "description": "Play sound when Claude completes responding"},
         {"label": "Permission Prompt", "description": "Play sound when Claude needs permission"},
+        {"label": "Idle Prompt", "description": "Play sound when Claude is waiting for input"},
         {"label": "Subagent Complete", "description": "Play sound when a background agent finishes"}
       ]
     }
