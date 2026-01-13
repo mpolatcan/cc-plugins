@@ -99,7 +99,7 @@ case "$OS_TYPE" in
         fi
         ;;
     Linux)
-        for player in paplay aplay mpv ffplay; do
+        for player in mpv paplay aplay ffplay; do
             if command -v "$player" &>/dev/null; then
                 AUDIO_PLAYER="$player"
                 break
@@ -111,7 +111,7 @@ esac
 if [ -z "$AUDIO_PLAYER" ]; then
     echo "Audio player: ERROR (no suitable player found for $OS_TYPE)"
     echo "  macOS requires: afplay"
-    echo "  Linux requires: paplay, aplay, mpv, or ffplay"
+    echo "  Linux requires: mpv, paplay, aplay, or ffplay"
     exit 1
 fi
 

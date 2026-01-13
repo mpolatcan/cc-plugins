@@ -102,7 +102,7 @@ If sounds don't play:
 2. **Cooldown active?** Recent notification may have triggered cooldown
 3. **Event disabled?** Check if the specific event is enabled in config
 4. **Plugin enabled?** Check `enabled: true` in config
-5. **Audio working?** Test with platform-specific player (afplay on macOS, paplay/aplay/mpv/ffplay on Linux)
+5. **Audio working?** Test with platform-specific player (afplay on macOS, mpv/paplay/aplay/ffplay on Linux)
 6. **Enable debug mode:** Set `"debug": true` in config and check `~/.claude/ccbell.log`
 
 ### 5. Force Test (Bypass Checks)

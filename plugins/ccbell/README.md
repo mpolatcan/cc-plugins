@@ -70,7 +70,7 @@ Pre-packaged sounds included with the plugin: `bundled:stop`, `bundled:permissio
 
 Use your own audio files (MP3, WAV, AIFF, M4A): `custom:/path/to/sound.mp3`
 
-**Note:** For volume control on Linux, install mpv or ffplay. The player order is: paplay → aplay → mpv → ffplay. Only mpv and ffplay fully support volume adjustment. paplay and aplay will play at fixed volume.
+**Note:** For volume control on Linux, install mpv or ffplay. The player order is: mpv → paplay → aplay → ffplay. Only mpv and ffplay fully support volume adjustment. paplay and aplay will play at fixed volume.
 
 ## Configuration
 
@@ -135,7 +135,7 @@ Config file:
 | Platform | Audio Backend | Status |
 |----------|--------------|--------|
 | macOS | `afplay` | Full support |
-| Linux | `paplay`, `aplay`, `mpv`, `ffplay` | Requires one |
+| Linux | `mpv`, `paplay`, `aplay`, `ffplay` | Requires one |
 
 ## Troubleshooting
 
