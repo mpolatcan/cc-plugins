@@ -51,6 +51,30 @@ else
     echo "ccbell.sh script: ERROR (not found or not executable)"
     exit 1
 fi
+
+# Check system architecture
+echo ""
+echo "=== Architecture Check ==="
+OS_TYPE="$(uname -s 2>/dev/null || echo 'unknown')"
+ARCH_TYPE="$(uname -m 2>/dev/null || echo 'unknown')"
+echo "Platform: $OS_TYPE"
+echo "Architecture: $ARCH_TYPE"
+
+# Map architecture to release name
+case "$ARCH_TYPE" in
+    x86_64)
+        RELEASE_ARCH="amd64"
+        echo "Release arch: $RELEASE_ARCH"
+        ;;
+    arm64|aarch64)
+        RELEASE_ARCH="arm64"
+        echo "Release arch: $RELEASE_ARCH"
+        ;;
+    *)
+        echo "Warning: Unknown architecture $ARCH_TYPE"
+        RELEASE_ARCH="$ARCH_TYPE"
+        ;;
+esac
 ```
 
 ### 2. Check Sound Files
@@ -110,8 +134,19 @@ esac
 
 if [ -z "$AUDIO_PLAYER" ]; then
     echo "Audio player: ERROR (no suitable player found for $OS_TYPE)"
-    echo "  macOS requires: afplay"
-    echo "  Linux requires: mpv, paplay, aplay, or ffplay"
+    echo ""
+    echo "To install an audio player:"
+    case "$OS_TYPE" in
+        Darwin)
+            echo "  macOS: afplay is built-in (no installation needed)"
+            ;;
+        Linux)
+            echo "  Debian/Ubuntu: sudo apt install mpv"
+            echo "  Fedora: sudo dnf install mpv"
+            echo "  Arch: sudo pacman -S mpv"
+            echo "  macOS (Homebrew): brew install mpv"
+            ;;
+    esac
     exit 1
 fi
 

@@ -5,7 +5,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_DIR="$(dirname "$SCRIPT_DIR")"
 BINARY="$PLUGIN_DIR/bin/ccbell"
-readonly VERSION="0.2.25"
+readonly VERSION="0.2.27"
 readonly REPO="mpolatcan/ccbell"
 
 # Check if download tool exists
@@ -20,7 +20,7 @@ download_binary() {
     check_download_tool || { echo "ccbell: Error: curl or wget required" >&2; exit 1; }
 
     OS=$(uname -s | tr '[:upper:]' '[:lower:]')
-    ARCH=$(uname -m | sed 's/x86_64/amd64/')
+    ARCH=$(uname -m | sed 's/x86_64/amd64/; s/aarch64/arm64/')
     URL="https://github.com/${REPO}/releases/download/v${VERSION}/ccbell-${OS}-${ARCH}.tar.gz"
 
     echo "ccbell: Downloading..." >&2
@@ -30,10 +30,33 @@ download_binary() {
 
     mkdir -p "$PLUGIN_DIR/bin"
 
-    if command -v curl &>/dev/null; then
-        curl -fsSL "$URL" -o "$TMP"
-    else
-        wget -q "$URL" -O "$TMP"
+    # Retry download up to 3 times with exponential backoff
+    local max_attempts=3
+    local attempt=1
+    local delay=1
+
+    while [[ $attempt -le $max_attempts ]]; do
+        if command -v curl &>/dev/null; then
+            if curl -fsSL "$URL" -o "$TMP" 2>/dev/null; then
+                break
+            fi
+        else
+            if wget -q "$URL" -O "$TMP" 2>/dev/null; then
+                break
+            fi
+        fi
+
+        if [[ $attempt -lt $max_attempts ]]; then
+            echo "ccbell: Download failed (attempt $attempt/$max_attempts), retrying in ${delay}s..." >&2
+            sleep $delay
+            delay=$((delay * 2))
+        fi
+        attempt=$((attempt + 1))
+    done
+
+    if [[ $attempt -gt $max_attempts ]]; then
+        echo "ccbell: Error: Failed to download after $max_attempts attempts" >&2
+        exit 1
     fi
 
     tar -xzf "$TMP" -C "$PLUGIN_DIR/bin"

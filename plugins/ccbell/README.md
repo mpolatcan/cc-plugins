@@ -70,8 +70,6 @@ Pre-packaged sounds included with the plugin: `bundled:stop`, `bundled:permissio
 
 Use your own audio files (MP3, WAV, AIFF, M4A): `custom:/path/to/sound.mp3`
 
-**Note:** For volume control on Linux, install mpv or ffplay. The player order is: mpv → paplay → aplay → ffplay. Only mpv and ffplay fully support volume adjustment. paplay and aplay will play at fixed volume.
-
 ## Configuration
 
 Config file:
@@ -132,10 +130,28 @@ Config file:
 
 ## Platform Support
 
-| Platform | Audio Backend | Status |
-|----------|--------------|--------|
-| macOS | `afplay` | Full support |
-| Linux | `mpv`, `paplay`, `aplay`, `ffplay` | Requires one |
+| Platform | Architecture | Audio Backend | Status |
+|----------|--------------|--------------|--------|
+| macOS | x86_64 (Intel) | `afplay` | Full support |
+| macOS | arm64 (Apple Silicon) | `afplay` | Full support |
+| Linux | x86_64 (amd64) | `mpv`, `paplay`, `aplay`, `ffplay` | Requires one |
+| Linux | aarch64 (ARM64) | `mpv`, `paplay`, `aplay`, `ffplay` | Requires one |
+
+### Audio Player Support
+
+| Player | macOS | Linux | Volume Control |
+|--------|-------|-------|----------------|
+| `afplay` | Built-in | - | Fixed |
+| `mpv` | Supported | Supported | Adjustable |
+| `paplay` | - | Supported | Fixed |
+| `aplay` | - | Supported | Fixed |
+| `ffplay` | Supported | Supported | Adjustable |
+
+**Note:** For Linux, install `mpv` (recommended) for best results with volume control:
+- Debian/Ubuntu: `sudo apt install mpv`
+- Fedora: `sudo dnf install mpv`
+- Arch: `sudo pacman -S mpv`
+- macOS (Homebrew): `brew install mpv`
 
 ## Troubleshooting
 
