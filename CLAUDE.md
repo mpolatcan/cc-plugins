@@ -42,7 +42,6 @@ plugins/ccbell/
 **Critical Plugin Structure Rules:**
 
 - `plugin.json` must be in `.claude-plugin/` folder at plugin root
-- `hooks` can be defined inline in `plugin.json` OR in `hooks/hooks.json` (hooks.json preferred for complex plugins)
 - Commands are auto-discovered from `commands/` directory
 
 ## CRITICAL: ALWAYS Validate Against Official Documentation
@@ -82,7 +81,7 @@ Within Hooks Reference:
 ### VALIDATION CHECKLIST
 
 - Verify `plugin.json` is in `.claude-plugin/` folder
-- `hooks` can be in `plugin.json` (inline) or `hooks/hooks.json`
+- `hooks` must be in `hooks/hooks.json` (not inline in plugin.json)
 - Confirm hook event names are current (e.g., `Notification`, `Stop`, `SubagentStop`)
 - Validate hook structure format (wrapper with `description` + `hooks` object)
 - Validate hook type specifications (command, prompt)
