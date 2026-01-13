@@ -12,31 +12,45 @@ Play spoken announcements instead of (or alongside) audio files. Announce events
 - Accessibility: spoken notifications help users who are deaf or hard of hearing
 - Context-aware: TTS can include event details (e.g., "Claude finished in 3.2 seconds")
 
+---
+
+## Priority & Complexity
+
+| Attribute | Value |
+|-----------|-------|
+| **Priority** | Nice to Have |
+| **Complexity** | High |
+| **Estimated Effort** | 7-10 days |
+
+---
+
 ## Technical Feasibility
 
 ### Audio Playback (for TTS output)
 
-| Library | Platform | Format Support | Go Module | Notes |
-|---------|----------|----------------|-----------|-------|
-| **ebitengine/oto** | macOS, Linux | WAV (via decoders) | `github.com/ebitengine/oto/v3` | Low-level, requires decoders |
-| **go-minimp3** | Cross-platform | MP3 | `github.com/cowork-ai/go-minimp3` | Pure Go MP3 decoder |
-| **go-audio/wav** | Cross-platform | WAV | `github.com/go-audio/wav` | WAV reading/writing |
+The current `internal/audio/player.go` supports native players:
+- **macOS**: `afplay`
+- **Linux**: `mpv`, `paplay`, `aplay`, `ffplay`
 
-**Recommended Stack:**
-- `ebitengine/oto` for cross-platform audio playback
-- `go-audio/wav` for WAV file handling
-- Native OS players as fallback (afplay on macOS, paplay on Linux)
+**Key Finding**: TTS output can use the existing audio player infrastructure by generating WAV files from TTS engines.
 
 ### TTS Engines
 
-#### Option 1: Flite (Recommended for size)
+| Engine | Size | Quality | Platform | Cost |
+|--------|------|---------|----------|------|
+| **Flite** | ~2MB | Robotic | macOS, Linux | Free |
+| **eSpeak NG** | ~3MB | Robotic | macOS, Linux | Free |
+| **Piper** | ~50MB | Natural | Python | Free |
+| **Kokoro** | ~100MB | Excellent | Python | Free |
+
+### Recommended: Flite (for size)
 
 | Aspect | Details |
 |--------|---------|
 | Size | ~2MB binary |
 | Quality | Robotic, but clear |
 | Go Bindings | [gen2brain/flite-go](https://github.com/gen2brain/flite-go) |
-| Voices | Single US English (customizable) |
+| Voices | Single US English |
 | Platform | macOS, Linux |
 | License | BSD-style |
 
@@ -45,50 +59,16 @@ Play spoken announcements instead of (or alongside) audio files. Announce events
 import "github.com/gen2brain/flite-go/flite"
 
 flite.TextToSpeech("Claude finished", "voice.wav")
-// Play "voice.wav" with oto
+// Play "voice.wav" with existing player
 ```
 
-#### Option 2: eSpeak NG
+### Alternative: eSpeak NG
 
-| Aspect | Details |
-|--------|---------|
-| Size | ~3MB binary |
-| Quality | Robotic, multiple voices |
-| Platform | macOS, Linux |
-| License | GPL |
-| CLI | `espeak-ng "text"` |
-
-**Usage:**
 ```bash
 espeak-ng -w output.wav "Claude finished" && play output.wav
 ```
 
-#### Option 3: Piper (Quality > Size)
-
-| Aspect | Details |
-|--------|---------|
-| Size | ~50MB with models |
-| Quality | Natural, neural |
-| Platform | Python CLI |
-| License | Apache 2.0 |
-| Models | Multiple English voices |
-
-**Usage:**
-```bash
-echo "Claude finished" | piper --model en_US-lessac-medium.onnx --output_file output.wav
-```
-
-#### Option 4: Kokoro (Best Quality)
-
-| Aspect | Details |
-|--------|---------|
-| Size | ~100MB with models |
-| Quality | Excellent, human-like |
-| Platform | Python CLI |
-| License | CC-BY-4.0 |
-| Voices | American/British, male/female |
-
-**Recommendation:** Start with **Flite** for minimum footprint. Add Piper/Kokoro as optional high-quality modes.
+---
 
 ## Implementation Approach
 
@@ -99,123 +79,83 @@ echo "Claude finished" | piper --model en_US-lessac-medium.onnx --output_file ou
    - Fallback to system `flite` if installed
 
 2. **Create TTS wrapper in ccbell:**
-   ```go
-   func (c *CCBell) speak(text string) error {
-       wavFile := filepath.Join(c.cacheDir, "tts", randomName()+".wav")
-       if err := c.runFlite(text, wavFile); err != nil {
-           return err
-       }
-       return c.playAudio(wavFile)
-   }
-   ```
+
+```go
+func (c *CCBell) speak(text string) error {
+    wavFile := filepath.Join(c.cacheDir, "tts", randomName()+".wav")
+    if err := c.runFlite(text, wavFile); err != nil {
+        return err
+    }
+    return c.playAudio(wavFile)
+}
+```
 
 3. **Add TTS config:**
-   ```json
-   {
-     "tts": {
-       "enabled": true,
-       "engine": "flite", // "flite", "espeak", "piper", "kokoro"
-       "voice": "kal",
-       "phrases": {
-         "stop": "Claude finished",
-         "permission_prompt": "Permission needed",
-         "idle_prompt": "Claude is waiting",
-         "subagent": "Subagent task complete"
-       }
-     }
-   }
-   ```
-
-### Phase 2: Multiple Engines
-
-1. **Engine discovery:**
-   ```go
-   func findTTSEngine() string {
-       if _, err := exec.LookPath("piper"); err == nil {
-           return "piper"
-       }
-       if _, err := exec.LookPath("espeak-ng"); err == nil {
-           return "espeak"
-       }
-       // Download flite as fallback
-       return "flite"
-   }
-   ```
-
-2. **Cache TTS output:**
-   - Hash text + voice + engine → WAV file
-   - Reuse cached WAV for repeated phrases
-   - LRU cache with size limits (e.g., 100MB)
-
-## Configuration
-
-### Command: `/ccbell:tts`
-
-Interactive setup for TTS:
-```
-Enable TTS? [y/n]: y
-Select engine [flite/espeak/piper]: flite
-Customize phrases:
-  stop (default: "Claude finished"): [enter for default]
-  permission_prompt (default: "Permission needed"): [enter for default]
-  ...
-Test phrase: Claude finished
-[plays audio]
-Save? [y/n]: y
-```
-
-### Config Schema
 
 ```json
 {
-  "type": "object",
-  "properties": {
-    "tts": {
-      "type": "object",
-      "properties": {
-        "enabled": { "type": "boolean" },
-        "engine": { "type": "string", "enum": ["flite", "espeak", "piper", "kokoro"] },
-        "voice": { "type": "string" },
-        "volume": { "type": "number", "minimum": 0, "maximum": 1 },
-        "rate": { "type": "number", "minimum": 0.5, "maximum": 2 },
-        "phrases": {
-          "type": "object",
-          "properties": {
-            "stop": { "type": "string" },
-            "permission_prompt": { "type": "string" },
-            "idle_prompt": { "type": "string" },
-            "subagent": { "type": "string" }
-          }
-        }
-      }
+  "tts": {
+    "enabled": true,
+    "engine": "flite", // "flite", "espeak", "piper"
+    "voice": "kal",
+    "phrases": {
+      "stop": "Claude finished",
+      "permission_prompt": "Permission needed",
+      "idle_prompt": "Claude is waiting",
+      "subagent": "Subagent task complete"
     }
   }
 }
 ```
 
-## Compatibility
+### Phase 2: Multiple Engines
 
-| Platform | Flite | eSpeak NG | Piper | Kokoro |
-|----------|-------|-----------|-------|--------|
-| macOS | ✅ | ✅ | ✅ (Python) | ✅ (Python) |
-| Linux | ✅ | ✅ | ✅ | ✅ |
+```go
+func findTTSEngine() string {
+    if _, err := exec.LookPath("piper"); err == nil {
+        return "piper"
+    }
+    if _, err := exec.LookPath("espeak-ng"); err == nil {
+        return "espeak"
+    }
+    // Download flite as fallback
+    return "flite"
+}
+```
 
-## Risks & Mitigations
+---
 
-| Risk | Mitigation |
-|------|------------|
-| TTS slow to start | Pre-warm engine, cache common phrases |
-| Poor quality perception | Offer multiple engines, let users choose |
-| Binary bloat | Download on demand, not bundled |
-| Platform issues | Fallback to native audio players |
+## Feasibility Research
 
-## Future Enhancements
+### Audio Player Compatibility
 
-- **Voice selection:** Multiple voices per engine
-- **Custom phrases:** User-defined templates with variables (e.g., "{duration} seconds")
-- **SSML support:** Rich text-to-speech markup
-- **Event-specific voices:** Different voice per event type
-- **Batch announcements:** Queue multiple TTS requests
+TTS requires audio playback, which uses the existing player infrastructure:
+- TTS generates WAV files
+- Existing players play the WAV files
+
+### External Dependencies
+
+| Dependency | Type | Cost | Notes |
+|------------|------|------|-------|
+| Flite | External binary | Free | Download on first use |
+| eSpeak NG | External binary | Free | Package install |
+| Piper | Python CLI | Free | Optional, higher quality |
+| flite-go | Go library | Free | Wrapper for Flite |
+
+### Supported Platforms
+
+| Platform | Flite | eSpeak NG | Piper |
+|----------|-------|-----------|-------|
+| macOS | ✅ | ✅ | ✅ (Python) |
+| Linux | ✅ | ✅ | ✅ |
+
+### Caching Strategy
+
+Cache TTS output to avoid regenerating:
+- Hash text + voice + engine → WAV file
+- LRU cache with size limits (e.g., 100MB)
+
+---
 
 ## References
 
@@ -224,4 +164,4 @@ Save? [y/n]: y
 - [eSpeak NG](https://github.com/espeak-ng/espeak-ng)
 - [Piper TTS](https://github.com/rhasspy/piper)
 - [Kokoro TTS](https://github.com/hexgrad/Kokoro-82M)
-- [Oto Audio Library](https://github.com/ebitengine/oto)
+- [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go)

@@ -6,6 +6,28 @@ Different quiet hours for weekdays vs weekends.
 
 Override default quiet hours with weekend-specific schedules.
 
+---
+
+## Priority & Complexity
+
+| Attribute | Value |
+|-----------|-------|
+| **Priority** | Medium |
+| **Complexity** | Low |
+| **Estimated Effort** | 1-2 days |
+
+---
+
+## Technical Feasibility
+
+### Current Quiet Hours Analysis
+
+The current `internal/config/quiethours.go` has:
+- `Start` and `End` fields (HH:MM format)
+- `IsInQuietHours()` method
+
+**Key Finding**: Weekday/weekend schedules extend the existing quiet hours struct with optional weekday/weekend overrides.
+
 ## Configuration
 
 ```json
@@ -57,3 +79,59 @@ func (c *CCBell) isInQuietHours() bool {
 /ccbell:quiet hours --weekend 23:00-09:00
 /ccbell:quiet hours status
 ```
+
+---
+
+## Feasibility Research
+
+### Audio Player Compatibility
+
+Weekday/weekend schedules don't interact with audio playback. They extend the quiet hours logic.
+
+### External Dependencies
+
+| Dependency | Type | Cost | Notes |
+|------------|------|------|-------|
+| None | - | - | Pure Go implementation |
+
+### Supported Platforms
+
+| Platform | Status | Notes |
+|----------|--------|-------|
+| macOS | ✅ Supported | Works with current architecture |
+| Linux | ✅ Supported | Works with current architecture |
+| Windows | ❌ Not Supported | ccbell only supports macOS/Linux |
+
+---
+
+## Implementation Notes
+
+### Config Changes
+
+Extend `internal/config/quiethours.go`:
+
+```go
+type QuietHours struct {
+    Enabled  bool         `json:"enabled"`
+    Start    string       `json:"start"` // HH:MM
+    End      string       `json:"end"`   // HH:MM
+    Weekday  *TimeWindow  `json:"weekday,omitempty"`
+    Weekend  *TimeWindow  `json:"weekend,omitempty"`
+}
+
+type TimeWindow struct {
+    Start string `json:"start"` // HH:MM
+    End   string `json:"end"`   // HH:MM
+}
+```
+
+### Integration
+
+The existing `IsInQuietHours()` method can be extended with a parameter or a new method.
+
+---
+
+## References
+
+- [Current quiet hours implementation](https://github.com/mpolatcan/ccbell/blob/main/internal/config/quiethours.go)
+- [Go time package](https://pkg.go.dev/time)

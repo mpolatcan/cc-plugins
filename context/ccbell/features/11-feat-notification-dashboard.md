@@ -6,7 +6,27 @@ History of recent notifications with statistics.
 
 Track when notifications fired, show frequency, and display daily counts. Useful for understanding notification patterns.
 
+---
+
+## Priority & Complexity
+
+| Attribute | Value |
+|-----------|-------|
+| **Priority** | Medium |
+| **Complexity** | Low |
+| **Estimated Effort** | 2-3 days |
+
+---
+
 ## Technical Feasibility
+
+### Current Architecture Analysis
+
+The current `internal/state/state.go` already stores:
+- `LastPlayed` timestamps
+- `Cooldowns` state
+
+**Key Finding**: Dashboard extends state storage with notification history.
 
 ### Event History Storage
 
@@ -82,3 +102,56 @@ Average response time: 3.1s
   }
 }
 ```
+
+---
+
+## Feasibility Research
+
+### Audio Player Compatibility
+
+Notification dashboard doesn't interact with audio playback. It extends state tracking.
+
+### External Dependencies
+
+| Dependency | Type | Cost | Notes |
+|------------|------|------|-------|
+| None | - | - | Pure Go implementation |
+
+### Supported Platforms
+
+| Platform | Status | Notes |
+|----------|--------|-------|
+| macOS | ✅ Supported | Works with current architecture |
+| Linux | ✅ Supported | Works with current architecture |
+| Windows | ❌ Not Supported | ccbell only supports macOS/Linux |
+
+---
+
+## Implementation Notes
+
+### Integration Point
+
+In `cmd/ccbell/main.go`, after successful sound playback:
+
+```go
+// Record notification
+stateManager := state.NewManager(homeDir)
+record := NotificationRecord{
+    ID:        uuid.New().String(),
+    Event:     eventType,
+    Timestamp: time.Now(),
+    Profile:   cfg.ActiveProfile,
+    Played:    true,
+}
+stateManager.AddRecord(record)
+```
+
+### Dashboard Command
+
+The dashboard would be a separate CLI command that reads from the history store.
+
+---
+
+## References
+
+- [Current state management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go)

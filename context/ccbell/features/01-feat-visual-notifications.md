@@ -13,15 +13,65 @@ Show visual notifications (macOS Notification Center, terminal bell) when Claude
 - Silent mode alternative
 - Dual-channel confirmation (audio + visual)
 
+---
+
+## Priority & Complexity
+
+| Attribute | Value |
+|-----------|-------|
+| **Priority** | High |
+| **Complexity** | Low |
+| **Estimated Effort** | 2-3 days |
+
+---
+
 ## Technical Feasibility
+
+### Current Audio Player Analysis
+
+The current ccbell audio player (`internal/audio/player.go`) uses:
+- **macOS**: `afplay` (built-in)
+- **Linux**: `mpv`, `paplay`, `aplay`, `ffplay`
+
+**Key Finding**: The audio player is command-line based and doesn't natively support visual notifications. Visual notifications require separate platform-specific tools.
 
 ### Platform Options
 
-| Platform | Option | Feasibility | Notes |
-|----------|--------|-------------|-------|
-| macOS | **Notification Center** | ✅ Easy | `osascript` or native APIs |
-| macOS | **Terminal bell** | ✅ Easy | `echo -e '\a'` |
-| Linux | **libnotify** | ✅ Easy | `notify-send` command |
+| Platform | Tool | Native Support | Feasibility |
+|----------|------|----------------|-------------|
+| macOS | AppleScript (`osascript`) | Yes - Built-in | ✅ Easy |
+| macOS | Terminal Notifier (gem) | No - Requires install | ⚠️ Optional |
+| Linux | `notify-send` (libnotify) | Yes - Most distros | ✅ Easy |
+| Linux | `dunst` | No - Requires install | ⚠️ Optional |
+
+### macOS Implementation (AppleScript)
+
+```bash
+# Simple notification
+osascript -e 'display notification "Claude finished" with title "ccbell"'
+
+# With sound (uses system notification sound)
+osascript -e 'display notification "Permission needed" with title "ccbell" sound name "Ping"'
+```
+
+**Pros:** No dependencies, works on all macOS versions
+**Cons:** Limited customization
+
+### Linux Implementation (notify-send)
+
+```bash
+# Basic
+notify-send "ccbell" "Claude finished"
+
+# With icon
+notify-send -i audio-volume-high "ccbell" "Permission needed"
+
+# With urgency
+notify-send -u critical "ccbell" "Error occurred"
+```
+
+**Pros:** Works on most distros, no install needed
+**Cons:** Requires notify-osd/libnotify
 
 ### Recommended Approach
 
@@ -353,7 +403,57 @@ osascript -e 'display notification "msg" with title "ccbell" subtitle "subtitle"
 | notify-send | Linux notifications | Built-in on most distros |
 | go-exec | Command execution | `github.com/google/go-exec` |
 
+## Feasibility Research
+
+### Audio Player Compatibility
+
+The current audio player uses non-blocking playback (`cmd.Start()`). Visual notifications are independent of audio playback and can be triggered alongside or separately.
+
+### External Dependencies
+
+| Dependency | Type | Cost | Notes |
+|------------|------|------|-------|
+| `osascript` | Native (macOS) | Free | Built-in, no install needed |
+| `notify-send` | Native (Linux) | Free | Pre-installed on most distros |
+
+### Supported Platforms
+
+| Platform | Status | Notes |
+|----------|--------|-------|
+| macOS | ✅ Supported | Via AppleScript |
+| Linux | ✅ Supported | Via notify-send |
+| Windows | ❌ Not Supported | ccbell only supports macOS/Linux |
+
+---
+
+## Implementation Notes
+
+### Integration with Current Architecture
+
+Visual notifications can be added as a separate `VisualNotifier` interface that follows the same pattern as `Player`:
+
+```go
+type VisualNotifier interface {
+    Notify(title, message string, urgency Urgency) error
+    Supported() bool
+}
+```
+
+### Configuration Changes
+
+Add to `internal/config/config.go`:
+```go
+type VisualConfig struct {
+    Enabled *bool              `json:"enabled,omitempty"`
+    Mode    string             `json:"mode,omitempty"` // "audio-only", "visual-only", "both"
+    Events  map[string]*Event  `json:"events,omitempty"`
+}
+```
+
+---
+
 ## References
 
 - [AppleScript Notification](https://apple.stackexchange.com/questions/57412/how-can-i-trigger-a-notification-from-the-apple-command-line)
 - [notify-send man page](https://man7.org/linux/man-pages/man1/notify-send.1.html)
+- [Current ccbell audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go)

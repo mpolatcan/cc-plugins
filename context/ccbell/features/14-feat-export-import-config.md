@@ -6,7 +6,26 @@ Share configurations via JSON files.
 
 Export current ccbell configuration to a portable JSON file. Import configurations from files or URLs.
 
+---
+
+## Priority & Complexity
+
+| Attribute | Value |
+|-----------|-------|
+| **Priority** | Nice to Have |
+| **Complexity** | Low |
+| **Estimated Effort** | 1-2 days |
+
+---
+
 ## Technical Feasibility
+
+### Current Configuration Analysis
+
+The current `internal/config/config.go` loads/saves from:
+- `~/.claude/ccbell.config.json`
+
+**Key Finding**: Export/import is straightforward JSON serialization.
 
 ### Export
 
@@ -38,10 +57,46 @@ Export current ccbell configuration to a portable JSON file. Import configuratio
 }
 ```
 
-## Commands
+---
+
+## Feasibility Research
+
+### Audio Player Compatibility
+
+Export/import doesn't interact with audio playback. Pure config operation.
+
+### External Dependencies
+
+| Dependency | Type | Cost | Notes |
+|------------|------|------|-------|
+| None | - | - | Pure Go implementation |
+
+### Supported Platforms
+
+| Platform | Status | Notes |
+|----------|--------|-------|
+| macOS | ✅ Supported | Works with current architecture |
+| Linux | ✅ Supported | Works with current architecture |
+| Windows | ❌ Not Supported | ccbell only supports macOS/Linux |
+
+---
+
+## Implementation Notes
+
+### Commands
 
 ```bash
 /ccbell:config export [--file <path>] [--redact]
 /ccbell:config import <path|url> [--dry-run] [--merge]
 /ccbell:config share --url  # Upload to get shareable URL
 ```
+
+### Validation
+
+Validate imported config using existing `Config.Validate()` method.
+
+---
+
+## References
+
+- [Current config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go)

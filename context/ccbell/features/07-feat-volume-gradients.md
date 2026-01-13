@@ -6,22 +6,39 @@ Fade in/out for less jarring audio playback.
 
 Smooth volume transitions instead of abrupt starts/stops. Configurable ramp duration per event.
 
+---
+
+## Priority & Complexity
+
+| Attribute | Value |
+|-----------|-------|
+| **Priority** | Medium |
+| **Complexity** | Medium |
+| **Estimated Effort** | 4-5 days |
+
+---
+
 ## Technical Feasibility
 
-### Implementation Approaches
+### Current Audio Player Analysis
 
-| Approach | Platform | Quality |
-|----------|----------|---------|
-| SoX play | Cross-platform | Excellent |
-| ffmpeg | Cross-platform | Excellent |
-| Go libraries | Platform-specific | Good |
-| Native players | macOS/Linux | Varies |
+The current `internal/audio/player.go` uses native players:
+- **macOS**: `afplay -v <volume> <file>`
+- **Linux**: `mpv --volume=<percent>`, `ffplay -volume=<percent>`
 
-### SoX Fade
+**Key Finding**: None of the native players support fade in/out. Options:
+
+| Approach | Platform | Quality | Dependencies |
+|----------|----------|---------|--------------|
+| SoX `play` | Cross-platform | Excellent | sox (external) |
+| FFmpeg filter | Cross-platform | Excellent | ffmpeg |
+| Go processing | Cross-platform | Good | go-audio libraries |
+
+### Implementation with FFmpeg
 
 ```bash
 # Fade in 100ms, fade out 200ms
-play sound.aiff fade t 0.1 0 0.2
+ffplay -nodisp -autoexit -af "afade=tin:0.1:0,afade=tout:0.2:0.5" -volume 50 sound.aiff
 ```
 
 ### Go Implementation with Oto
@@ -74,3 +91,72 @@ func (p *Player) PlayWithFade(path string, fadeIn, fadeOut time.Duration) error 
 /ccbell:test stop --fade
 /ccbell:configure stop fade-in 100ms fade-out 200ms
 ```
+
+---
+
+## Feasibility Research
+
+### Audio Player Compatibility
+
+Volume gradients require changing the audio player implementation:
+- Current: Non-blocking `cmd.Start()`
+- Required: Audio decoding + processing + playback
+
+### External Dependencies
+
+| Dependency | Type | Cost | Notes |
+|------------|------|------|-------|
+| FFmpeg | External tool | Free | Already supported player |
+| go-audio/wav | Go library | Free | WAV processing |
+| ebitengine/oto | Go library | Free | Audio playback |
+
+### Supported Platforms
+
+| Platform | Status | Notes |
+|----------|--------|-------|
+| macOS | ✅ Supported | FFmpeg or Go library |
+| Linux | ✅ Supported | FFmpeg or Go library |
+| Windows | ❌ Not Supported | ccbell only supports macOS/Linux |
+
+---
+
+## Implementation Notes
+
+### Recommended Approach
+
+Use FFmpeg as it's already supported as a fallback player:
+
+```go
+func (p *Player) playWithFadeFFmpeg(path string, volume float64, fadeIn, fadeOut time.Duration) error {
+    volPercent := int(volume * 100)
+    fadeInSec := fadeIn.Seconds()
+    fadeOutSec := fadeOut.Seconds()
+
+    args := []string{
+        "-nodisp", "-autoexit",
+        "-af", fmt.Sprintf("afade=tin:%.3f:0,afade=tout:%.3f", fadeInSec, fadeOutSec),
+        "-volume", fmt.Sprintf("%d", volPercent),
+        path,
+    }
+
+    cmd := exec.Command("ffplay", args...)
+    return cmd.Start()
+}
+```
+
+### Format Support
+
+| Format | FFmpeg | Go Library |
+|--------|--------|------------|
+| AIFF | ✅ | ❌ |
+| WAV | ✅ | ✅ |
+| MP3 | ✅ | ✅ |
+| Other | ✅ | ❌ |
+
+---
+
+## References
+
+- [FFmpeg audio filters](https://ffmpeg.org/ffmpeg-filters.html#afade)
+- [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go)
+- [go-audio library](https://github.com/go-audio/audio)

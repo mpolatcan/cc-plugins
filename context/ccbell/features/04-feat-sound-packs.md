@@ -13,7 +13,27 @@ Allow users to browse, preview, and install sound packs that bundle sounds for a
 - Community can share creations
 - Consistent quality within a pack
 
+---
+
+## Priority & Complexity
+
+| Attribute | Value |
+|-----------|-------|
+| **Priority** | High |
+| **Complexity** | Medium |
+| **Estimated Effort** | 5-7 days |
+
+---
+
 ## Technical Feasibility
+
+### Current Audio Player Analysis
+
+The current `Player` (`internal/audio/player.go`) supports:
+- **Bundled sounds**: `bundled:stop`, `bundled:permission_prompt`, etc.
+- **Custom sounds**: `custom:/path/to/file.mp3`
+
+**Key Finding**: Sound packs can be implemented as a new "pack:" scheme that maps to downloaded pack directories.
 
 ### Distribution Model
 
@@ -24,6 +44,71 @@ Allow users to browse, preview, and install sound packs that bundle sounds for a
 | npm-style registry | Familiar UX | Overkill for sounds |
 
 **Recommended:** GitHub Releases with manifest file.
+
+### Sound Pack Structure
+
+```
+sound-pack-name-v1.0.zip/
+├── pack.json           # Pack metadata
+├── stop.aiff          # Sound files
+├── permission_prompt.aiff
+├── idle_prompt.aiff
+├── subagent.aiff
+└── preview.mp3        # Optional: preview audio
+```
+
+### pack.json Schema
+
+```json
+{
+  "name": "minimal-chimes",
+  "version": "1.0.0",
+  "description": "Clean, minimal chimes for notifications",
+  "author": "username",
+  "homepage": "https://github.com/username/ccbell-packs",
+  "license": "MIT",
+  "sounds": {
+    "stop": "stop.aiff",
+    "permission_prompt": "permission_prompt.aiff",
+    "idle_prompt": "idle_prompt.aiff",
+    "subagent": "subagent.aiff"
+  },
+  "tags": ["minimal", "chimes", "calm"],
+  "compatibility": {
+    "ccbell": ">=0.2.0"
+  }
+}
+```
+
+### GitHub Release Structure
+
+**Repository:** `github.com/mpolatcan/ccbell-packs` or community repos
+
+**Release Assets:**
+```
+ccbell-pack-minimal-chimes-v1.0.0.zip
+ccbell-pack-8bit-retro-v1.2.0.zip
+ccbell-pack-zen-bells-v0.9.0.zip
+```
+
+**Pack Index (JSON):**
+```json
+{
+  "packs": [
+    {
+      "id": "minimal-chimes",
+      "name": "Minimal Chimes",
+      "description": "Clean, minimal chimes",
+      "author": "username",
+      "version": "1.0.0",
+      "download_url": "https://github.com/mpolatcan/ccbell-packs/releases/download/v1.0.0/ccbell-pack-minimal-chimes.zip",
+      "tags": ["minimal", "chimes"],
+      "rating": 4.5,
+      "downloads": 1234
+    }
+  ]
+}
+```
 
 ### Sound Pack Structure
 
@@ -338,8 +423,76 @@ minimal-chimes: v1.0.0 → v1.1.0 [Update? y/n]
 | archiver | ZIP extraction | `github.com/mholt/archiver` |
 | go-httpfile | Download with resume | `github.com/posener/go-httpfile` |
 
+---
+
+## Feasibility Research
+
+### Audio Player Compatibility
+
+The current audio player already supports:
+- Multiple formats via native players (afplay, mpv, ffplay)
+- Volume control
+- Non-blocking playback
+
+Sound packs integrate by:
+1. Downloading pack ZIP files
+2. Extracting to `~/.claude/ccbell/packs/`
+3. Adding `pack:name` scheme support to `ResolveSoundPath()`
+
+### External Dependencies
+
+| Dependency | Type | Cost | Notes |
+|------------|------|------|-------|
+| `archive/zip` | Standard library | Free | ZIP extraction |
+| `net/http` | Standard library | Free | Downloads |
+| GitHub Releases | Free service | Free | CDN via GitHub |
+
+### Supported Platforms
+
+| Platform | Status | Notes |
+|----------|--------|-------|
+| macOS | ✅ Supported | Uses existing afplay |
+| Linux | ✅ Supported | Uses existing mpv/paplay/aplay/ffplay |
+| Windows | ❌ Not Supported | ccbell only supports macOS/Linux |
+
+### External Services
+
+| Service | Cost | Notes |
+|---------|------|-------|
+| GitHub Releases | Free | Used for pack distribution |
+| Pack index server | Free | Can be hosted on GitHub Pages |
+
+---
+
+## Implementation Notes
+
+### New Sound Scheme
+
+Extend `ResolveSoundPath()` in `internal/audio/player.go`:
+
+```go
+case strings.HasPrefix(soundSpec, "pack:"):
+    return p.resolvePackSound(strings.TrimPrefix(soundSpec, "pack:"))
+```
+
+### Pack Manager
+
+```go
+type PackManager struct {
+    packsDir string
+    indexURL string
+}
+
+func (m *PackManager) InstallPack(packURL string) error {
+    // Download, extract, validate pack.json, move to packs dir
+}
+```
+
+---
+
 ## References
 
 - [Homebrew Brew Formulas](https://docs.brew.sh/Formula-Cookbook) - Similar distribution model
 - [VSCode Extension Marketplace](https://marketplace.visualstudio.com/) - Proven model
 - [Neovim Plugin Manager](https://github.com/junegunn/vim-plug) - Community packs
+- [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go)

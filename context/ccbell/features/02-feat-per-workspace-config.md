@@ -6,15 +6,74 @@ Different notification settings per project/repo using local config files.
 
 Allow ccbell to read project-specific config from `.claude-ccbell.json` in the workspace root. Enables context-aware notifications (louder for production, subtle for dev).
 
+---
+
+## Priority & Complexity
+
+| Attribute | Value |
+|-----------|-------|
+| **Priority** | High |
+| **Complexity** | Low |
+| **Estimated Effort** | 1-2 days |
+
+---
+
 ## Technical Feasibility
+
+### Current Configuration Analysis
+
+The current config loading (`internal/config/config.go:81-102`) only reads from:
+- `~/.claude/ccbell.config.json` (global user config)
+
+**Key Finding**: Adding local config support requires modifying the `Load()` function to search for local configs and merge with global config.
 
 ### Config File Discovery
 
 ```
 /project/
-├── .claude-ccbell.json    # Local workspace config
+├── .claude-ccbell.json    # Local workspace config (CWD)
 └── .claude/
     └── ccbell.config.json # Global user config
+```
+
+### Implementation Strategy
+
+```go
+func LoadWithLocal(homeDir, localPath string) (*Config, string, error) {
+    // 1. Load global config
+    globalCfg, globalPath, err := Load(homeDir)
+    if err != nil {
+        return nil, "", err
+    }
+
+    // 2. Check for local config
+    if localPath != "" {
+        if data, err := os.ReadFile(localPath); err == nil {
+            localCfg := &Config{}
+            if err := json.Unmarshal(data, localCfg); err == nil {
+                // 3. Merge configs
+                return mergeConfigs(globalCfg, localCfg), globalPath, nil
+            }
+        }
+    }
+
+    return globalCfg, globalPath, nil
+}
+```
+
+### Merging Strategy
+
+From `internal/config/config.go:206-220`, the merge pattern already exists:
+```go
+func mergeEvent(dst, src *Event) {
+    if src.Enabled != nil {
+        dst.Enabled = src.Enabled
+    }
+    if src.Sound != "" {
+        dst.Sound = src.Sound
+    }
+    // ... etc
+}
 ```
 
 ```go
@@ -103,3 +162,55 @@ func MergeConfigs(global, local *Config) *Config {
   }
 }
 ```
+
+---
+
+## Feasibility Research
+
+### Audio Player Compatibility
+
+No changes needed to the audio player. This feature only modifies config loading and merging logic.
+
+### External Dependencies
+
+| Dependency | Type | Cost | Notes |
+|------------|------|------|-------|
+| None | - | - | Pure Go implementation |
+
+### Supported Platforms
+
+| Platform | Status | Notes |
+|----------|--------|-------|
+| macOS | ✅ Supported | Works with current audio player |
+| Linux | ✅ Supported | Works with current audio player |
+| Windows | ❌ Not Supported | ccbell only supports macOS/Linux |
+
+---
+
+## Implementation Notes
+
+### Environment Variables
+
+The current implementation uses `CLAUDE_PLUGIN_ROOT` environment variable. We can use a similar approach for local config:
+
+```go
+// In main.go, add:
+localConfigPath := os.Getenv("CCBELL_LOCAL_CONFIG")
+if localConfigPath == "" {
+    // Check CWD for .claude-ccbell.json
+    if _, err := os.Stat(".claude-ccbell.json"); err == nil {
+        localConfigPath = ".claude-ccbell.json"
+    }
+}
+```
+
+### Validation Changes
+
+Add local config validation that inherits from global config validation.
+
+---
+
+## References
+
+- [Current config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go)
+- [Config merge pattern](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L206-L220)

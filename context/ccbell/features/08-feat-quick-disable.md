@@ -6,7 +6,27 @@ Temporary pause without full disable. Quick toggle for short periods.
 
 Temporarily disable notifications for 15min, 1hr, 4hr without changing the full configuration. Quick toggle via command.
 
+---
+
+## Priority & Complexity
+
+| Attribute | Value |
+|-----------|-------|
+| **Priority** | Medium |
+| **Complexity** | Low |
+| **Estimated Effort** | 1-2 days |
+
+---
+
 ## Technical Feasibility
+
+### Current State Analysis
+
+The current `internal/state/state.go` already handles:
+- Cooldown tracking
+- Persisted state across invocations
+
+**Key Finding**: Quick disable can extend the state manager with a `quickDisableUntil` timestamp.
 
 ### Timer-Based Disable
 
@@ -54,3 +74,67 @@ func (c *CCBell) checkQuickDisable() {
 Quick disable active: 14:32 remaining
 Will restore profile: default
 ```
+
+---
+
+## Feasibility Research
+
+### Audio Player Compatibility
+
+Quick disable doesn't interact with audio playback. It affects the decision to play sound.
+
+### External Dependencies
+
+| Dependency | Type | Cost | Notes |
+|------------|------|------|-------|
+| None | - | - | Pure Go implementation |
+
+### Supported Platforms
+
+| Platform | Status | Notes |
+|----------|--------|-------|
+| macOS | ✅ Supported | Works with current architecture |
+| Linux | ✅ Supported | Works with current architecture |
+| Windows | ❌ Not Supported | ccbell only supports macOS/Linux |
+
+---
+
+## Implementation Notes
+
+### State Storage
+
+Extend `internal/state/state.go`:
+
+```go
+type State struct {
+    LastPlayed   map[string]time.Time `json:"lastPlayed,omitempty"`
+    Cooldowns    map[string]time.Time `json:"cooldowns,omitempty"`
+    QuickDisable *QuickDisableState    `json:"quickDisable,omitempty"`
+}
+
+type QuickDisableState struct {
+    Until   time.Time `json:"until"`
+    Profile string    `json:"profile"`
+}
+```
+
+### Integration Point
+
+In `cmd/ccbell/main.go`, add check after config load:
+
+```go
+// Check quick disable
+stateManager := state.NewManager(homeDir)
+if state, err := stateManager.Load(); err == nil {
+    if state.QuickDisable != nil && time.Now().Before(state.QuickDisable.Until) {
+        log.Debug("Quick disable active, exiting")
+        return nil
+    }
+}
+```
+
+---
+
+## References
+
+- [Current state management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go)
