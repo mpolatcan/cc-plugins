@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # ccbell runner - Downloads ccbell binary if missing and runs it
+# Supports macOS and all major Linux distributions with auto-dependency installation
 set -euo pipefail
 
 REPO="mpolatcan/ccbell"
@@ -11,7 +12,7 @@ detect_os() {
     case "$(uname -s)" in
         Darwin*)  echo "darwin" ;;
         Linux*)   echo "linux" ;;
-        *)        echo "darwin" ;;  # Default to darwin
+        *)        echo "unknown" ;;
     esac
 }
 
@@ -19,8 +20,174 @@ detect_arch() {
     case "$(uname -m)" in
         x86_64|amd64)  echo "amd64" ;;
         arm64|aarch64) echo "arm64" ;;
-        *)             echo "amd64" ;;  # Default to amd64
+        *)             echo "amd64" ;;
     esac
+}
+
+# Audio player detection and installation for Linux
+install_audio_player_linux() {
+    local audio_player="$1"
+    local install_cmd=""
+
+    # Detect package manager and install
+    if command -v apt-get &>/dev/null && command -v sudo &>/dev/null; then
+        # Debian/Ubuntu
+        install_cmd="sudo apt-get update && sudo apt-get install -y"
+    elif command -v dnf &>/dev/null && command -v sudo &>/dev/null; then
+        # Fedora/RHEL 8+
+        install_cmd="sudo dnf install -y"
+    elif command -v yum &>/dev/null && command -v sudo &>/dev/null; then
+        # CentOS/RHEL 7
+        install_cmd="sudo yum install -y"
+    elif command -v pacman &>/dev/null && command -v sudo &>/dev/null; then
+        # Arch Linux
+        install_cmd="sudo pacman -S --noconfirm"
+    elif command -v zypper &>/dev/null && command -v sudo &>/dev/null; then
+        # openSUSE
+        install_cmd="sudo zypper install -y"
+    elif command -v apk &>/dev/null && command -v sudo &>/dev/null; then
+        # Alpine
+        install_cmd="sudo apk add --no-cache"
+    elif command -v emerge &>/dev/null && command -v sudo &>/dev/null; then
+        # Gentoo
+        install_cmd="sudo emerge --ask"
+    elif command -v nix-env &>/dev/null; then
+        # NixOS
+        install_cmd="nix-env -i"
+    fi
+
+    case "$audio_player" in
+        "paplay")
+            if [[ -n "$install_cmd" ]]; then
+                echo "ccbell: Installing pulseaudio-utils ($install_cmd)..." >&2
+                eval "$install_cmd" pulseaudio-utils 2>/dev/null || \
+                eval "$install_cmd" libpulse-mainloop-glib 2>/dev/null || \
+                eval "$install_cmd" pulseaudio 2>/dev/null || true
+            fi
+            ;;
+        "aplay")
+            if [[ -n "$install_cmd" ]]; then
+                echo "ccbell: Installing alsa-utils ($install_cmd)..." >&2
+                eval "$install_cmd" alsa-utils 2>/dev/null || true
+            fi
+            ;;
+        "mpv")
+            if [[ -n "$install_cmd" ]]; then
+                echo "ccbell: installing mpv ($install_cmd)..." >&2
+                eval "$install_cmd" mpv 2>/dev/null || true
+            fi
+            ;;
+        "ffplay")
+            if [[ -n "$install_cmd" ]]; then
+                echo "ccbell: installing ffmpeg ($install_cmd)..." >&2
+                eval "$install_cmd" ffmpeg 2>/dev/null || true
+            fi
+            ;;
+    esac
+}
+
+# Find best available audio player
+find_audio_player() {
+    local os="$1"
+    local player=""
+
+    case "$os" in
+        "darwin")
+            if command -v afplay &>/dev/null; then
+                player="afplay"
+            fi
+            ;;
+        "linux")
+            # Priority order: mpv (most reliable), paplay (PulseAudio), aplay (ALSA), ffplay
+            for p in mpv paplay aplay ffplay; do
+                if command -v "$p" &>/dev/null; then
+                    player="$p"
+                    break
+                fi
+            done
+
+            # Auto-install if not found
+            if [[ -z "$player" ]]; then
+                echo "ccbell: No audio player found, attempting auto-install..." >&2
+
+                # Try mpv first (most portable)
+                if command -v apt-get &>/dev/null; then
+                    if command -v sudo &>/dev/null; then
+                        sudo apt-get update -qq && sudo apt-get install -y -qq mpv 2>/dev/null && player="mpv"
+                    else
+                        apt-get update -qq && apt-get install -y -qq mpv 2>/dev/null && player="mpv"
+                    fi
+                elif command -v dnf &>/dev/null; then
+                    if command -v sudo &>/dev/null; then
+                        sudo dnf install -y -q mpv 2>/dev/null && player="mpv"
+                    else
+                        dnf install -y -q mpv 2>/dev/null && player="mpv"
+                    fi
+                elif command -v pacman &>/dev/null; then
+                    if command -v sudo &>/dev/null; then
+                        sudo pacman -S --noconfirm mpv 2>/dev/null && player="mpv"
+                    else
+                        pacman -S --noconfirm mpv 2>/dev/null && player="mpv"
+                    fi
+                fi
+
+                # If mpv install failed, try ffplay
+                if [[ -z "$player" ]]; then
+                    install_audio_player_linux "ffplay"
+                    if command -v ffplay &>/dev/null; then
+                        player="ffplay"
+                    fi
+                fi
+
+                # If ffplay install failed, try paplay
+                if [[ -z "$player" ]]; then
+                    install_audio_player_linux "paplay"
+                    if command -v paplay &>/dev/null; then
+                        player="paplay"
+                    fi
+                fi
+
+                # If paplay install failed, try aplay
+                if [[ -z "$player" ]]; then
+                    install_audio_player_linux "aplay"
+                    if command -v aplay &>/dev/null; then
+                        player="aplay"
+                    fi
+                fi
+            fi
+            ;;
+    esac
+
+    echo "$player"
+}
+
+# Verify audio player works
+verify_audio_player() {
+    local player="$1"
+    local test_file="${2:-}"
+
+    if [[ -n "$test_file" ]] && [[ -f "$test_file" ]]; then
+        case "$player" in
+            "afplay")
+                afplay -v 0.1 "$test_file" 2>/dev/null
+                ;;
+            "mpv")
+                mpv --no-video --volume=20 "$test_file" 2>/dev/null
+                ;;
+            "ffplay")
+                ffplay -nodisp -autoexit -volume=20 "$test_file" 2>/dev/null
+                ;;
+            "paplay")
+                paplay "$test_file" 2>/dev/null
+                ;;
+            "aplay")
+                aplay -q "$test_file" 2>/dev/null
+                ;;
+            *)
+                return 1
+                ;;
+        esac
+    fi
 }
 
 get_plugin_root() {
@@ -104,7 +271,15 @@ ensure_config() {
 main() {
     local event="${1:-stop}"
 
-    local plugin_root
+    local os arch plugin_root
+    os=$(detect_os)
+    arch=$(detect_arch)
+
+    if [[ "$os" == "unknown" ]]; then
+        echo "ccbell: Error: Unsupported operating system" >&2
+        exit 1
+    fi
+
     plugin_root=$(get_plugin_root)
 
     if [[ -z "$plugin_root" ]]; then
@@ -112,15 +287,32 @@ main() {
         exit 1
     fi
 
+    # Check audio player availability
+    local audio_player
+    audio_player=$(find_audio_player "$os")
+
+    if [[ -z "$audio_player" ]]; then
+        echo "ccbell: Error: No audio player found for $os" >&2
+        case "$os" in
+            "darwin")
+                echo "ccbell: Suggestion: afplay is built into macOS" >&2
+                ;;
+            "linux")
+                echo "ccbell: Suggestion: Install one of: mpv, ffmpeg (ffplay), pulseaudio-utils (paplay), or alsa-utils (aplay)" >&2
+                ;;
+        esac
+        exit 1
+    fi
+
+    echo "ccbell: Using audio player: $audio_player" >&2
+
     local bin_dir="${plugin_root}/bin"
     local binary="${bin_dir}/${BINARY_NAME}"
 
     mkdir -p "$bin_dir"
 
     if [[ ! -f "$binary" ]]; then
-        local os arch archive_name url tmp_file
-        os=$(detect_os)
-        arch=$(detect_arch)
+        local archive_name url tmp_file
         archive_name="${BINARY_NAME}-${os}-${arch}.tar.gz"
         url="https://github.com/${REPO}/releases/download/v${PLUGIN_VERSION}/${archive_name}"
 
