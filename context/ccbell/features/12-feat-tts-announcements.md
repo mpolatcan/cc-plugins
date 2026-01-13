@@ -18,7 +18,7 @@ Play spoken announcements instead of (or alongside) audio files. Announce events
 
 | Library | Platform | Format Support | Go Module | Notes |
 |---------|----------|----------------|-----------|-------|
-| **ebitengine/oto** | macOS, Windows, Linux | WAV (via decoders) | `github.com/ebitengine/oto/v3` | Low-level, requires decoders |
+| **ebitengine/oto** | macOS, Linux | WAV (via decoders) | `github.com/ebitengine/oto/v3` | Low-level, requires decoders |
 | **go-minimp3** | Cross-platform | MP3 | `github.com/cowork-ai/go-minimp3` | Pure Go MP3 decoder |
 | **go-audio/wav** | Cross-platform | WAV | `github.com/go-audio/wav` | WAV reading/writing |
 
@@ -37,7 +37,7 @@ Play spoken announcements instead of (or alongside) audio files. Announce events
 | Quality | Robotic, but clear |
 | Go Bindings | [gen2brain/flite-go](https://github.com/gen2brain/flite-go) |
 | Voices | Single US English (customizable) |
-| Platform | macOS, Linux, Windows |
+| Platform | macOS, Linux |
 | License | BSD-style |
 
 **Usage:**
@@ -54,7 +54,7 @@ flite.TextToSpeech("Claude finished", "voice.wav")
 |--------|---------|
 | Size | ~3MB binary |
 | Quality | Robotic, multiple voices |
-| Platform | macOS, Linux, Windows |
+| Platform | macOS, Linux |
 | License | GPL |
 | CLI | `espeak-ng "text"` |
 
@@ -199,7 +199,6 @@ Save? [y/n]: y
 |----------|-------|-----------|-------|--------|
 | macOS | ✅ | ✅ | ✅ (Python) | ✅ (Python) |
 | Linux | ✅ | ✅ | ✅ | ✅ |
-| Windows | ✅ | ✅ | ✅ | ✅ |
 
 ## Risks & Mitigations
 

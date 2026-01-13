@@ -4,7 +4,7 @@ Display visual alerts alongside or instead of audio notifications.
 
 ## Summary
 
-Show visual notifications (macOS Notification Center, terminal bell, tray icon) when Claude Code events trigger. Users who are deaf or hard of hearing, or work in noisy environments, benefit from visual alerts.
+Show visual notifications (macOS Notification Center, terminal bell) when Claude Code events trigger. Users who are deaf or hard of hearing, or work in noisy environments, benefit from visual alerts.
 
 ## Motivation
 
@@ -21,11 +21,7 @@ Show visual notifications (macOS Notification Center, terminal bell, tray icon) 
 |----------|--------|-------------|-------|
 | macOS | **Notification Center** | ✅ Easy | `osascript` or native APIs |
 | macOS | **Terminal bell** | ✅ Easy | `echo -e '\a'` |
-| macOS | **Tray icon** | ⚠️ Moderate | Requires menu bar app |
 | Linux | **libnotify** | ✅ Easy | `notify-send` command |
-| Linux | **Tray icon** | ⚠️ Hard | Requires appindicator |
-| Windows | **Toast** | ⚠️ Moderate | PowerShell or COM |
-| Windows | **Tray icon** | ⚠️ Hard | Requires GUI app |
 
 ### Recommended Approach
 
@@ -57,17 +53,6 @@ terminal-notifier -message "Claude finished" -title "ccbell" -sound default
 **Pros:** Better customization, grouped notifications
 **Cons:** Requires Ruby/Gem installation
 
-#### Option C: native Go (Apple silicon via AppKit)
-
-```go
-import "github.com/getlantern/systray"
-
-// systray is cross-platform but complex for notifications
-```
-
-**Pros:** Full control, no dependencies
-**Cons:** More code, menu bar app overhead
-
 ### Linux Options
 
 #### Option A: notify-send (libnotify)
@@ -95,34 +80,6 @@ notify-send "ccbell" "message" -h string:x-dunst-stack-tag:ccbell
 
 **Pros:** Highly configurable
 **Cons:** Requires dunst installation
-
-### Windows Options
-
-#### Option A: PowerShell
-
-```powershell
-# Windows 10+ Toast
-[Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("ccbell").Show(
-    [Windows.UI.Notifications.ToastNotification]::new(
-        [Windows.UI.Notifications.ToastContentFactory]::new.CreateToastText01(
-            @{TextBodyWrap = "Claude finished"}
-        )
-    )
-)
-```
-
-**Pros:** No external dependencies
-**Cons:** Complex PowerShell, permission issues
-
-#### Option B: BurntToast
-
-```powershell
-# Install-Module BurntToast
-New-BurntToastNotification -Text "ccbell", "Claude finished" -AppLogo "icon.png"
-```
-
-**Pros:** Easier PowerShell API
-**Cons:** Requires PowerShell 5+, module install
 
 ## Implementation
 
@@ -365,7 +322,6 @@ Events: 4/4 enabled
 |----------|-----------|----------|
 | macOS | SF Symbols or app icon | System info icon |
 | Linux | Desktop icon | Notification icon |
-| Windows | App logo | System info |
 
 ```bash
 # macOS: Use system icons via AppleScript
@@ -401,4 +357,3 @@ osascript -e 'display notification "msg" with title "ccbell" subtitle "subtitle"
 
 - [AppleScript Notification](https://apple.stackexchange.com/questions/57412/how-can-i-trigger-a-notification-from-the-apple-command-line)
 - [notify-send man page](https://man7.org/linux/man-pages/man1/notify-send.1.html)
-- [BurntToast (Windows)](https://github.com/Windos/BurntToast)
