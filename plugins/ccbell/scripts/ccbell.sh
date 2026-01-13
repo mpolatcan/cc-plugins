@@ -3,8 +3,9 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-BINARY="$SCRIPT_DIR/bin/ccbell"
-readonly VERSION="0.2.23"
+PLUGIN_DIR="$(dirname "$SCRIPT_DIR")"
+BINARY="$PLUGIN_DIR/bin/ccbell"
+readonly VERSION="0.2.24"
 readonly REPO="mpolatcan/ccbell"
 
 # Check if download tool exists
@@ -27,7 +28,7 @@ download_binary() {
     TMP=$(mktemp).tar.gz
     trap 'rm -f "$TMP"' EXIT
 
-    mkdir -p "$SCRIPT_DIR/bin"
+    mkdir -p "$PLUGIN_DIR/bin"
 
     if command -v curl &>/dev/null; then
         curl -fsSL "$URL" -o "$TMP"
@@ -35,7 +36,7 @@ download_binary() {
         wget -q "$URL" -O "$TMP"
     fi
 
-    tar -xzf "$TMP" -C "$SCRIPT_DIR/bin"
+    tar -xzf "$TMP" -C "$PLUGIN_DIR/bin"
     chmod +x "$BINARY"
 }
 
