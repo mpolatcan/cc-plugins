@@ -39,11 +39,8 @@ Audio notification enhancements for Claude Code.
 |---|---------|-------------|
 | 12 | **TTS Announcements** | Text-to-speech: "Claude finished", "Permission needed". Customizable phrases per event. |
 | 13 | **Sound Randomization** | Play random sound from a set per event. Create sound pools for variety (e.g., 3 different "stop" sounds). |
-| 14 | **SSH Audio Server** | Play sounds on remote machine. Stream audio via SSH to a always-on audio server. |
-| 15 | **Export/Import Config** | Share configurations via JSON. Copy profile settings between machines or share with team. |
-| 16 | **Multi-channel Output** | Route different events to different audio devices. Example: errors to headphones, stop to speakers. |
-| 17 | **Notification Stacking** | Queue rapid notifications and play them as a sequence. Prevent audio chaos during burst events. |
-| 18 | **Battery-aware Mode** | Reduce or mute notifications when on battery power. Auto-switch to subtle profile. |
+| 14 | **Export/Import Config** | Share configurations via JSON. Copy profile settings between machines or share with team. |
+| 15 | **Notification Stacking** | Queue rapid notifications and play them as a sequence. Prevent audio chaos during burst events. |
 
 ---
 
