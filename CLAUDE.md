@@ -114,6 +114,16 @@ This project uses **Semantic Versioning (SemVer)**:
 3. Release ccbell to create GitHub Release
 4. Then sync the version to cc-plugins
 
+### External Release Check Rule
+
+**CRITICAL: For plugins with external source code repositories or binary releases, BEFORE bumping version you MUST:**
+
+1. Check if the external repository has a release available for the intended version
+2. If release is available → proceed with version bump
+3. If release is NOT available → NEVER bump version
+
+**NEVER bump version in cc-plugins unless the corresponding external release exists.** This ensures plugin users can actually download and use the binaries.
+
 ### Release Process
 
 1. Make changes and test in ccbell
