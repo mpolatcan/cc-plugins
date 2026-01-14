@@ -55,6 +55,98 @@ The current `internal/audio/player.go` supports native players:
 | **Kokoro-82M** | ~500MB | Excellent | Python/ONNX | ✅ | Optional | Apache 2.0 |
 | **Kokoro ONNX** | ~150MB | Excellent | Cross-platform | ✅ | - | Apache 2.0 |
 | **Suno Bark** | 1-4GB | Excellent | Python | ⚠️ | ✅ Recommended | MIT |
+| **NeuTTS Air** | ~2GB | Super-realistic | Python/GGML | ✅ | Optional | Apache 2.0 |
+| **NeuTTS Nano** | ~800MB | Excellent | Python/GGML | ✅ | - | NeuTTS Open License |
+
+### NeuTTS Air (Recommended for Desktop)
+
+| Aspect | Details |
+|--------|---------|
+| **Parameters** | 0.7B total (0.5B LLM backbone) |
+| **Architecture** | Qwen2-based LLM + NeuCodec neural audio codec |
+| **Model Size** | ~2GB (GGML/GGUF quantized) |
+| **Quality** | Best-in-class ultra-realistic, natural intonation |
+| **Voice Cloning** | 3-15 seconds reference audio |
+| **Context Window** | 2048 tokens (~30 seconds audio) |
+| **CPU Performance** | Real-time on mid-range devices |
+| **Watermarking** | Built-in Perth audio watermarker |
+| **License** | Apache 2.0 |
+
+**Installation:**
+```bash
+# Install dependencies
+brew install espeak  # macOS
+# or
+sudo apt install espeak  # Ubuntu/Debian
+
+# Install Python package
+pip install neuttsair torch
+
+# Download models (Q4 quantized for efficiency)
+huggingface-cli download neuphonic/neutts-air-q4-gguf --local-dir ~/.claude/ccbell/models/neutts-air
+huggingface-cli download neuphonic/neucodec --local-dir ~/.claude/ccbell/models/neucodec
+```
+
+**Performance Benchmarks:**
+
+| Device | Speed |
+|--------|-------|
+| AMD Ryzen 9 HX 370 (CPU) | 221 tokens/s |
+| iMac M4 16GB (CPU) | 195 tokens/s |
+| NVIDIA RTX 4090 (GPU) | 19,268 tokens/s |
+
+**Usage:**
+```python
+from neuttsair.neutts import NeuTTSAir
+import soundfile as sf
+
+tts = NeuTTSAir(
+    backbone_repo="neuphonic/neutts-air-q4-gguf",
+    backbone_device="cpu",
+    codec_repo="neuphonic/neucodec",
+    codec_device="cpu"
+)
+
+# Encode reference voice
+ref_codes = tts.encode_reference("my-voice.wav")
+
+# Generate speech
+wav = tts.infer("Claude finished", ref_codes, "")
+sf.write("speech.wav", wav, 24000)
+```
+
+---
+
+### NeuTTS Nano (Recommended for Mobile/Embedded)
+
+| Aspect | Details |
+|--------|---------|
+| **Parameters** | ~229M total (~120M active) |
+| **Architecture** | LM + NeuCodec (single codebook) |
+| **Model Size** | ~800MB (GGML/GGUF quantized) |
+| **Quality** | Excellent for its parameter size |
+| **Voice Cloning** | 3+ seconds reference audio |
+| **Context Window** | 2048 tokens (~30 seconds audio) |
+| **CPU Performance** | Real-time on mobile devices |
+| **Watermarking** | Built-in Perth audio watermarker |
+| **License** | NeuTTS Open License 1.0 |
+
+**Performance Benchmarks:**
+
+| Device | Speed |
+|--------|-------|
+| Galaxy A25 5G (CPU only) | 45 tokens/s |
+| AMD Ryzen 9 HX 370 (CPU) | 221 tokens/s |
+| iMac M4 16GB (CPU) | 195 tokens/s |
+| NVIDIA RTX 4090 (GPU) | 19,268 tokens/s |
+
+**Best For:**
+- Raspberry Pi 4/5
+- Mobile devices
+- Resource-constrained Linux systems
+- Headless servers
+
+---
 
 ### Recommended: Piper (Best Balance)
 
@@ -147,16 +239,18 @@ say "Claude finished"
 say -v Samantha "Permission needed"
 ```
 
-### Piper vs Kokoro Comparison
+### Piper vs Kokoro vs NeuTTS Comparison
 
-| Criteria | Piper | Kokoro-82M |
-|----------|-------|------------|
-| **Model Size** | 20-60MB | ~150MB (ONNX) |
-| **CPU Only** | ✅ Real-time | ✅ Fast |
-| **Voice Quality** | Good | Excellent |
-| **Multilingual** | ✅ | English + Spanish |
-| **Setup Complexity** | Low | Medium |
-| **Python Dependency** | Yes | Yes (or Node.js) |
+| Criteria | Piper | Kokoro-82M | NeuTTS Air | NeuTTS Nano |
+|----------|-------|------------|------------|-------------|
+| **Model Size** | 20-60MB | ~150MB | ~2GB | ~800MB |
+| **CPU Only** | ✅ Real-time | ✅ Fast | ✅ Real-time | ✅ Real-time |
+| **Voice Quality** | Good | Excellent | Super-realistic | Excellent |
+| **Multilingual** | ✅ | English + Spanish | English | English |
+| **Voice Cloning** | ❌ | ❌ | ✅ | ✅ |
+| **Setup Complexity** | Low | Medium | Medium | Medium |
+| **Python Dependency** | Yes | Yes (or Node.js) | Yes | Yes |
+| **Best For** | Raspberry Pi | General use | Desktop/premium | Mobile/embedded |
 
 ### Suno Bark (Not Recommended for ccbell)
 
@@ -307,6 +401,18 @@ func findTTSEngine() string {
 - [Flite TTS](http://cmuflite.org/) - Lightweight TTS engine
 - [eSpeak NG](https://github.com/espeak-ng/espeak-ng) - Compact TTS engine
 - [Suno Bark - GitHub](https://github.com/suno-ai/bark) - Transformer-based TTS (not recommended)
+
+### NeuTTS Resources
+
+- [NeuTTS Air - Hugging Face](https://huggingface.co/neuphonic/neutts-air) - Air model repository
+- [NeuTTS Air Q4 GGUF](https://huggingface.co/neuphonic/neutts-air-q4-gguf) - Quantized version
+- [NeuTTS Air Q8 GGUF](https://huggingface.co/neuphonic/neutts-air-q8-gguf) - Higher quality quantized
+- [NeuTTS Nano - Hugging Face](https://huggingface.co/neuphonic/neutts-nano) - Nano model repository
+- [NeuTTS Nano Q4 GGUF](https://huggingface.co/neuphonic/neutts-nano-q4-gguf) - Quantized version
+- [NeuTTS Air - GitHub](https://github.com/neuphonic/neutts-air) - Official repository
+- [NeuCodec - Hugging Face](https://huggingface.co/neuphonic/neucodec) - Neural audio codec
+- [NeuTTS Demo - Hugging Face Spaces](https://huggingface.co/spaces/neuphonic/neutts-air) - Live demo
+- [NeuTTS Official](https://www.neutts.org/) - Project website
 
 ### TTS Performance Research
 
