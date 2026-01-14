@@ -1,4 +1,4 @@
-# Feature: Event Filtering
+# Feature: Event Filtering 🔍
 
 ## Table of Contents
 

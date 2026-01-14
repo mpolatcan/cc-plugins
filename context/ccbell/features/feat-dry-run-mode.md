@@ -1,4 +1,4 @@
-# Feature: Dry Run Mode
+# Feature: Dry Run Mode 🧪
 
 ## Table of Contents
 

@@ -1,4 +1,4 @@
-# Feature: Cooldown Status Display
+# Feature: Cooldown Status Display ⏱️
 
 ## Table of Contents
 

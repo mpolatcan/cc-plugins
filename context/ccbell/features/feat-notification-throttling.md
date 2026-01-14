@@ -1,4 +1,4 @@
-# Feature: Notification Throttling
+# Feature: Notification Throttling 🚦
 
 ## Table of Contents
 

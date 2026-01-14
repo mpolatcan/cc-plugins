@@ -1,4 +1,4 @@
-# Feature: Per-Workspace Configuration
+# Feature: Per-Workspace Configuration 📂
 
 ## Table of Contents
 

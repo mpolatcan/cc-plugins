@@ -1,4 +1,4 @@
-# Feature: Minimal Mode
+# Feature: Minimal Mode 🎯
 
 ## Table of Contents
 

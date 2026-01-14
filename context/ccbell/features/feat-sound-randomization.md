@@ -1,4 +1,4 @@
-# Feature: Sound Randomization
+# Feature: Sound Randomization 🎲
 
 ## Table of Contents
 

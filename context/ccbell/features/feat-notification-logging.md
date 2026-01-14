@@ -1,4 +1,4 @@
-# Feature: Notification Logging
+# Feature: Notification Logging 📋
 
 ## Table of Contents
 

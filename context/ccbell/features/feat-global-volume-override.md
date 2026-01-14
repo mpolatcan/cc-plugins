@@ -1,4 +1,4 @@
-# Feature: Global Volume Override
+# Feature: Global Volume Override 🔊
 
 ## Table of Contents
 

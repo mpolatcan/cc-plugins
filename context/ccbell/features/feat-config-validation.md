@@ -1,4 +1,4 @@
-# Feature: Config Syntax Validation
+# Feature: Config Syntax Validation ✅
 
 ## Table of Contents
 

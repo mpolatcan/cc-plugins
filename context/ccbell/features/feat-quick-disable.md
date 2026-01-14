@@ -1,4 +1,4 @@
-# Feature: Quick Disable
+# Feature: Quick Disable ⏸️
 
 ## Table of Contents
 

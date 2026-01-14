@@ -1,4 +1,4 @@
-# Feature: Config Migration
+# Feature: Config Migration 📁
 
 ## Table of Contents
 

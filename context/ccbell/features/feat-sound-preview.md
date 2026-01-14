@@ -1,4 +1,4 @@
-# Feature: Sound Preview
+# Feature: Sound Preview 👂
 
 ## Table of Contents
 

@@ -1,4 +1,4 @@
-# Feature: Weekday/Weekend Schedules
+# Feature: Weekday/Weekend Schedules 📅
 
 ## Table of Contents
 

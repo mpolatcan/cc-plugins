@@ -1,4 +1,4 @@
-# Feature: Event Aliases
+# Feature: Event Aliases 🔄
 
 ## Table of Contents
 

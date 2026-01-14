@@ -1,4 +1,4 @@
-# Feature: Notification Stacking
+# Feature: Notification Stacking 📚
 
 ## Table of Contents
 

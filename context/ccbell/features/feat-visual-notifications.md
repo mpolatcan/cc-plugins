@@ -1,4 +1,4 @@
-# Feature: Visual Notifications
+# Feature: Visual Notifications 👁️
 
 ## Table of Contents
 

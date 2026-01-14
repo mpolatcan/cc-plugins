@@ -1,4 +1,4 @@
-# Feature: Sound Validation
+# Feature: Sound Validation 🔎
 
 ## Table of Contents
 

@@ -1,4 +1,4 @@
-# Feature: Do Not Disturb Integration
+# Feature: Do Not Disturb Integration 🔕
 
 ## Table of Contents
 
