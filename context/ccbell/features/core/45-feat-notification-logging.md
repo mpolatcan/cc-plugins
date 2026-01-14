@@ -1,6 +1,16 @@
 # Feature: Notification Logging
 
-Log all notification events to a file.
+## Table of Contents
+
+- [Summary](#summary)
+- [Motivation](#motivation)
+- [Priority & Complexity](#priority--complexity)
+- [Technical Feasibility](#technical-feasibility)
+- [Implementation](#implementation)
+- [Configuration](#configuration)
+- [Commands](#commands)
+- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
+- [References](#references)
 
 ## Summary
 

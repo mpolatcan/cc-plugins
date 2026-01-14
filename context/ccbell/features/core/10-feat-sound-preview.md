@@ -1,6 +1,16 @@
 # Feature: Sound Preview
 
-Hear sound before confirming selection in configure.
+## Table of Contents
+
+- [Summary](#summary)
+- [Motivation](#motivation)
+- [Priority & Complexity](#priority--complexity)
+- [Technical Feasibility](#technical-feasibility)
+- [Implementation](#implementation)
+- [Configuration](#configuration)
+- [Commands](#commands)
+- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
+- [References](#references)
 
 ## Summary
 

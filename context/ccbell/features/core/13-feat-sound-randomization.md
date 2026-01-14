@@ -1,6 +1,16 @@
 # Feature: Sound Randomization
 
-Play random sounds from a pool for each notification event.
+## Table of Contents
+
+- [Summary](#summary)
+- [Motivation](#motivation)
+- [Priority & Complexity](#priority--complexity)
+- [Technical Feasibility](#technical-feasibility)
+- [Implementation](#implementation)
+- [Configuration](#configuration)
+- [Commands](#commands)
+- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
+- [References](#references)
 
 ## Summary
 
