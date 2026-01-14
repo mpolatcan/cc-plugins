@@ -141,6 +141,134 @@ Validate imported config using existing `Config.Validate()` method.
 
 ---
 
+## Repository Impact & Implementation
+
+### ccbell Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **Config** | Add | Add `Export(path string)` and `Import(path string)` methods |
+| **Core Logic** | Modify | Add `SanitizeForExport()` to remove sensitive data |
+| **Commands** | Add | New `config` command (export, import, share) |
+| **New File** | Add | `internal/config/export.go` for export/import logic |
+
+### cc-plugins Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **plugin.json** | No change | Feature in binary, not plugin |
+| **hooks/hooks.json** | No change | Uses existing hooks |
+| **commands/config.md** | Add | New command documentation |
+| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+
+### Rough Implementation
+
+**ccbell - internal/config/export.go:**
+```go
+func (c *Config) Export(path string, includeSecrets bool) error {
+    exportCfg := c.DeepCopy()
+
+    // Sanitize sensitive data for sharing
+    if !includeSecrets {
+        exportCfg.GlobalVolume = nil
+        for _, event := range exportCfg.Events {
+            event.Volume = nil
+        }
+    }
+
+    // Remove internal fields
+    exportCfg.Version = configVersion
+
+    data, _ := json.MarshalIndent(exportCfg, "", "  ")
+    return os.WriteFile(path, data, 0644)
+}
+
+func (c *Config) Import(path string, merge bool) error {
+    data, err := os.ReadFile(path)
+    if err != nil { return err }
+
+    var imported Config
+    if err := json.Unmarshal(data, &imported); err != nil {
+        return fmt.Errorf("invalid config format: %w", err)
+    }
+
+    if err := imported.Validate(); err != nil {
+        return fmt.Errorf("invalid config: %w", err)
+    }
+
+    if merge {
+        return c.Merge(&imported)
+    }
+    *c = imported
+    return nil
+}
+
+func (c *Config) Merge(other *Config) error {
+    // Deep merge strategy
+    if other.GlobalVolume != nil {
+        c.GlobalVolume = other.GlobalVolume
+    }
+    for event, cfg := range other.Events {
+        c.Events[event] = cfg
+    }
+    return nil
+}
+```
+
+**ccbell - cmd/ccbell/main.go:**
+```go
+func main() {
+    if len(os.Args) > 1 && os.Args[1] == "config" {
+        handleConfigCommand(os.Args[2:])
+        return
+    }
+}
+
+func handleConfigCommand(args []string) {
+    exportCmd := flag.NewFlagSet("export", flag.ExitOnError)
+    importCmd := flag.NewFlagSet("import", flag.ExitOnError)
+    outputFile := exportCmd.String("output", "-", "Output file (stdout if -)")
+
+    switch args[0] {
+    case "export":
+        exportCmd.Parse(args[1:])
+        cfg := config.Load(homeDir)
+        cfg.Export(*outputFile, false)
+    case "import":
+        importCmd.Parse(args[1:])
+        cfg := config.Load(homeDir)
+        cfg.Import(args[1], true)
+    }
+}
+```
+
+---
+
+## cc-plugins Repository Impact
+
+| Aspect | Impact | Details |
+|--------|--------|---------|
+| **Plugin Manifest** | No changes | Feature implemented in ccbell binary, no plugin.json changes |
+| **Hooks** | No changes | Works within existing hook events (`Stop`, `Notification`, `SubagentStop`) |
+| **Commands** | New documentation | Create `commands/config.md` for export/import commands |
+| **Sounds** | No changes | No sound file changes needed |
+
+### Technical Details
+
+- **ccbell Version Required**: 0.3.0+
+- **Config Schema Change**: No schema change, adds export/import commands
+- **Files Modified in cc-plugins**:
+  - `plugins/ccbell/commands/config.md` (new file with export, import, share commands)
+- **Version Sync Required**: `scripts/ccbell.sh` VERSION must match ccbell release tag
+
+### Implementation Checklist
+
+- [ ] Create `commands/config.md` with export/import/share commands
+- [ ] Document JSON export format and sanitization
+- [ ] When ccbell v0.3.0+ releases, sync version to cc-plugins
+
+---
+
 ## References
 
 ### ccbell Implementation Research

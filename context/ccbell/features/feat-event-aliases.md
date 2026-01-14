@@ -191,12 +191,100 @@ func (a *AliasManager) Resolve(eventType string) (string, *EventConfig, error) {
 
 ---
 
+## Repository Impact & Implementation
+
+### ccbell Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **Config** | Add | Add `aliases` section with name → event mappings |
+| **Core Logic** | Modify | Add `ResolveAlias(input string) string` function |
+| **Main Flow** | Modify | Check aliases before looking up event config |
+| **Commands** | Add | New `alias` command (list, add, remove, enable, disable) |
+
+### cc-plugins Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **plugin.json** | No change | Feature in binary, not plugin |
+| **hooks/hooks.json** | No change | Uses existing hooks |
+| **commands/alias.md** | Add | New command documentation |
+| **commands/configure.md** | Update | Reference alias configuration |
+| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+
+### Rough Implementation
+
+**ccbell - internal/config/aliases.go:**
+```go
+type AliasConfig struct {
+    Aliases map[string]*Alias `json:"aliases,omitempty"`
+}
+
+type Alias struct {
+    Event     string `json:"event"`
+    Enabled   *bool  `json:"enabled,omitempty"`
+    CreatedAt string `json:"created_at,omitempty"`
+}
+
+func (c *CCBell) ResolveAlias(input string) string {
+    if c.config.Aliases == nil { return input }
+
+    if alias, ok := c.config.Aliases[input]; ok {
+        if alias.Enabled == nil || *alias.Enabled {
+            return alias.Event
+        }
+    }
+    return input
+}
+```
+
+**ccbell - cmd/ccbell/main.go:**
+```go
+func main() {
+    if len(os.Args) > 1 && os.Args[1] == "alias" {
+        handleAliasCommand(os.Args[2:])
+        return
+    }
+
+    // In main flow, resolve aliases
+    eventType := os.Args[1]
+    eventType = ccbell.ResolveAlias(eventType)
+}
+```
+
+---
+
 ## References
 
 ### ccbell Implementation Research
 
 - [Config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) - Event configuration
 - [Main flow](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) - Event validation
+
+---
+
+## cc-plugins Repository Impact
+
+| Aspect | Impact | Details |
+|--------|--------|---------|
+| **Plugin Manifest** | No changes | Feature implemented in ccbell binary, no plugin.json changes |
+| **Hooks** | No changes | Works within existing hook events (`Stop`, `Notification`, `SubagentStop`) |
+| **Commands** | New documentation | Create `commands/alias.md` for alias management |
+| **Sounds** | No changes | No sound file changes needed |
+
+### Technical Details
+
+- **ccbell Version Required**: 0.3.0+
+- **Config Schema Change**: Adds `aliases` section to config (see Configuration section)
+- **Files Modified in cc-plugins**:
+  - `plugins/ccbell/commands/alias.md` (new file with list, add, remove, enable, disable commands)
+- **Version Sync Required**: `scripts/ccbell.sh` VERSION must match ccbell release tag
+
+### Implementation Checklist
+
+- [ ] Create `commands/alias.md` with all alias commands
+- [ ] Document alias configuration format
+- [ ] When ccbell v0.3.0+ releases, sync version to cc-plugins
 
 ---
 

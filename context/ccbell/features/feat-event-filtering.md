@@ -181,6 +181,111 @@ Claude Code hooks don't currently provide token count in the hook context. This 
 
 ---
 
+## Repository Impact & Implementation
+
+### ccbell Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **Config** | Modify | Add `filters` section to Event config |
+| **Core Logic** | Add | Add `ShouldNotify(eventData) bool` function |
+| **New File** | Add | `internal/filter/filter.go` with filter evaluation |
+| **Main Flow** | Modify | Check filters before playing sound |
+
+### cc-plugins Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **plugin.json** | No change | Feature in binary, not plugin |
+| **hooks/hooks.json** | No change | Uses existing hooks |
+| **commands/configure.md** | Update | Add filter configuration section |
+| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+
+### Rough Implementation
+
+**ccbell - internal/filter/filter.go:**
+```go
+type FilterConfig struct {
+    TokenCount    *TokenCountFilter    `json:"token_count,omitempty"`
+    Pattern       *PatternFilter       `json:"pattern,omitempty"`
+    Duration      *DurationFilter      `json:"duration,omitempty"`
+    HasToolCalls  *bool                `json:"has_tool_calls,omitempty"`
+}
+
+type TokenCountFilter struct {
+    Min *int `json:"min,omitempty"`
+    Max *int `json:"max,omitempty"`
+}
+
+type PatternFilter struct {
+    Include *string `json:"include,omitempty"` // Regex to match
+    Exclude *string `json:"exclude,omitempty"` // Regex to exclude
+}
+
+type DurationFilter struct {
+    MinSeconds *float64 `json:"min_seconds,omitempty"`
+    MaxSeconds *float64 `json:"max_seconds,omitempty"`
+}
+
+func (f *FilterConfig) Evaluate(eventData map[string]interface{}) bool {
+    if f == nil { return true }
+
+    if f.TokenCount != nil && !f.evalTokenCount(eventData) { return false }
+    if f.Pattern != nil && !f.evalPattern(eventData) { return false }
+    if f.Duration != nil && !f.evalDuration(eventData) { return false }
+    if f.HasToolCalls != nil && !f.evalToolCalls(eventData) { return false }
+
+    return true
+}
+```
+
+**ccbell - cmd/ccbell/main.go:**
+```go
+func main() {
+    cfg := config.Load(homeDir)
+    eventType := os.Args[1]
+
+    // Get event data from Claude Code environment
+    eventData := parseEventData()
+
+    // Check filters
+    eventCfg := cfg.GetEventConfig(eventType)
+    if eventCfg.Filters != nil {
+        if !eventCfg.Filters.Evaluate(eventData) {
+            log.Info("Event filtered out: %s", eventType)
+            return
+        }
+    }
+}
+```
+
+---
+
+## cc-plugins Repository Impact
+
+| Aspect | Impact | Details |
+|--------|--------|---------|
+| **Plugin Manifest** | No changes | Feature implemented in ccbell binary, no plugin.json changes |
+| **Hooks** | No changes | Works within existing hook events (`Stop`, `Notification`, `SubagentStop`) |
+| **Commands** | Documentation update | Enhance `commands/configure.md` with filter configuration |
+| **Sounds** | No changes | No sound file changes needed |
+
+### Technical Details
+
+- **ccbell Version Required**: 0.3.0+
+- **Config Schema Change**: Adds `filters` to event config (token_count, pattern, duration, has_tool_calls)
+- **Files Modified in cc-plugins**:
+  - `plugins/ccbell/commands/configure.md` (add filter configuration section)
+- **Version Sync Required**: `scripts/ccbell.sh` VERSION must match ccbell release tag
+
+### Implementation Checklist
+
+- [ ] Update `commands/configure.md` with filter configuration examples
+- [ ] Document filter types and their usage
+- [ ] When ccbell v0.3.0+ releases, sync version to cc-plugins
+
+---
+
 ## References
 
 ### Research Sources

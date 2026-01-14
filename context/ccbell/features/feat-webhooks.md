@@ -260,4 +260,131 @@ if cfg.Webhooks != nil {
 
 ---
 
+## Repository Impact & Implementation
+
+### ccbell Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **Config** | Add | Add `webhooks` array with name, url, events, method, headers |
+| **Core Logic** | Add | Add `WebhookManager` with Send() and Test() methods |
+| **New File** | Add | `internal/webhook/webhook.go` for HTTP webhook handling |
+| **Main Flow** | Modify | Send webhooks after/before playing sound |
+| **Commands** | Add | New `webhooks` command (list, add, test, remove) |
+
+### cc-plugins Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **plugin.json** | No change | Feature in binary, not plugin |
+| **hooks/hooks.json** | No change | Uses existing hooks |
+| **commands/webhooks.md** | Add | New command documentation |
+| **commands/configure.md** | Update | Reference webhook options |
+| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+
+### Rough Implementation
+
+**ccbell - internal/webhook/webhook.go:**
+```go
+type WebhookManager struct {
+    client *http.Client
+}
+
+type Webhook struct {
+    Name    string            `json:"name"`
+    URL     string            `json:"url"`
+    Events  []string          `json:"events"`
+    Method  string            `json:"method"`
+    Headers map[string]string `json:"headers,omitempty"`
+}
+
+func (w *WebhookManager) Send(webhook Webhook, event string, data map[string]interface{}) error {
+    body, _ := json.Marshal(map[string]interface{}{
+        "event":     event,
+        "timestamp": time.Now().Format(time.RFC3339),
+        "data":      data,
+    })
+
+    req, _ := http.NewRequest(webhook.Method, webhook.URL, bytes.NewBuffer(body))
+    for k, v := range webhook.Headers {
+        req.Header.Set(k, v)
+    }
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, err := w.client.Do(req)
+    if err != nil {
+        return err
+    }
+    defer resp.Body.Close()
+
+    if resp.StatusCode >= 400 {
+        return fmt.Errorf("webhook failed: %d", resp.StatusCode)
+    }
+    return nil
+}
+
+func (w *WebhookManager) Test(webhook Webhook) error {
+    testData := map[string]interface{}{
+        "event":     "test",
+        "timestamp": time.Now().Format(time.RFC3339),
+        "message":   "ccbell webhook test",
+    }
+    return w.Send(webhook, "test", testData)
+}
+```
+
+**ccbell - cmd/ccbell/main.go:**
+```go
+func main() {
+    cfg := config.Load(homeDir)
+
+    eventType := os.Args[1]
+
+    // Send webhooks
+    for _, webhook := range cfg.Webhooks {
+        for _, e := range webhook.Events {
+            if e == eventType {
+                go func(w Webhook) {
+                    if err := webhookManager.Send(w, eventType, nil); err != nil {
+                        log.Error("Webhook %s failed: %v", w.Name, err)
+                    }
+                }(webhook)
+            }
+        }
+    }
+
+    // Play sound
+    // ...
+}
+```
+
+---
+
+## cc-plugins Repository Impact
+
+| Aspect | Impact | Details |
+|--------|--------|---------|
+| **Plugin Manifest** | No changes | Feature implemented in ccbell binary, no plugin.json changes |
+| **Hooks** | No changes | Works within existing hook events (`Stop`, `Notification`, `SubagentStop`) |
+| **Commands** | New documentation | Create `commands/webhooks.md` for webhook management |
+| **Sounds** | No changes | No sound file changes needed |
+
+### Technical Details
+
+- **ccbell Version Required**: 0.3.0+
+- **Config Schema Change**: Adds `webhooks` array to config (see Configuration section)
+- **Files Modified in cc-plugins**:
+  - `plugins/ccbell/commands/webhooks.md` (new file with list, add, test, remove commands)
+  - `plugins/ccbell/commands/configure.md` (update to reference webhook options)
+- **Version Sync Required**: `scripts/ccbell.sh` VERSION must match ccbell release tag
+
+### Implementation Checklist
+
+- [ ] Create `commands/webhooks.md` with webhook management commands
+- [ ] Update `commands/configure.md` with webhook configuration options
+- [ ] Document Slack/Discord/IFTTT integration examples
+- [ ] When ccbell v0.3.0+ releases, sync version to cc-plugins
+
+---
+
 [Back to Feature Index](index.md)

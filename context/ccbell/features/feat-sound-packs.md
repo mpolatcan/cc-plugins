@@ -527,6 +527,115 @@ func (m *PackManager) InstallPack(packURL string) error {
 
 ---
 
+## Repository Impact & Implementation
+
+### ccbell Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **Config** | Add | Add `packs` section and `pack:` sound scheme support |
+| **Core Logic** | Add | Add `PackManager` with List/Install/Use/Uninstall methods |
+| **New File** | Add | `internal/pack/packs.go` for pack management |
+| **Player** | Modify | Extend `ResolveSoundPath()` to handle `pack:` scheme |
+| **Commands** | Add | New `packs` command (browse, preview, install, use, uninstall) |
+
+### cc-plugins Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **plugin.json** | No change | Feature in binary, not plugin |
+| **hooks/hooks.json** | No change | Uses existing hooks |
+| **commands/packs.md** | Add | New command documentation |
+| **commands/configure.md** | Update | Reference pack configuration |
+| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+
+### Rough Implementation
+
+**ccbell - internal/pack/packs.go:**
+```go
+type PackManager struct {
+    packsDir string
+    indexURL string
+}
+
+type SoundPack struct {
+    Name        string   `json:"name"`
+    Description string   `json:"description"`
+    Author      string   `json:"author"`
+    Version     string   `json:"version"`
+    Sounds      []string `json:"sounds"` // stop, permission, idle, subagent
+    DownloadURL string   `json:"download_url"`
+}
+
+func (p *PackManager) List() ([]SoundPack, error) {
+    resp, err := http.Get(p.indexURL)
+    var packs []SoundPack
+    json.NewDecoder(resp.Body).Decode(&packs)
+    return packs, err
+}
+
+func (p *PackManager) Install(packName string) error {
+    packs, _ := p.List()
+    for _, pack := range packs {
+        if pack.Name == packName {
+            // Download and extract
+            return p.downloadAndExtract(pack)
+        }
+    }
+    return fmt.Errorf("pack not found: %s", packName)
+}
+
+func (p *PackManager) downloadAndExtract(pack SoundPack) error {
+    resp, _ := http.Get(p.DownloadURL)
+    // Extract ZIP to packsDir/packName/
+    return nil
+}
+```
+
+**ccbell - internal/audio/player.go:**
+```go
+func (p *Player) ResolveSoundPath(sound string) string {
+    if strings.HasPrefix(sound, "pack:") {
+        packName := strings.TrimPrefix(sound, "pack:")
+        return filepath.Join(p.packsDir, packName, "stop.aiff")
+    }
+    if strings.HasPrefix(sound, "bundled:") {
+        return filepath.Join(p.bundledDir, strings.TrimPrefix(sound, "bundled:")+".aiff")
+    }
+    return sound
+}
+```
+
+---
+
+## cc-plugins Repository Impact
+
+| Aspect | Impact | Details |
+|--------|--------|---------|
+| **Plugin Manifest** | No changes | Feature implemented in ccbell binary, no plugin.json changes |
+| **Hooks** | No changes | Works within existing hook events (`Stop`, `Notification`, `SubagentStop`) |
+| **Commands** | New documentation | Create `commands/packs.md` for pack management |
+| **Sounds** | No changes | Sound packs downloaded to `~/.claude/ccbell/packs/`, not bundled |
+
+### Technical Details
+
+- **ccbell Version Required**: 0.4.0+
+- **Config Schema Change**: Adds `packs` section to config and `pack:` sound scheme
+- **Files Modified in cc-plugins**:
+  - `plugins/ccbell/commands/packs.md` (new file with browse, preview, install, use, uninstall commands)
+  - `plugins/ccbell/commands/configure.md` (update to reference pack configuration)
+- **Version Sync Required**: `scripts/ccbell.sh` VERSION must match ccbell release tag
+- **Distribution**: GitHub Releases with pack index JSON
+
+### Implementation Checklist
+
+- [ ] Create `commands/packs.md` with all pack management commands
+- [ ] Update `commands/configure.md` with pack selection options
+- [ ] Document sound pack structure and submission process
+- [ ] When ccbell v0.4.0+ releases, sync version to cc-plugins
+
+---
+
 ## References
 
 ### Research Sources

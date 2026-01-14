@@ -212,12 +212,123 @@ func (c *CCBell) logMigration(from, to string) {
 
 ---
 
+## Repository Impact & Implementation
+
+### ccbell Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **Config** | Modify | Add `version` field, migration chain functions |
+| **Core Logic** | Modify | Add `LoadWithMigration()` function |
+| **Commands** | Add | New `migrate` command with dry-run/apply/status |
+| **Version** | Bump | 0.2.30 → 0.3.0 |
+
+### cc-plugins Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **plugin.json** | No change | Feature in binary, not plugin |
+| **hooks/hooks.json** | No change | Uses existing hooks |
+| **commands/** | Add | `migrate.md` command doc |
+| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+
+### Rough Implementation
+
+**ccbell - internal/config/migrate.go:**
+```go
+type Migration struct {
+    FromVersion string
+    ToVersion   string
+    Migrate     func(*Config) error
+}
+
+var migrations = []Migration{
+    {FromVersion: "0.1.0", ToVersion: "0.2.0", Migrate: migrate_v010_to_v020},
+    {FromVersion: "0.2.0", ToVersion: "0.3.0", Migrate: migrate_v020_to_v030},
+}
+
+func (c *CCBell) LoadWithMigration(homeDir string) (*Config, string, error) {
+    cfg, path, err := Load(homeDir)
+    if err != nil { return nil, "", err }
+
+    version := getConfigVersion(cfg) // default "0.1.0" if not set
+
+    for _, m := range migrations {
+        if semverLess(version, m.FromVersion) {
+            if err := m.Migrate(cfg); err != nil {
+                return nil, "", fmt.Errorf("migration %s->%s failed: %w",
+                    version, m.ToVersion, err)
+            }
+            version = m.ToVersion
+            log.Info("Migrated config: %s -> %s", version, m.ToVersion)
+        }
+    }
+
+    setConfigVersion(cfg, currentVersion)
+    return cfg, path, Save(path, cfg)
+}
+
+func migrate_v010_to_v020(cfg *Config) error {
+    // Convert volume 0-100 to 0.0-1.0
+    for _, event := range cfg.Events {
+        if event.Volume != nil {
+            *event.Volume = *event.Volume / 100.0
+        }
+    }
+    return nil
+}
+```
+
+**ccbell - cmd/ccbell/main.go:**
+```go
+func main() {
+    migrateCmd := flag.NewFlagSet("migrate", flag.ExitOnError)
+    dryRun := migrateCmd.Bool("dry-run", false, "Preview migrations")
+    apply := migrateCmd.Bool("apply", false, "Apply migrations")
+
+    switch os.Args[1] {
+    case "migrate":
+        migrateCmd.Parse(os.Args[2:])
+        cfg, _, err := LoadWithMigration(homeDir)
+        // ... output migration report
+    }
+}
+```
+
+---
+
 ## References
 
 ### ccbell Implementation Research
 
 - [Config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L81-L102) - Config loading
 - [Config validation](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L127-L175) - Validation pattern
+
+---
+
+## cc-plugins Repository Impact
+
+| Aspect | Impact | Details |
+|--------|--------|---------|
+| **Plugin Manifest** | No changes | Feature implemented in ccbell binary, no plugin.json changes |
+| **Hooks** | No changes | Works within existing hook events (`Stop`, `Notification`, `SubagentStop`) |
+| **Commands** | Documentation update | New `/ccbell:migrate` command documentation required in `commands/migrate.md` |
+| **Sounds** | No changes | No sound file changes needed |
+
+### Technical Details
+
+- **ccbell Version Required**: 0.3.0+
+- **Config Schema Change**: Adds `version` field to config for migration tracking
+- **Files Modified in cc-plugins**:
+  - `plugins/ccbell/commands/migrate.md` (new file)
+  - `plugins/ccbell/commands/config.md` (update to reference migrate)
+- **Version Sync Required**: `scripts/ccbell.sh` VERSION must match ccbell release tag
+
+### Implementation Checklist
+
+- [ ] Create `commands/migrate.md` with dry-run, apply, status commands
+- [ ] Update `commands/config.md` to reference migration capability
+- [ ] When ccbell v0.3.0+ releases, sync version to cc-plugins
 
 ---
 

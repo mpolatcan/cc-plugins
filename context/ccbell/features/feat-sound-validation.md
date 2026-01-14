@@ -237,6 +237,117 @@ func (v *Validator) AutoFix(results []CheckResult) ([]FixResult, error) {
 
 ---
 
+## Repository Impact & Implementation
+
+### ccbell Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **Core Logic** | Add | Add `ValidateSound(path string) (bool, error)` function |
+| **New File** | Add | `internal/audio/validator.go` for sound validation |
+| **Commands** | Modify | Enhance `validate` command with `--sounds` flag |
+| **Config** | No change | Uses existing config |
+
+### cc-plugins Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **plugin.json** | No change | Feature in binary, not plugin |
+| **hooks/hooks.json** | No change | Uses existing hooks |
+| **commands/validate.md** | Update | Add sound validation section |
+| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+
+### Rough Implementation
+
+**ccbell - internal/audio/validator.go:**
+```go
+type SoundValidator struct{}
+
+func (v *SoundValidator) Validate(path string) (ValidationResult, error) {
+    // Check file exists
+    if _, err := os.Stat(path); os.IsNotExist(err) {
+        return ValidationResult{
+            Valid:   false,
+            Error:   "file not found",
+            Path:    path,
+        }, nil
+    }
+
+    // Use ffprobe to validate format
+    cmd := exec.Command("ffprobe", "-v", "error",
+        "-select_streams", "a:0",
+        "-show_entries", "stream=codec_name,duration",
+        "-of", "json", path)
+
+    output, err := cmd.Output()
+    if err != nil {
+        return ValidationResult{
+            Valid:  false,
+            Error:  fmt.Sprintf("ffprobe failed: %v", err),
+            Path:   path,
+        }, nil
+    }
+
+    var result ffprobeResult
+    json.Unmarshal(output, &result)
+
+    if len(result.Streams) == 0 {
+        return ValidationResult{
+            Valid:  false,
+            Error:  "no audio stream found",
+            Path:   path,
+        }, nil
+    }
+
+    return ValidationResult{
+        Valid:     true,
+        Codec:     result.Streams[0].CodecName,
+        Duration:  result.Streams[0].Duration,
+        Path:      path,
+    }, nil
+}
+
+func (v *SoundValidator) ValidateAll(cfg *Config) []ValidationResult {
+    var results []ValidationResult
+
+    for event, eventCfg := range cfg.Events {
+        for _, sound := range eventCfg.GetSounds() {
+            result, _ := v.Validate(sound)
+            result.Event = event
+            results = append(results, result)
+        }
+    }
+
+    return results
+}
+```
+
+**ccbell - cmd/ccbell/main.go:**
+```go
+func main() {
+    validateCmd := flag.NewFlagSet("validate", flag.ExitOnError)
+    soundsOnly := validateCmd.Bool("sounds", false, "Validate sound files only")
+
+    validateCmd.Parse(os.Args[2:])
+
+    if *soundsOnly {
+        cfg := config.Load(homeDir)
+        validator := audio.NewValidator()
+        results := validator.ValidateAll(cfg)
+
+        for _, r := range results {
+            if r.Valid {
+                fmt.Printf("[OK] %s (%s, %s)\n", r.Event, r.Codec, r.Duration)
+            } else {
+                fmt.Printf("[FAIL] %s: %s - %s\n", r.Event, r.Path, r.Error)
+            }
+        }
+    }
+}
+```
+
+---
+
 ## References
 
 ### ccbell Implementation Research
@@ -248,6 +359,32 @@ func (v *Validator) AutoFix(results []CheckResult) ([]FixResult, error) {
 ### Research Sources
 
 - [ffprobe error detection](https://ffmpeg.org/ffprobe.html)
+
+---
+
+## cc-plugins Repository Impact
+
+| Aspect | Impact | Details |
+|--------|--------|---------|
+| **Plugin Manifest** | No changes | Feature implemented in ccbell binary, no plugin.json changes |
+| **Hooks** | No changes | Works within existing hook events (`Stop`, `Notification`, `SubagentStop`) |
+| **Commands** | Documentation update | Enhance `commands/validate.md` with sound validation |
+| **Sounds** | No changes | No sound file changes needed |
+
+### Technical Details
+
+- **ccbell Version Required**: 0.2.31+
+- **Config Schema Change**: No schema change, enhances validate command
+- **Files Modified in cc-plugins**:
+  - `plugins/ccbell/commands/validate.md` (add sound validation section)
+- **Version Sync Required**: `scripts/ccbell.sh` VERSION must match ccbell release tag
+- **External Dependency**: Uses `ffprobe` (part of ffmpeg) for format validation
+
+### Implementation Checklist
+
+- [ ] Update `commands/validate.md` with sound validation commands
+- [ ] Document ffprobe requirement
+- [ ] When ccbell v0.2.31+ releases, sync version to cc-plugins
 
 ---
 

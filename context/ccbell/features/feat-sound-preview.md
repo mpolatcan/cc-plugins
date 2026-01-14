@@ -166,6 +166,114 @@ For non-loop preview, rely on the sound file's natural length. Current players (
 
 ---
 
+## Repository Impact & Implementation
+
+### ccbell Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **Commands** | Modify | Add `--preview` and `--loop` flags to `test` command |
+| **Core Logic** | Modify | Add preview mode to `Player.Play()` with loop control |
+| **Player** | Modify | Extend to support infinite loop for preview |
+
+### cc-plugins Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **plugin.json** | No change | Feature in binary, not plugin |
+| **hooks/hooks.json** | No change | Uses existing hooks |
+| **commands/configure.md** | Update | Add preview capability |
+| **commands/test.md** | Update | Add --preview flag documentation |
+| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+
+### Rough Implementation
+
+**ccbell - cmd/ccbell/main.go:**
+```go
+func main() {
+    preview := flag.Bool("preview", false, "Preview sound without saving")
+    loop := flag.Bool("loop", false, "Loop preview until interrupted")
+    flag.Parse()
+
+    eventType := os.Args[len(os.Args)-1]
+    eventCfg := cfg.GetEventConfig(eventType)
+
+    player := audio.NewPlayer()
+
+    if *preview {
+        if *loop {
+            fmt.Printf("Playing %s on loop (Ctrl+C to stop)...\n", *eventCfg.Sound)
+            player.Play(*eventCfg.Sound, *eventCfg.Volume, audio.InfiniteLoop)
+        } else {
+            fmt.Printf("Previewing %s...\n", *eventCfg.Sound)
+            player.Play(*eventCfg.Sound, *eventCfg.Volume)
+        }
+        return
+    }
+    // Normal test behavior
+}
+```
+
+**ccbell - internal/audio/player.go:**
+```go
+type LoopMode int
+
+const (
+    NoLoop LoopMode = iota
+    InfiniteLoop
+)
+
+func (p *Player) Play(sound string, volume float64, loopMode ...LoopMode) error {
+    loop := NoLoop
+    if len(loopMode) > 0 {
+        loop = loopMode[0]
+    }
+
+    args := p.getBaseArgs(sound, volume)
+
+    switch loop {
+    case InfiniteLoop:
+        switch p.playerType {
+        case "ffplay":
+            args = append([]string{"-loop", "-1"}, args...)
+        case "mpv":
+            args = append([]string{"--loop=inf"}, args...)
+        }
+    }
+
+    cmd := exec.Command(p.command, args...)
+    return cmd.Run()
+}
+```
+
+---
+
+## cc-plugins Repository Impact
+
+| Aspect | Impact | Details |
+|--------|--------|---------|
+| **Plugin Manifest** | No changes | Feature implemented in ccbell binary, no plugin.json changes |
+| **Hooks** | No changes | Works within existing hook events (`Stop`, `Notification`, `SubagentStop`) |
+| **Commands** | Documentation update | Enhance `commands/configure.md` with preview capability |
+| **Sounds** | No changes | No sound file changes needed |
+
+### Technical Details
+
+- **ccbell Version Required**: 0.2.31+
+- **Config Schema Change**: No schema change, adds `--preview` flag to test command
+- **Files Modified in cc-plugins**:
+  - `plugins/ccbell/commands/configure.md` (add preview option during sound selection)
+  - `plugins/ccbell/commands/test.md` (add --preview flag documentation)
+- **Version Sync Required**: `scripts/ccbell.sh` VERSION must match ccbell release tag
+
+### Implementation Checklist
+
+- [ ] Update `commands/configure.md` with preview capability during setup
+- [ ] Update `commands/test.md` with --preview flag
+- [ ] When ccbell v0.2.31+ releases, sync version to cc-plugins
+
+---
+
 ## References
 
 ### ccbell Implementation Research

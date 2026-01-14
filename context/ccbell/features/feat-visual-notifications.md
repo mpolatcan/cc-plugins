@@ -490,6 +490,117 @@ type VisualConfig struct {
 
 ---
 
+## Repository Impact & Implementation
+
+### ccbell Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **Config** | Add | Add `visual` section with mode (audio-only/visual-only/both) |
+| **Core Logic** | Add | Add `VisualNotifier` with Send() method |
+| **New File** | Add | `internal/visual/visual.go` for platform-specific notifications |
+| **Main Flow** | Modify | Call visual notifier alongside audio player |
+| **Commands** | Add | New `visual` command (configure, test) |
+
+### cc-plugins Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **plugin.json** | No change | Feature in binary, not plugin |
+| **hooks/hooks.json** | No change | Uses existing hooks |
+| **commands/visual.md** | Add | New command documentation |
+| **commands/configure.md** | Update | Reference visual options |
+| **commands/test.md** | Update | Add --visual flag |
+| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+
+### Rough Implementation
+
+**ccbell - internal/visual/visual.go:**
+```go
+type VisualNotifier struct{}
+
+func (v *VisualNotifier) Send(title, message string) error {
+    switch runtime.GOOS {
+    case "darwin":
+        return v.sendMacOS(title, message)
+    case "linux":
+        return v.sendLinux(title, message)
+    }
+    return fmt.Errorf("unsupported platform: %s", runtime.GOOS)
+}
+
+func (v *VisualNotifier) sendMacOS(title, message string) error {
+    script := fmt.Sprintf(`display notification "%s" with title "%s"`, message, title)
+    cmd := exec.Command("osascript", "-e", script)
+    return cmd.Run()
+}
+
+func (v *VisualNotifier) sendLinux(title, message string) error {
+    cmd := exec.Command("notify-send", title, message)
+    return cmd.Run()
+}
+```
+
+**ccbell - cmd/ccbell/main.go:**
+```go
+func main() {
+    cfg := config.Load(homeDir)
+    eventType := os.Args[1]
+    eventCfg := cfg.GetEventConfig(eventType)
+
+    visualCfg := cfg.Visual
+
+    // Determine mode
+    shouldAudio := visualCfg.Mode == "audio-only" || visualCfg.Mode == "both"
+    shouldVisual := visualCfg.Mode == "visual-only" || visualCfg.Mode == "both"
+
+    // Play audio
+    if shouldAudio {
+        player := audio.NewPlayer()
+        player.Play(*eventCfg.Sound, *eventCfg.Volume)
+    }
+
+    // Send visual notification
+    if shouldVisual {
+        visual := visual.NewNotifier()
+        visual.Send("ccbell", fmt.Sprintf("Event: %s", eventType))
+    }
+}
+```
+
+---
+
+## cc-plugins Repository Impact
+
+| Aspect | Impact | Details |
+|--------|--------|---------|
+| **Plugin Manifest** | No changes | Feature implemented in ccbell binary, no plugin.json changes |
+| **Hooks** | No changes | Works within existing hook events (`Stop`, `Notification`, `SubagentStop`) |
+| **Commands** | New documentation | Create `commands/visual.md` for visual notification configuration |
+| **Sounds** | No changes | No sound file changes needed |
+
+### Technical Details
+
+- **ccbell Version Required**: 0.3.0+
+- **Config Schema Change**: Adds `visual` section to config (mode: audio-only/visual-only/both)
+- **Files Modified in cc-plugins**:
+  - `plugins/ccbell/commands/visual.md` (new file with configure, test commands)
+  - `plugins/ccbell/commands/configure.md` (update to reference visual options)
+  - `plugins/ccbell/commands/test.md` (add --visual flag)
+- **Version Sync Required**: `scripts/ccbell.sh` VERSION must match ccbell release tag
+- **Platform Detection**:
+  - **macOS**: Uses `osascript` (built-in AppleScript)
+  - **Linux**: Uses `notify-send` (libnotify)
+
+### Implementation Checklist
+
+- [ ] Create `commands/visual.md` with visual configuration commands
+- [ ] Update `commands/configure.md` with visual options
+- [ ] Update `commands/test.md` with --visual flag
+- [ ] When ccbell v0.3.0+ releases, sync version to cc-plugins
+
+---
+
 ## References
 
 ### Research Sources

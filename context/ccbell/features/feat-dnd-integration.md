@@ -154,6 +154,96 @@ DND integration doesn't interact with audio playback:
 
 ---
 
+## Repository Impact & Implementation
+
+### ccbell Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **Config** | Add | Add `DND` section with enabled, mode, respect options |
+| **Core Logic** | Add | Add `IsDoNotDisturb() bool` function |
+| **New File** | Add | `internal/dnd/dnd.go` for platform-specific DND detection |
+| **Main Flow** | Modify | Check DND status before playing sound |
+
+### cc-plugins Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **plugin.json** | No change | Feature in binary, not plugin |
+| **hooks/hooks.json** | No change | Uses existing hooks |
+| **commands/configure.md** | Update | Add DND configuration section |
+| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+
+### Rough Implementation
+
+**ccbell - internal/dnd/dnd.go:**
+```go
+type DNDManager struct{}
+
+func (d *DNDManager) IsDoNotDisturb() bool {
+    switch runtime.GOOS {
+    case "darwin":
+        return d.isMacOSDND()
+    case "linux":
+        return d.isLinuxDND()
+    }
+    return false
+}
+
+func (d *DNDManager) isMacOSDND() bool {
+    // Check macOS Notification Center DND status
+    cmd := exec.Command("defaults", "read", "com.apple.notificationcenterui", "doNotDisturb")
+    out, err := cmd.Output()
+    if err != nil { return false }
+    return strings.TrimSpace(string(out)) == "1"
+}
+
+func (d *DNDManager) isLinuxDND() bool {
+    // Try gsettings (GNOME)
+    cmd := exec.Command("gsettings", "get", "org.gnome.desktop.notifications", "show-banners")
+    out, err := cmd.Output()
+    if err == nil {
+        if strings.TrimSpace(string(out)) == "false" { return true }
+    }
+
+    // Try D-Bus
+    cmd = exec.Command("dbus-send", "--session",
+        "--type=method_call", "--print-reply",
+        "--dest=org.freedesktop.DBus",
+        "/org/freedesktop/DBus",
+        "org.freedesktop.DBus.GetNameOwner",
+        "string:org.gnome.Shell")
+    return cmd.Run() != nil // Simplified check
+}
+```
+
+**ccbell - cmd/ccbell/main.go:**
+```go
+func main() {
+    cfg := config.Load()
+    dnd := dnd.NewManager()
+
+    // Check DND before proceeding
+    if cfg.DND.Enabled && dnd.IsDoNotDisturb() {
+        if cfg.DND.Behavior == "silence" {
+            return // Exit silently
+        }
+        log.Info("Do Not Disturb active, but notifications enabled")
+    }
+}
+```
+
+**ccbell - internal/config/config.go:**
+```go
+type DNDConfig struct {
+    Enabled  *bool    `json:"enabled,omitempty"`
+    Behavior string   `json:"behavior,omitempty"` // "silence" or "notify"
+    Except   []string `json:"except,omitempty"`   // Events that bypass DND
+}
+```
+
+---
+
 ## References
 
 ### Research Sources
@@ -167,6 +257,32 @@ DND integration doesn't interact with audio playback:
 - [Main flow](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) - Integration point for DND check
 - [Config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) - For DND config
 - [Platform detection](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go#L82-L91) - Platform detection
+
+---
+
+## cc-plugins Repository Impact
+
+| Aspect | Impact | Details |
+|--------|--------|---------|
+| **Plugin Manifest** | No changes | Feature implemented in ccbell binary, no plugin.json changes |
+| **Hooks** | No changes | Works within existing hook events (`Stop`, `Notification`, `SubagentStop`) |
+| **Commands** | Documentation update | Enhance `commands/configure.md` with DND integration settings |
+| **Sounds** | No changes | No sound file changes needed |
+
+### Technical Details
+
+- **ccbell Version Required**: 0.3.0+
+- **Config Schema Change**: Adds `dnd` section to config (see Configuration section)
+- **Files Modified in cc-plugins**:
+  - `plugins/ccbell/commands/configure.md` (add DND configuration section)
+- **Version Sync Required**: `scripts/ccbell.sh` VERSION must match ccbell release tag
+- **Platform Detection**: Uses `defaults` (macOS) or `gsettings`/`dbus` (Linux)
+
+### Implementation Checklist
+
+- [ ] Update `commands/configure.md` with DND integration options
+- [ ] Document platform-specific DND detection methods
+- [ ] When ccbell v0.3.0+ releases, sync version to cc-plugins
 
 ---
 

@@ -240,6 +240,99 @@ func (f *Formatter) formatText(entry LogEntry) string {
 
 ---
 
+## Repository Impact & Implementation
+
+### ccbell Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **Config** | Add | Add `logging` section with path, format, retention options |
+| **Core Logic** | Add | Add `Logger` struct with Append() and Rotate() methods |
+| **New File** | Add | `internal/logger/notification.go` for notification logging |
+| **Commands** | Add | New `log` command (tail, show, clear, stats) |
+
+### cc-plugins Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **plugin.json** | No change | Feature in binary, not plugin |
+| **hooks/hooks.json** | No change | Uses existing hooks |
+| **commands/log.md** | Add | New command documentation |
+| **commands/status.md** | Update | Add logging status |
+| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+
+### Rough Implementation
+
+**ccbell - internal/logger/notification.go:**
+```go
+type NotificationLog struct {
+    Path        string
+    MaxSizeMB   int
+    MaxFiles    int
+    entries     []LogEntry
+    mutex       sync.Mutex
+}
+
+type LogEntry struct {
+    Timestamp   time.Time `json:"timestamp"`
+    Event       string    `json:"event"`
+    Sound       string    `json:"sound"`
+    Volume      float64   `json:"volume"`
+    Duration    float64   `json:"duration_seconds"`
+    Cooldown    bool      `json:"cooldown"`
+    QuietHours  bool      `json:"quiet_hours"`
+}
+
+func (l *NotificationLog) Append(entry LogEntry) error {
+    l.mutex.Lock()
+    defer l.mutex.Unlock()
+
+    l.entries = append(l.entries, entry)
+
+    // Write to file
+    data, _ := json.Marshal(entry)
+    _, err := os.OpenFile(l.Path, os.O_APPEND|os.O_CREATE, 0644)
+    // ... file write with rotation check
+    return err
+}
+
+func (l *NotificationLog) Tail(n int) []LogEntry {
+    l.mutex.Lock()
+    defer l.mutex.Unlock()
+
+    if len(l.entries) <= n {
+        return l.entries
+    }
+    return l.entries[len(l.entries)-n:]
+}
+```
+
+**ccbell - cmd/ccbell/main.go:**
+```go
+func main() {
+    if len(os.Args) > 1 && os.Args[1] == "log" {
+        handleLogCommand(os.Args[2:])
+        return
+    }
+
+    // After playing sound
+    if cfg.Logging.Enabled {
+        logEntry := logger.LogEntry{
+            Timestamp:  time.Now(),
+            Event:      eventType,
+            Sound:      eventCfg.Sound,
+            Volume:     *eventCfg.Volume,
+            Duration:   duration.Seconds(),
+            Cooldown:   inCooldown,
+            QuietHours: inQuietHours,
+        }
+        cfg.Logging.Append(logEntry)
+    }
+}
+```
+
+---
+
 ## References
 
 ### ccbell Implementation Research
@@ -247,6 +340,32 @@ func (f *Formatter) formatText(entry LogEntry) string {
 - [Main flow](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) - Integration point
 - [State management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) - State pattern
 - [Logger pattern](https://github.com/mpolatcan/ccbell/blob/main/internal/logger/logger.go) - Existing logger
+
+---
+
+## cc-plugins Repository Impact
+
+| Aspect | Impact | Details |
+|--------|--------|---------|
+| **Plugin Manifest** | No changes | Feature implemented in ccbell binary, no plugin.json changes |
+| **Hooks** | No changes | Works within existing hook events (`Stop`, `Notification`, `SubagentStop`) |
+| **Commands** | New documentation | Create `commands/log.md` for log viewing commands |
+| **Sounds** | No changes | No sound file changes needed |
+
+### Technical Details
+
+- **ccbell Version Required**: 0.3.0+
+- **Config Schema Change**: Adds `logging` section to config
+- **Files Modified in cc-plugins**:
+  - `plugins/ccbell/commands/log.md` (new file with tail, show, clear, stats commands)
+  - `plugins/ccbell/commands/status.md` (update to reference logging status)
+- **Version Sync Required**: `scripts/ccbell.sh` VERSION must match ccbell release tag
+
+### Implementation Checklist
+
+- [ ] Create `commands/log.md` with log viewing commands
+- [ ] Update `commands/status.md` with logging status
+- [ ] When ccbell v0.3.0+ releases, sync version to cc-plugins
 
 ---
 

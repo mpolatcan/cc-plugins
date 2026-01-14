@@ -195,6 +195,120 @@ Handle both `sound` (single) and `sounds` (array) in config loading.
 
 ---
 
+## Repository Impact & Implementation
+
+### ccbell Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **Config** | Modify | Change `Sound` (string) to `Sounds` ([]string), add `Weights` ([]float64) |
+| **Core Logic** | Add | Add `SelectRandomSound(event string) string` function |
+| **Config Loading** | Modify | Handle both `sound` and `sounds` for backward compatibility |
+
+### cc-plugins Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **plugin.json** | No change | Feature in binary, not plugin |
+| **hooks/hooks.json** | No change | Uses existing hooks |
+| **commands/configure.md** | Update | Add sound randomization configuration |
+| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+
+### Rough Implementation
+
+**ccbell - internal/config/config.go:**
+```go
+type Event struct {
+    Enabled   *bool     `json:"enabled,omitempty"`
+    Sounds    []string  `json:"sounds,omitempty"` // Array for randomization
+    Weights   []float64 `json:"weights,omitempty"` // Optional weights
+    Volume    *float64  `json:"volume,omitempty"`
+    Cooldown  *int      `json:"cooldown,omitempty"`
+}
+
+func (c *CCBell) SelectRandomSound(event string) string {
+    eventCfg := c.config.Events[event]
+    if eventCfg == nil || len(eventCfg.Sounds) == 0 {
+        return ""
+    }
+
+    if len(eventCfg.Sounds) == 1 {
+        return eventCfg.Sounds[0]
+    }
+
+    // Use weights if provided, otherwise uniform distribution
+    if len(eventCfg.Weights) == len(eventCfg.Sounds) {
+        return c.selectWeighted(eventCfg.Sounds, eventCfg.Weights)
+    }
+
+    // Uniform random
+    randIndex := rand.Intn(len(eventCfg.Sounds))
+    return eventCfg.Sounds[randIndex]
+}
+
+func (c *CCBell) selectWeighted(items []string, weights []float64) string {
+    total := 0.0
+    for _, w := range weights {
+        total += w
+    }
+
+    r := rand.Float64() * total
+    cumulative := 0.0
+
+    for i, w := range weights {
+        cumulative += w
+        if r <= cumulative {
+            return items[i]
+        }
+    }
+
+    return items[len(items)-1]
+}
+```
+
+**ccbell - cmd/ccbell/main.go:**
+```go
+func main() {
+    cfg := config.Load(homeDir)
+    ccbell := NewCCBell(cfg)
+
+    eventType := os.Args[1]
+    sound := ccbell.SelectRandomSound(eventType)
+
+    eventCfg := cfg.GetEventConfig(eventType)
+    player := audio.NewPlayer()
+    player.Play(sound, *eventCfg.Volume)
+}
+```
+
+---
+
+## cc-plugins Repository Impact
+
+| Aspect | Impact | Details |
+|--------|--------|---------|
+| **Plugin Manifest** | No changes | Feature implemented in ccbell binary, no plugin.json changes |
+| **Hooks** | No changes | Works within existing hook events (`Stop`, `Notification`, `SubagentStop`) |
+| **Commands** | Documentation update | Enhance `commands/configure.md` with sound randomization |
+| **Sounds** | No changes | No sound file changes needed |
+
+### Technical Details
+
+- **ccbell Version Required**: 0.3.0+
+- **Config Schema Change**: Changes `sound` (string) to `sounds` (array) with optional `weights`
+- **Files Modified in cc-plugins**:
+  - `plugins/ccbell/commands/configure.md` (add sound randomization configuration)
+- **Version Sync Required**: `scripts/ccbell.sh` VERSION must match ccbell release tag
+- **Backward Compatible**: Supports both `sound` (single) and `sounds` (array) formats
+
+### Implementation Checklist
+
+- [ ] Update `commands/configure.md` with sound array selection
+- [ ] Document weighted random configuration
+- [ ] When ccbell v0.3.0+ releases, sync version to cc-plugins
+
+---
+
 ## References
 
 ### Research Sources

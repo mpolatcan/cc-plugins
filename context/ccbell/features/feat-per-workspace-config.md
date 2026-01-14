@@ -254,6 +254,116 @@ Add local config validation that inherits from global config validation.
 
 ---
 
+## Repository Impact & Implementation
+
+### ccbell Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **Config** | Modify | Add `LoadWithWorkspace(cwd string)` for local config merging |
+| **Core Logic** | Add | Add workspace config detection from `.claude-ccbell.json` |
+| **Commands** | Modify | Add `--local` flag to commands for workspace-specific ops |
+
+### cc-plugins Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **plugin.json** | No change | Feature in binary, not plugin |
+| **hooks/hooks.json** | No change | Uses existing hooks |
+| **commands/configure.md** | Update | Add local config options |
+| **commands/config.md** | Update | Add init --local command |
+| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+
+### Rough Implementation
+
+**ccbell - internal/config/config.go:**
+```go
+func (c *CCBell) LoadWithWorkspace(cwd string) (*Config, string, error) {
+    globalCfg, globalPath, err := Load(homeDir)
+    if err != nil { return nil, "", err }
+
+    // Check for local config
+    localPath := filepath.Join(cwd, ".claude-ccbell.json")
+    if _, err := os.Stat(localPath); err == nil {
+        localCfg, _, err := Load(cwd)
+        if err != nil {
+            log.Warn("Failed to load local config: %v", err)
+        } else {
+            // Merge local into global
+            merged := c.MergeConfigs(globalCfg, localCfg)
+            return merged, localPath, nil
+        }
+    }
+
+    return globalCfg, globalPath, nil
+}
+
+func (c *CCBell) MergeConfigs(global, local *Config) *Config {
+    merged := global.DeepCopy()
+
+    // Override enabled
+    if local.Enabled != nil {
+        merged.Enabled = local.Enabled
+    }
+
+    // Override events (selective merge)
+    for event, localEvent := range local.Events {
+        if merged.Events[event] == nil {
+            merged.Events[event] = localEvent
+        } else {
+            // Merge event config
+            if localEvent.Sound != nil {
+                merged.Events[event].Sound = localEvent.Sound
+            }
+            if localEvent.Volume != nil {
+                merged.Events[event].Volume = localEvent.Volume
+            }
+        }
+    }
+
+    return merged
+}
+```
+
+**ccbell - cmd/ccbell/main.go:**
+```go
+func main() {
+    cwd, _ := os.Getwd()
+    cfg, _, err := LoadWithWorkspace(cwd)
+    // Use merged config
+}
+```
+
+---
+
+## cc-plugins Repository Impact
+
+| Aspect | Impact | Details |
+|--------|--------|---------|
+| **Plugin Manifest** | No changes | Feature implemented in ccbell binary, no plugin.json changes |
+| **Hooks** | No changes | Works within existing hook events (`Stop`, `Notification`, `SubagentStop`) |
+| **Commands** | Documentation update | Enhance `commands/configure.md` with local config commands |
+| **Sounds** | No changes | No sound file changes needed |
+
+### Technical Details
+
+- **ccbell Version Required**: 0.3.0+
+- **Config Schema Change**: No schema change, adds local config file detection (`.claude-ccbell.json`)
+- **Files Modified in cc-plugins**:
+  - `plugins/ccbell/commands/configure.md` (add --local flag documentation)
+  - `plugins/ccbell/commands/config.md` (add init --local command)
+- **Version Sync Required**: `scripts/ccbell.sh` VERSION must match ccbell release tag
+- **Local Config Priority**: Local config > Global config (merges with overrides)
+
+### Implementation Checklist
+
+- [ ] Update `commands/configure.md` with local config options
+- [ ] Update `commands/config.md` with init --local command
+- [ ] Document config merge behavior
+- [ ] When ccbell v0.3.0+ releases, sync version to cc-plugins
+
+---
+
 ## References
 
 ### Research Sources

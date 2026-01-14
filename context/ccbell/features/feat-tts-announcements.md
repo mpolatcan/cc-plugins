@@ -397,6 +397,130 @@ func findTTSEngine() string {
 
 ---
 
+## Repository Impact & Implementation
+
+### ccbell Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **Config** | Add | Add `tts` section with engine, voice, phrases, cache options |
+| **Core Logic** | Add | Add `TTSManager` with Speak() and Generate() methods |
+| **New File** | Add | `internal/tts/tts.go` for TTS engine abstraction |
+| **Main Flow** | Modify | Support TTS as alternative or alongside sounds |
+| **Commands** | Add | New `tts` command (configure, voices, phrases) |
+
+### cc-plugins Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **plugin.json** | No change | Feature in binary, not plugin |
+| **hooks/hooks.json** | No change | Uses existing hooks |
+| **commands/tts.md** | Add | New command documentation |
+| **commands/configure.md** | Update | Reference TTS options |
+| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+
+### Rough Implementation
+
+**ccbell - internal/tts/tts.go:**
+```go
+type TTSManager struct {
+    engine   string
+    voice    string
+    cacheDir string
+}
+
+func (t *TTSManager) Speak(text string) error {
+    outputFile := t.getCachedPath(text)
+
+    // Check cache
+    if _, err := os.Stat(outputFile); err == nil {
+        player := audio.NewPlayer()
+        return player.Play(outputFile)
+    }
+
+    // Generate speech
+    switch t.engine {
+    case "say":
+        return t.speakMacOS(text)
+    case "piper":
+        return t.speakPiper(text)
+    case "kokoro":
+        return t.speakKokoro(text)
+    }
+
+    return fmt.Errorf("unknown TTS engine: %s", t.engine)
+}
+
+func (t *TTSManager) speakMacOS(text string) error {
+    cmd := exec.Command("say", "-v", t.voice, text)
+    return cmd.Run()
+}
+
+func (t *TTSManager) speakPiper(text string) error {
+    cmd := exec.Command("piper",
+        "--model", t.modelPath,
+        "--output_file", t.outputFile)
+    stdin, _ := cmd.StdinPipe()
+    stdin.WriteString(text)
+    stdin.Close()
+    return cmd.Run()
+}
+```
+
+**ccbell - cmd/ccbell/main.go:**
+```go
+func main() {
+    cfg := config.Load(homeDir)
+
+    if cfg.TTS.Enabled {
+        tts := tts.NewManager(cfg.TTS)
+
+        phrase := cfg.TTS.Phrases[eventType]
+        if phrase == "" {
+            phrase = "Notification"
+        }
+
+        // Play sound and/or TTS
+        if cfg.TTS.WithSound {
+            player.Play(sound, volume)
+        }
+        tts.Speak(phrase)
+    }
+}
+```
+
+---
+
+## cc-plugins Repository Impact
+
+| Aspect | Impact | Details |
+|--------|--------|---------|
+| **Plugin Manifest** | No changes | Feature implemented in ccbell binary, no plugin.json changes |
+| **Hooks** | No changes | Works within existing hook events (`Stop`, `Notification`, `SubagentStop`) |
+| **Commands** | New documentation | Create `commands/tts.md` for TTS configuration |
+| **Sounds** | No changes | No sound file changes needed |
+
+### Technical Details
+
+- **ccbell Version Required**: 0.4.0+
+- **Config Schema Change**: Adds `tts` section to config with engine, voice, phrases
+- **Files Modified in cc-plugins**:
+  - `plugins/ccbell/commands/tts.md` (new file with configure, voices, phrases commands)
+  - `plugins/ccbell/commands/configure.md` (update to reference TTS options)
+- **Version Sync Required**: `scripts/ccbell.sh` VERSION must match ccbell release tag
+- **Platform Notes**:
+  - **macOS**: Built-in `say` command (no dependencies)
+  - **Linux**: Requires Piper or Kokoro installation
+
+### Implementation Checklist
+
+- [ ] Create `commands/tts.md` with TTS configuration commands
+- [ ] Update `commands/configure.md` with TTS options
+- [ ] Document platform-specific TTS engines
+- [ ] When ccbell v0.4.0+ releases, sync version to cc-plugins
+
+---
+
 ## References
 
 ### Research Sources

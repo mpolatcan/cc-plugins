@@ -192,6 +192,108 @@ if c.throttleConfig.Enabled {
 
 ---
 
+## Repository Impact & Implementation
+
+### ccbell Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **Config** | Add | Add `throttling` section with max_per_minute, burst, cooldown options |
+| **Core Logic** | Add | Add `ThrottleManager` with Allow() and GetStats() methods |
+| **New File** | Add | `internal/throttle/throttle.go` for rate limiting |
+| **Main Flow** | Modify | Check throttling before playing sound |
+
+### cc-plugins Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **plugin.json** | No change | Feature in binary, not plugin |
+| **hooks/hooks.json** | No change | Uses existing hooks |
+| **commands/configure.md** | Update | Add throttle configuration section |
+| **commands/status.md** | Update | Add throttle status |
+| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+
+### Rough Implementation
+
+**ccbell - internal/throttle/throttle.go:**
+```go
+type ThrottleManager struct {
+    events       []time.Time
+    maxPerMinute int
+    burstLimit   int
+    mutex        sync.Mutex
+}
+
+func (t *ThrottleManager) Allow() bool {
+    t.mutex.Lock()
+    defer t.mutex.Unlock()
+
+    now := time.Now()
+    oneMinuteAgo := now.Add(-1 * time.Minute)
+
+    // Count recent events
+    recent := 0
+    for _, eventTime := range t.events {
+        if eventTime.After(oneMinuteAgo) {
+            recent++
+        }
+    }
+
+    // Check burst limit first
+    if recent >= t.burstLimit {
+        return false
+    }
+
+    // Check per-minute limit
+    if recent >= t.maxPerMinute {
+        return false
+    }
+
+    t.events = append(t.events, now)
+    return true
+}
+
+func (t *ThrottleManager) Stats() map[string]interface{} {
+    t.mutex.Lock()
+    defer t.mutex.Unlock()
+
+    now := time.Now()
+    oneMinuteAgo := now.Add(-1 * time.Minute)
+    recent := 0
+    for _, eventTime := range t.events {
+        if eventTime.After(oneMinuteAgo) {
+            recent++
+        }
+    }
+
+    return map[string]interface{}{
+        "last_minute": recent,
+        "max_per_minute": t.maxPerMinute,
+        "burst_limit": t.burstLimit,
+    }
+}
+```
+
+**ccbell - cmd/ccbell/main.go:**
+```go
+func main() {
+    cfg := config.Load(homeDir)
+
+    if cfg.Throttling.Enabled {
+        throttle := throttle.NewManager(cfg.Throttling.MaxPerMinute, cfg.Throttling.BurstLimit)
+
+        if !throttle.Allow() {
+            log.Info("Throttled: too many notifications")
+            return
+        }
+
+        // Continue with notification
+    }
+}
+```
+
+---
+
 ## References
 
 ### ccbell Implementation Research
@@ -199,6 +301,32 @@ if c.throttleConfig.Enabled {
 - [State management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) - State persistence pattern
 - [Cooldown logic](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) - Time-window pattern
 - [Main flow](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) - Integration point
+
+---
+
+## cc-plugins Repository Impact
+
+| Aspect | Impact | Details |
+|--------|--------|---------|
+| **Plugin Manifest** | No changes | Feature implemented in ccbell binary, no plugin.json changes |
+| **Hooks** | No changes | Works within existing hook events (`Stop`, `Notification`, `SubagentStop`) |
+| **Commands** | Documentation update | Enhance `commands/configure.md` with throttle configuration |
+| **Sounds** | No changes | No sound file changes needed |
+
+### Technical Details
+
+- **ccbell Version Required**: 0.3.0+
+- **Config Schema Change**: Adds `throttling` section to config
+- **Files Modified in cc-plugins**:
+  - `plugins/ccbell/commands/configure.md` (add throttle configuration section)
+  - `plugins/ccbell/commands/status.md` (update with throttle status)
+- **Version Sync Required**: `scripts/ccbell.sh` VERSION must match ccbell release tag
+
+### Implementation Checklist
+
+- [ ] Update `commands/configure.md` with throttle configuration
+- [ ] Update `commands/status.md` with throttle status display
+- [ ] When ccbell v0.3.0+ releases, sync version to cc-plugins
 
 ---
 

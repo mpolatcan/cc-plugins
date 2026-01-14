@@ -162,6 +162,55 @@ func logDryRun(eventType string, eventCfg *config.Event, soundPath string, volum
 
 ---
 
+## Repository Impact & Implementation
+
+### ccbell Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **Main Flow** | Add | Add `--dry-run` flag, skip actual sound playback |
+| **Commands** | Modify | Enhance `test` command with `-d/--dry-run` flag |
+| **Core Logic** | Add | Add `DryRun() bool` config check |
+
+### cc-plugins Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **plugin.json** | No change | Feature in binary, not plugin |
+| **hooks/hooks.json** | No change | Uses existing hooks |
+| **commands/test.md** | Update | Add dry-run flag documentation |
+| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+
+### Rough Implementation
+
+**ccbell - cmd/ccbell/main.go:**
+```go
+func main() {
+    dryRun := flag.Bool("dry-run", false, "Preview without playing sound")
+
+    cfg := config.Load(homeDir)
+    state := state.Load(homeDir)
+
+    if *dryRun {
+        fmt.Println("=== Dry Run Mode ===")
+        fmt.Printf("Event: %s\n", eventType)
+        fmt.Printf("Sound: %s\n", cfg.Events[eventType].Sound)
+        fmt.Printf("Volume: %.2f\n", *cfg.Events[eventType].Volume)
+        if state.IsInCooldown(eventType, *cfg.Events[eventType].Cooldown) {
+            fmt.Println("Would skip: In cooldown")
+        }
+        if c.IsInQuietHours() {
+            fmt.Println("Would skip: Quiet hours active")
+        }
+        fmt.Println("\nDry run complete - no sound played")
+        return
+    }
+    // ... normal execution
+}
+```
+
+---
+
 ## References
 
 ### ccbell Implementation Research
@@ -169,6 +218,31 @@ func logDryRun(eventType string, eventCfg *config.Event, soundPath string, volum
 - [Main.go](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) - Main entry point
 - [Config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L81-L102) - Config validation occurs
 - [State management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) - Cooldown checking
+
+---
+
+## cc-plugins Repository Impact
+
+| Aspect | Impact | Details |
+|--------|--------|---------|
+| **Plugin Manifest** | No changes | Feature implemented in ccbell binary, no plugin.json changes |
+| **Hooks** | No changes | Works within existing hook events (`Stop`, `Notification`, `SubagentStop`) |
+| **Commands** | Documentation update | Enhance `commands/test.md` with `--dry-run` flag |
+| **Sounds** | No changes | No sound file changes needed |
+
+### Technical Details
+
+- **ccbell Version Required**: 0.2.31+
+- **Config Schema Change**: No schema change, adds CLI flag
+- **Files Modified in cc-plugins**:
+  - `plugins/ccbell/commands/test.md` (add --dry-run flag documentation)
+- **Version Sync Required**: `scripts/ccbell.sh` VERSION must match ccbell release tag
+
+### Implementation Checklist
+
+- [ ] Update `commands/test.md` with --dry-run flag examples
+- [ ] Add example dry-run output showing what would happen
+- [ ] When ccbell v0.2.31+ releases, sync version to cc-plugins
 
 ---
 

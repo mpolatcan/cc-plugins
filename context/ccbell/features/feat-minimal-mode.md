@@ -249,6 +249,76 @@ Full help: ccbell:help --full
 
 ---
 
+## Repository Impact & Implementation
+
+### ccbell Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **Config** | Add | Add `mode` field (minimal/full) and `minimal` preset section |
+| **Core Logic** | Add | Add `GetMinimalConfig()` preset generator |
+| **Commands** | Add | New `wizard` command for interactive setup |
+| **New File** | Add | `internal/config/minimal.go` for preset configs |
+
+### cc-plugins Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **plugin.json** | No change | Feature in binary, not plugin |
+| **hooks/hooks.json** | No change | Uses existing hooks |
+| **commands/wizard.md** | Add | New command documentation |
+| **commands/configure.md** | Update | Reference wizard option |
+| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+
+### Rough Implementation
+
+**ccbell - internal/config/minimal.go:**
+```go
+func GetMinimalConfig() *Config {
+    return &Config{
+        Enabled: ptr(true),
+        Events: map[string]*Event{
+            "stop": {
+                Enabled: ptr(true),
+                Sound:   ptr("bundled:default"),
+                Cooldown: ptr(60),
+            },
+        },
+    }
+}
+
+func (c *CCBell) RunWizard() {
+    questions := []Question{
+        {"Enable sounds?", &c.config.Enabled},
+        {"Which events?", &c.config.Events},
+        {"Default sound?", &c.soundSelection},
+        {"Volume (0.0-1.0)?", &c.volume},
+    }
+
+    for _, q := range questions {
+        q.Ask()
+    }
+
+    c.config = GetMinimalConfig()
+    c.config.Events["stop"].Volume = ptr(c.volume)
+}
+```
+
+**ccbell - cmd/ccbell/main.go:**
+```go
+func main() {
+    if len(os.Args) > 1 && os.Args[1] == "wizard" {
+        cfg := &config.Config{}
+        ccbell := NewCCBell(cfg)
+        ccbell.RunWizard()
+        cfg.Save()
+        return
+    }
+}
+```
+
+---
+
 ## References
 
 ### ccbell Implementation Research
@@ -256,6 +326,32 @@ Full help: ccbell:help --full
 - [Config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L81-L102) - Config expansion
 - [Default config](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L64-L77) - Default values
 - [Quiet hours](https://github.com/mpolatcan/ccbell/blob/main/internal/config/quiethours.go) - Quiet hours pattern
+
+---
+
+## cc-plugins Repository Impact
+
+| Aspect | Impact | Details |
+|--------|--------|---------|
+| **Plugin Manifest** | No changes | Feature implemented in ccbell binary, no plugin.json changes |
+| **Hooks** | No changes | Works within existing hook events (`Stop`, `Notification`, `SubagentStop`) |
+| **Commands** | New documentation | Create `commands/wizard.md` for interactive setup |
+| **Sounds** | No changes | No sound file changes needed |
+
+### Technical Details
+
+- **ccbell Version Required**: 0.3.0+
+- **Config Schema Change**: Adds `mode` field (minimal/full) and `minimal` config section
+- **Files Modified in cc-plugins**:
+  - `plugins/ccbell/commands/wizard.md` (new file for interactive wizard)
+  - `plugins/ccbell/commands/configure.md` (update to reference wizard)
+- **Version Sync Required**: `scripts/ccbell.sh` VERSION must match ccbell release tag
+
+### Implementation Checklist
+
+- [ ] Create `commands/wizard.md` with interactive setup flow
+- [ ] Update `commands/configure.md` to reference wizard option
+- [ ] When ccbell v0.3.0+ releases, sync version to cc-plugins
 
 ---
 

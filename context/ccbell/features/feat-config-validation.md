@@ -226,6 +226,131 @@ func validateValues(cfg map[string]interface{}) []ValidationResult {
 
 ---
 
+## Repository Impact & Implementation
+
+### ccbell Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **Config** | Modify | Enhance `Validate()` function with syntax/schema checks |
+| **Core Logic** | Modify | Add `ValidateFile(path string)` public function |
+| **Commands** | Modify | Enhance `validate` command with JSON/schema flags |
+| **New File** | Add | `internal/config/validator.go` for reusable validation |
+
+### cc-plugins Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **plugin.json** | No change | Feature in binary, not plugin |
+| **hooks/hooks.json** | No change | Uses existing hooks |
+| **commands/validate.md** | Update | Add syntax/schema validation examples |
+| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+
+### Rough Implementation
+
+**ccbell - internal/config/validator.go:**
+```go
+type ValidationResult struct {
+    Level   string   // "error", "warning", "info"
+    Message string
+    Line    int
+    Field   string
+}
+
+func ValidateFile(path string) ([]ValidationResult, error) {
+    data, err := os.ReadFile(path)
+    if err != nil { return nil, fmt.Errorf("read error: %w", err) }
+
+    // Syntax validation (JSON)
+    var cfg map[string]interface{}
+    if err := json.Unmarshal(data, &cfg); err != nil {
+        return []ValidationResult{{
+            Level:   "error",
+            Message: fmt.Sprintf("Invalid JSON: %v", err),
+        }}, nil
+    }
+
+    // Schema validation
+    results := validateSchema(cfg)
+    results = append(results, validateValues(cfg)...)
+    results = append(results, validateReferences(cfg)...)
+
+    return results, nil
+}
+
+func validateSchema(cfg map[string]interface{}) []ValidationResult {
+    var results []ValidationResult
+
+    // Check required fields
+    if _, ok := cfg["enabled"]; !ok {
+        results = append(results, ValidationResult{
+            Level:   "warning",
+            Message: "Missing 'enabled' field, defaulting to true",
+            Field:   "enabled",
+        })
+    }
+
+    // Check events structure
+    if events, ok := cfg["events"].(map[string]interface{}); ok {
+        for eventName := range events {
+            if !ValidEvents[eventName] {
+                results = append(results, ValidationResult{
+                    Level:   "error",
+                    Message: fmt.Sprintf("Unknown event type: %s", eventName),
+                    Field:   "events." + eventName,
+                })
+            }
+        }
+    }
+
+    return results
+}
+```
+
+**ccbell - cmd/ccbell/main.go:**
+```go
+func main() {
+    validateCmd := flag.NewFlagSet("validate", flag.ExitOnError)
+    jsonOutput := validateCmd.Bool("json", false, "JSON output")
+    strict := validateCmd.Bool("strict", false, "Warnings as errors")
+
+    switch os.Args[1] {
+    case "validate":
+        validateCmd.Parse(os.Args[2:])
+        path := configPath // from env or default
+        results, err := config.ValidateFile(path)
+        // ... output formatted results
+    }
+}
+```
+
+---
+
+## cc-plugins Repository Impact
+
+| Aspect | Impact | Details |
+|--------|--------|---------|
+| **Plugin Manifest** | No changes | Feature implemented in ccbell binary, no plugin.json changes |
+| **Hooks** | No changes | Works within existing hook events (`Stop`, `Notification`, `SubagentStop`) |
+| **Commands** | Documentation update | Enhance `commands/validate.md` with syntax/schema validation |
+| **Sounds** | No changes | No sound file changes needed |
+
+### Technical Details
+
+- **ccbell Version Required**: 0.2.31+
+- **Config Schema Change**: No schema change, enhances existing validation
+- **Files Modified in cc-plugins**:
+  - `plugins/ccbell/commands/validate.md` (update with new validation commands)
+- **Version Sync Required**: `scripts/ccbell.sh` VERSION must match ccbell release tag
+
+### Implementation Checklist
+
+- [ ] Update `commands/validate.md` with syntax/schema validation commands
+- [ ] Add JSON validation example output to validate.md
+- [ ] When ccbell v0.2.31+ releases, sync version to cc-plugins
+
+---
+
 ## Supported Platforms
 
 | Platform | Status | Notes |

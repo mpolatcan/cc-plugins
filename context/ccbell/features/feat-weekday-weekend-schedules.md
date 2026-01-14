@@ -175,6 +175,115 @@ The existing `IsInQuietHours()` method can be extended with a parameter or a new
 
 ---
 
+## Repository Impact & Implementation
+
+### ccbell Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **Config** | Modify | Extend `QuietHours` with `weekday` and `weekend` TimeWindow |
+| **Core Logic** | Modify | Extend `IsInQuietHours()` with weekday/weekend logic |
+| **Config Loading** | No change | Uses existing config loading |
+
+### cc-plugins Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **plugin.json** | No change | Feature in binary, not plugin |
+| **hooks/hooks.json** | No change | Uses existing hooks |
+| **commands/configure.md** | Update | Add weekday/weekend schedule options |
+| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+
+### Rough Implementation
+
+**ccbell - internal/config/quiethours.go:**
+```go
+type TimeWindow struct {
+    Start string `json:"start"` // HH:MM format
+    End   string `json:"end"`
+}
+
+type QuietHoursConfig struct {
+    Enabled  *bool                 `json:"enabled,omitempty"`
+    Default  *TimeWindow           `json:"default,omitempty"`
+    Weekday  *TimeWindow           `json:"weekday,omitempty"`  // Mon-Fri
+    Weekend  *TimeWindow           `json:"weekend,omitempty"`  // Sat-Sun
+    Timezone *string               `json:"timezone,omitempty"`
+}
+
+func (c *CCBell) IsInQuietHours() bool {
+    if !c.config.QuietHours.Enabled() {
+        return false
+    }
+
+    now := time.Now()
+    weekday := now.Weekday()
+    isWeekend := weekday == time.Saturday || weekday == time.Sunday
+
+    var window *TimeWindow
+    if isWeekend && c.config.QuietHours.Weekend != nil {
+        window = c.config.QuietHours.Weekend
+    } else if !isWeekend && c.config.QuietHours.Weekday != nil {
+        window = c.config.QuietHours.Weekday
+    } else {
+        window = c.config.QuietHours.Default
+    }
+
+    if window == nil {
+        return false
+    }
+
+    return c.isInTimeWindow(now, window.Start, window.End)
+}
+
+func (c *CCBell) isInTimeWindow(now time.Time, start, end string) bool {
+    startParts := strings.Split(start, ":")
+    endParts := strings.Split(end, ":")
+
+    startH := mustParseInt(startParts[0])
+    startM := mustParseInt(startParts[1])
+    endH := mustParseInt(endParts[0])
+    endM := mustParseInt(endParts[1])
+
+    currentMinutes := now.Hour()*60 + now.Minute()
+    startMinutes := startH*60 + startM
+    endMinutes := endH*60 + endM
+
+    if startMinutes <= endMinutes {
+        return currentMinutes >= startMinutes && currentMinutes < endMinutes
+    }
+    // Overnight (e.g., 22:00 - 07:00)
+    return currentMinutes >= startMinutes || currentMinutes < endMinutes
+}
+```
+
+---
+
+## cc-plugins Repository Impact
+
+| Aspect | Impact | Details |
+|--------|--------|---------|
+| **Plugin Manifest** | No changes | Feature implemented in ccbell binary, no plugin.json changes |
+| **Hooks** | No changes | Works within existing hook events (`Stop`, `Notification`, `SubagentStop`) |
+| **Commands** | Documentation update | Enhance `commands/configure.md` with weekday/weekend schedules |
+| **Sounds** | No changes | No sound file changes needed |
+
+### Technical Details
+
+- **ccbell Version Required**: 0.3.0+
+- **Config Schema Change**: Extends `quiet_hours` with `weekday` and `weekend` TimeWindow overrides
+- **Files Modified in cc-plugins**:
+  - `plugins/ccbell/commands/configure.md` (add weekday/weekend schedule options)
+- **Version Sync Required**: `scripts/ccbell.sh` VERSION must match ccbell release tag
+
+### Implementation Checklist
+
+- [ ] Update `commands/configure.md` with weekday/weekend schedule configuration
+- [ ] Document time window override behavior
+- [ ] When ccbell v0.3.0+ releases, sync version to cc-plugins
+
+---
+
 ## References
 
 ### Research Sources

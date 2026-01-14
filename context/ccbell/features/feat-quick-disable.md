@@ -179,6 +179,121 @@ if state, err := stateManager.Load(); err == nil {
 
 ---
 
+## Repository Impact & Implementation
+
+### ccbell Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **State** | Add | Add `QuickDisableUntil` timestamp field |
+| **Core Logic** | Add | Add `IsQuickDisabled() bool` and `SetQuickDisable(duration)` methods |
+| **Commands** | Add | New `quiet` command (15m, 1h, 4h, status, cancel) |
+| **Main Flow** | Modify | Check quick disable in `ShouldNotify()` |
+
+### cc-plugins Repository Impact
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **plugin.json** | No change | Feature in binary, not plugin |
+| **hooks/hooks.json** | No change | Uses existing hooks |
+| **commands/quiet.md** | Add | New command documentation |
+| **commands/status.md** | Update | Add quick disable status |
+| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+
+### Rough Implementation
+
+**ccbell - internal/state/state.go:**
+```go
+type State struct {
+    Cooldowns       map[string]time.Time `json:"cooldowns,omitempty"`
+    QuickDisableUntil *time.Time        `json:"quick_disable_until,omitempty"`
+}
+
+func (s *State) IsQuickDisabled() bool {
+    if s.QuickDisableUntil == nil {
+        return false
+    }
+    return time.Now().Before(*s.QuickDisableUntil)
+}
+
+func (s *State) SetQuickDisable(duration time.Duration) {
+    now := time.Now()
+    s.QuickDisableUntil = &now
+    *s.QuickDisableUntil = now.Add(duration)
+}
+
+func (s *State) CancelQuickDisable() {
+    s.QuickDisableUntil = nil
+}
+```
+
+**ccbell - cmd/ccbell/main.go:**
+```go
+func main() {
+    if len(os.Args) > 1 && os.Args[1] == "quiet" {
+        handleQuietCommand(os.Args[2:])
+        return
+    }
+
+    // Check quick disable
+    if state.IsQuickDisabled() {
+        log.Info("Quick disable active until %s", state.QuickDisableUntil.Format("15:04"))
+        return
+    }
+}
+
+func handleQuietCommand(args []string) {
+    stateManager := state.NewManager(homeDir)
+    state, _ := stateManager.Load()
+
+    switch args[0] {
+    case "15m":
+        state.SetQuickDisable(15 * time.Minute)
+    case "1h":
+        state.SetQuickDisable(1 * time.Hour)
+    case "4h":
+        state.SetQuickDisable(4 * time.Hour)
+    case "cancel":
+        state.CancelQuickDisable()
+    case "status":
+        if state.IsQuickDisabled() {
+            fmt.Printf("Quick disabled until %s\n", state.QuickDisableUntil.Format("15:04"))
+        } else {
+            fmt.Println("Quick disabled: inactive")
+        }
+    }
+    stateManager.Save(state)
+}
+```
+
+---
+
+## cc-plugins Repository Impact
+
+| Aspect | Impact | Details |
+|--------|--------|---------|
+| **Plugin Manifest** | No changes | Feature implemented in ccbell binary, no plugin.json changes |
+| **Hooks** | No changes | Works within existing hook events (`Stop`, `Notification`, `SubagentStop`) |
+| **Commands** | New documentation | Create `commands/quiet.md` for quick disable commands |
+| **Sounds** | No changes | No sound file changes needed |
+
+### Technical Details
+
+- **ccbell Version Required**: 0.3.0+
+- **Config Schema Change**: No schema change, extends state with `quickDisableUntil` timestamp
+- **Files Modified in cc-plugins**:
+  - `plugins/ccbell/commands/quiet.md` (new file with 15m, 1h, 4h, status, cancel commands)
+  - `plugins/ccbell/commands/status.md` (update to show quick disable status)
+- **Version Sync Required**: `scripts/ccbell.sh` VERSION must match ccbell release tag
+
+### Implementation Checklist
+
+- [ ] Create `commands/quiet.md` with quick disable commands
+- [ ] Update `commands/status.md` with quick disable status
+- [ ] When ccbell v0.3.0+ releases, sync version to cc-plugins
+
+---
+
 ## References
 
 ### ccbell Implementation Research
