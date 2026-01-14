@@ -24,6 +24,19 @@ Define custom event names that map to existing events for flexibility.
 
 ---
 
+
+## Table of Contents
+
+- [Summary](#summary)
+- [Motivation](#motivation)
+- [Priority & Complexity](#priority--complexity)
+- [Technical Feasibility](#technical-feasibility)
+- [Implementation](#implementation)
+- [Configuration](#configuration)
+- [Commands](#commands)
+- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
+- [References](#references)
+
 ## Technical Feasibility
 
 ### Alias Configuration

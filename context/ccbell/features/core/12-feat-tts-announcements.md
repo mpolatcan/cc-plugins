@@ -24,6 +24,19 @@ Play spoken announcements instead of (or alongside) audio files. Announce events
 
 ---
 
+
+## Table of Contents
+
+- [Summary](#summary)
+- [Motivation](#motivation)
+- [Priority & Complexity](#priority--complexity)
+- [Technical Feasibility](#technical-feasibility)
+- [Implementation](#implementation)
+- [Configuration](#configuration)
+- [Commands](#commands)
+- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
+- [References](#references)
+
 ## Technical Feasibility
 
 ### Audio Playback (for TTS output)
@@ -36,129 +49,232 @@ The current `internal/audio/player.go` supports native players:
 
 ### TTS Engines
 
-| Engine | Size | Quality | Platform | Cost |
-|--------|------|---------|----------|------|
-| **Flite** | ~2MB | Robotic | macOS, Linux | Free |
-| **eSpeak NG** | ~3MB | Robotic | macOS, Linux | Free |
-| **Piper** | ~50MB | Natural | Python | Free |
-| **Kokoro** | ~100MB | Excellent | Python | Free |
+| Engine | Size | Quality | Platform | CPU | GPU | License |
+|--------|------|---------|----------|-----|-----|---------|
+| **macOS `say`** | Built-in | Good | macOS | ✅ | - | Built-in |
+| **Flite** | ~2MB | Robotic | macOS, Linux | ✅ | - | BSD-style |
+| **eSpeak NG** | ~3MB | Robotic | macOS, Linux | ✅ | - | GPL |
+| **Piper** | 20-60MB | Natural | Python | ✅ | Optional | Apache 2.0 |
+| **Kokoro-82M** | ~500MB | Excellent | Python/ONNX | ✅ | Optional | Apache 2.0 |
+| **Kokoro ONNX** | ~150MB | Excellent | Cross-platform | ✅ | - | Apache 2.0 |
+| **Suno Bark** | 1-4GB | Excellent | Python | ⚠️ | ✅ Recommended | MIT |
 
-### Recommended: Flite (for size)
+### Recommended: Piper (Best Balance)
 
 | Aspect | Details |
 |--------|---------|
-| Size | ~2MB binary |
-| Quality | Robotic, but clear |
-| Go Bindings | [gen2brain/flite-go](https://github.com/gen2brain/flite-go) |
-| Voices | Single US English |
-| Platform | macOS, Linux |
-| License | BSD-style |
+| **Model Size** | 20-60MB per voice |
+| **Quality** | Natural, neural voice synthesis |
+| **CPU Performance** | Real-time on Raspberry Pi 4/5 |
+| **GPU** | Optional, improves speed |
+| **Voices** | Multiple English + multilingual |
+| **License** | Apache 2.0 |
+
+**Installation:**
+```bash
+# Via pip
+pip install piper-tts
+
+# Download a voice model
+curl -L -o en_US-lessac-medium.onnx \
+  https://github.com/rhasspy/piper/releases/download/v1.2.0/piper_en_US_lessac_medium.onnx
+curl -L -o en_US-lessac-medium.onnx.json \
+  https://github.com/rhasspy/piper/releases/download/v1.2.0/piper_en_US_lessac_medium.onnx.json
+```
 
 **Usage:**
-```go
-import "github.com/gen2brain/flite-go/flite"
-
-flite.TextToSpeech("Claude finished", "voice.wav")
-// Play "voice.wav" with existing player
-```
-
-### Alternative: eSpeak NG
-
 ```bash
-espeak-ng -w output.wav "Claude finished" && play output.wav
+echo "Claude finished" | piper --model en_US-lessac-medium.onnx --output_file speech.wav
 ```
+
+### Recommended: Kokoro-82M ONNX (Best Quality/Size Ratio)
+
+| Aspect | Details |
+|--------|---------|
+| **Parameters** | 82 million |
+| **Model Size** | ~150MB (ONNX quantized) |
+| **Quality** | Comparable to larger models |
+| **CPU Performance** | Fast inference |
+| **GPU** | Optional (WebGPU, CUDA) |
+| **Voices** | Multiple American English voices |
+| **License** | Apache 2.0 |
+
+**Installation:**
+```bash
+# Via pip
+pip install kokoro transformers onnxruntime
+
+# Or use transformers.js for Node.js
+npm install kokoro-js
+```
+
+**Usage (Python):**
+```python
+from kokoro import KPipeline
+import soundfile as sf
+
+pipeline = KPipeline(lang_code='a')
+
+# Generate audio
+generator = pipeline("Claude finished", voice='af_bella')
+audio = next(generator)
+sf.write("speech.wav", audio, 24000)
+```
+
+**Usage (Node.js):**
+```javascript
+import { KokoroTTS } from "kokoro-js";
+
+const tts = await KokoroTTS.from_pretrained("onnx-community/Kokoro-82M-v1.0-ONNX", {
+  dtype: "q8",  // Options: fp32, fp16, q8, q4
+  device: "cpu",
+});
+
+const audio = await tts.generate("Claude finished", { voice: "af_bella" });
+audio.save("speech.wav");
+```
+
+### macOS Built-in: `say`
+
+| Aspect | Details |
+|--------|---------|
+| **Availability** | Built into all macOS |
+| **Quality** | Good, natural voices |
+| **Voices** | Many (Samantha, Victoria, etc.) |
+| **Latency** | Very fast |
+| **Offline** | Yes |
+
+**Usage:**
+```bash
+say "Claude finished"
+say -v Samantha "Permission needed"
+```
+
+### Piper vs Kokoro Comparison
+
+| Criteria | Piper | Kokoro-82M |
+|----------|-------|------------|
+| **Model Size** | 20-60MB | ~150MB (ONNX) |
+| **CPU Only** | ✅ Real-time | ✅ Fast |
+| **Voice Quality** | Good | Excellent |
+| **Multilingual** | ✅ | English + Spanish |
+| **Setup Complexity** | Low | Medium |
+| **Python Dependency** | Yes | Yes (or Node.js) |
+
+### Suno Bark (Not Recommended for ccbell)
+
+| Aspect | Details |
+|--------|---------|
+| **Model Size** | 1-4GB |
+| **GPU Memory** | 4-8GB VRAM recommended |
+| **Quality** | Excellent |
+| **Use Case** | Not suitable - too heavy |
+| **Reason** | Exceeds Claude Code hook constraints |
+
+**Warning:** Bark requires significant resources and cannot run within Claude Code hook timeout constraints.
 
 ---
 
-## Implementation Approach
+## Caching Strategy
 
-### Phase 1: Flite Integration
+Cache TTS output to avoid regenerating:
+- Hash text + voice + engine → WAV file
+- LRU cache with size limits (e.g., 100MB)
+- Cache directory: `~/.claude/ccbell/tts-cache/`
 
-1. **Download Flite binary** on first use (similar to ccbell binary download)
-   - Platform-specific builds from [flite releases](https://github.com/festvox/flite/releases)
-   - Fallback to system `flite` if installed
+---
 
-2. **Create TTS wrapper in ccbell:**
+## Implementation
+
+### Phase 1: macOS Built-in `say`
 
 ```go
 func (c *CCBell) speak(text string) error {
-    wavFile := filepath.Join(c.cacheDir, "tts", randomName()+".wav")
-    if err := c.runFlite(text, wavFile); err != nil {
-        return err
-    }
-    return c.playAudio(wavFile)
+    cmd := exec.Command("say", text)
+    return cmd.Run()
 }
 ```
 
-3. **Add TTS config:**
+### Phase 2: Piper Integration
+
+```bash
+# Install
+pip install piper-tts
+
+# Download voice model
+curl -L -o en_US-lessac-medium.onnx \
+  https://github.com/rhasspy/piper/releases/download/v1.2.0/piper_en_US_lessac_medium.onnx
+```
+
+```go
+func (c *CCBell) speakPiper(text string) error {
+    cmd := exec.Command("piper",
+        "--model", c.config.TTS.ModelPath,
+        "--output_file", c.outputFile,
+    )
+    stdin, _ := cmd.StdinPipe()
+    stdin.WriteString(text)
+    stdin.Close()
+    return cmd.Run()
+}
+```
+
+### Phase 3: Kokoro Integration
+
+```go
+func (c *CCBell) speakKokoro(text string) error {
+    // Use subprocess to call Python script
+    script := fmt.Sprintf(`
+from kokoro import KPipeline
+pipeline = KPipeline(lang_code='a')
+audio = next(pipeline("%s", voice="%s"))
+import soundfile as sf
+sf.write("%s", audio, 24000)
+`, text, c.config.TTS.Voice, c.outputFile)
+
+    cmd := exec.Command("python3", "-c", script)
+    return cmd.Run()
+}
+```
+
+### Configuration
 
 ```json
 {
   "tts": {
     "enabled": true,
-    "engine": "flite", // "flite", "espeak", "piper"
-    "voice": "kal",
+    "engine": "auto", // "say", "piper", "kokoro", "auto"
+    "voice": "af_bella", // Kokoro voice
+    "model_path": "~/.claude/ccbell/voices/en_US-lessac-medium.onnx",
     "phrases": {
       "stop": "Claude finished",
       "permission_prompt": "Permission needed",
       "idle_prompt": "Claude is waiting",
       "subagent": "Subagent task complete"
-    }
+    },
+    "cache_enabled": true,
+    "cache_size_mb": 100
   }
 }
 ```
 
-### Phase 2: Multiple Engines
+### Engine Detection
 
 ```go
 func findTTSEngine() string {
+    // Priority order: say > piper > kokoro
+    if runtime.GOOS == "darwin" {
+        if _, err := exec.LookPath("say"); err == nil {
+            return "say"
+        }
+    }
     if _, err := exec.LookPath("piper"); err == nil {
         return "piper"
     }
-    if _, err := exec.LookPath("espeak-ng"); err == nil {
-        return "espeak"
-    }
-    // Download flite as fallback
-    return "flite"
+    // Kokoro requires Python
+    return "kokoro"
 }
 ```
-
----
-
-## Feasibility Research
-
-### Audio Player Compatibility
-
-TTS requires audio playback, which uses the existing player infrastructure:
-- TTS generates WAV files
-- Existing players play the WAV files
-
-### External Dependencies
-
-| Dependency | Type | Cost | Notes |
-|------------|------|------|-------|
-| Flite | External binary | Free | Download on first use |
-| eSpeak NG | External binary | Free | Package install |
-| Piper | Python CLI | Free | Optional, higher quality |
-| flite-go | Go library | Free | Wrapper for Flite |
-
-### Supported Platforms
-
-| Platform | Flite | eSpeak NG | Piper |
-|----------|-------|-----------|-------|
-| macOS | ✅ | ✅ | ✅ (Python) |
-| Linux | ✅ | ✅ | ✅ |
-
-Note: ccbell only supports macOS and Linux. Windows is not supported.
-
-### Caching Strategy
-
-Cache TTS output to avoid regenerating:
-- Hash text + voice + engine → WAV file
-- LRU cache with size limits (e.g., 100MB)
-
----
-
 
 ---
 
@@ -167,17 +283,18 @@ Cache TTS output to avoid regenerating:
 | Aspect | Status | Notes |
 |--------|--------|-------|
 | **Hook Compatibility** | ✅ Compatible | Works with `Stop`, `Notification`, `SubagentStop` events |
-| **Shell Execution** | ✅ Compatible | Uses standard shell commands |
-| **Timeout Safe** | ✅ Safe | Fast execution, no timeout risk |
-| **Dependencies** | ✅ Minimal | Uses built-in system commands |
+| **Shell Execution** | ✅ Compatible | Uses `say` (macOS) or TTS CLI tools |
+| **Timeout Safe** | ⚠️ Needs Care | Piper/Kokoro may exceed 30s on first run |
+| **Dependencies** | ⚠️ External | Requires TTS engine installation |
 | **Background Service** | ❌ Not Needed | Runs inline with notification |
 
 ### Implementation Notes
 
-- Designed for Claude Code hook execution model
-- Uses shell commands compatible with ccbell architecture
-- No additional services or daemons required
-- Works within 30-second hook timeout
+- **macOS:** Use built-in `say` command (no install needed)
+- **Linux:** Requires Piper or Kokoro installation
+- **First Run:** Model download may exceed hook timeout
+- **Recommendation:** Download models during installation, not at runtime
+- **Caching:** Essential for performance (avoid regenerating same phrases)
 
 ---
 
@@ -185,11 +302,20 @@ Cache TTS output to avoid regenerating:
 
 ### Research Sources
 
-- [Flite TTS](http://cmuflite.org/)
-- [Flite Go Bindings](https://github.com/gen2brain/flite-go)
-- [eSpeak NG](https://github.com/espeak-ng/espeak-ng)
-- [Piper TTS](https://github.com/rhasspy/piper)
-- [Kokoro TTS](https://github.com/hexgrad/Kokoro-82M)
+- [Piper TTS - GitHub](https://github.com/rhasspy/piper) - Fast, local neural TTS system
+- [Piper Voices](https://github.com/rhasspy/piper/tree/master/voices) - Available voice models
+- [Kokoro-82M - Hugging Face](https://huggingface.co/hexgrad/Kokoro-82M) - 82M parameter TTS model
+- [Kokoro-82M ONNX](https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX) - ONNX quantized version
+- [Kokoro JS - npm](https://www.npmjs.com/package/kokoro-js) - Node.js/browser TTS library
+- [Flite TTS](http://cmuflite.org/) - Lightweight TTS engine
+- [eSpeak NG](https://github.com/espeak-ng/espeak-ng) - Compact TTS engine
+- [Suno Bark - GitHub](https://github.com/suno-ai/bark) - Transformer-based TTS (not recommended)
+
+### TTS Performance Research
+
+- [Piper on Raspberry Pi](https://medium.com/@vadikus/easy-guide-to-text-to-speech-on-raspberry-pi-5-using-piper-tts-cc5ed537a7f6) - CPU-based deployment
+- [Kokoro Installation Guide](https://dev.to/nodeshiftcloud/a-step-by-step-guide-to-install-kokoro-82m-locally-for-fast-and-high-quality-tts-58ed) - Local setup
+- [Kokoro ONNX Performance](https://kokorotts.net/models/Kokoro/Kokoro-82m) - Performance benchmarks
 
 ### ccbell Implementation Research
 

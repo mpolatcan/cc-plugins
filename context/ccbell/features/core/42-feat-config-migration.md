@@ -24,6 +24,19 @@ Automatically update old config formats to newer versions while preserving setti
 
 ---
 
+
+## Table of Contents
+
+- [Summary](#summary)
+- [Motivation](#motivation)
+- [Priority & Complexity](#priority--complexity)
+- [Technical Feasibility](#technical-feasibility)
+- [Implementation](#implementation)
+- [Configuration](#configuration)
+- [Commands](#commands)
+- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
+- [References](#references)
+
 ## Technical Feasibility
 
 ### Migration Chain

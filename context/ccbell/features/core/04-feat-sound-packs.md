@@ -25,6 +25,19 @@ Allow users to browse, preview, and install sound packs that bundle sounds for a
 
 ---
 
+
+## Table of Contents
+
+- [Summary](#summary)
+- [Motivation](#motivation)
+- [Priority & Complexity](#priority--complexity)
+- [Technical Feasibility](#technical-feasibility)
+- [Implementation](#implementation)
+- [Configuration](#configuration)
+- [Commands](#commands)
+- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
+- [References](#references)
+
 ## Technical Feasibility
 
 ### Current Audio Player Analysis

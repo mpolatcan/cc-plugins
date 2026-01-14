@@ -18,6 +18,19 @@ Override default quiet hours with weekend-specific schedules.
 
 ---
 
+
+## Table of Contents
+
+- [Summary](#summary)
+- [Motivation](#motivation)
+- [Priority & Complexity](#priority--complexity)
+- [Technical Feasibility](#technical-feasibility)
+- [Implementation](#implementation)
+- [Configuration](#configuration)
+- [Commands](#commands)
+- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
+- [References](#references)
+
 ## Technical Feasibility
 
 ### Current Quiet Hours Analysis
