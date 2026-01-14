@@ -148,6 +148,7 @@ TTS requires audio playback, which uses the existing player infrastructure:
 |----------|-------|-----------|-------|
 | macOS | ✅ | ✅ | ✅ (Python) |
 | Linux | ✅ | ✅ | ✅ |
+| Windows | ❌ | ❌ | ❌ (ccbell only supports macOS/Linux) |
 
 ### Caching Strategy
 
