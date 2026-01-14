@@ -1,37 +1,15 @@
 # Feature: Dry Run Mode 🧪
 
-## Table of Contents
-
-- [Summary](#summary)
-- [Motivation](#motivation)
-- [Benefit](#benefit)
-- [Priority & Complexity](#priority--complexity)
-- [Technical Feasibility](#technical-feasibility)
-- [Implementation](#implementation)
-- [Configuration](#configuration)
-- [Commands](#commands)
-- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
-- [References](#references)
-
 ## Summary
 
-Run ccbell in dry run mode to validate configuration and logic without actually playing sounds. Useful for debugging and testing.
-
-## Motivation
-
-- Test if events are triggering correctly
-- Debug quiet hours and cooldown logic
-- Verify configuration is valid
-- Integration testing without noise
-
----
+Run ccbell in dry run mode to validate configuration and logic without playing sounds. Useful for debugging and testing.
 
 ## Benefit
 
-- **Noise-free testing**: Developers can test configurations in offices, libraries, or meetings
-- **Faster debugging**: Dry run output clearly shows what would happen without side effects
-- **Safer experimentation**: Try new configurations without worrying about disruptive sounds
-- **CI/CD integration**: Automated tests can verify ccbell behavior in build pipelines
+- **Noise-free testing**: Test in offices, libraries, or meetings
+- **Faster debugging**: Clear output shows what would happen
+- **Safer experimentation**: Try configs without disruptive sounds
+- **CI/CD integration**: Automated tests in build pipelines
 
 ## Priority & Complexity
 
@@ -41,152 +19,26 @@ Run ccbell in dry run mode to validate configuration and logic without actually 
 | **Complexity** | Low |
 | **Category** | Testing |
 
----
-
 ## Technical Feasibility
 
-### Current Architecture Analysis
+### Output Example
 
-The current `cmd/ccbell/main.go`:
-1. Loads config
-2. Checks conditions
-3. Calls `player.Play()`
-
-**Key Finding**: Adding a dry run mode is a simple early return before playback.
+```
+$ ccbell stop --dry-run
+=== Dry Run Mode ===
+Event: stop
+Sound: ~/.claude/ccbell/sounds/stop.aiff
+Volume: 0.50
+Would skip: In cooldown
+Would skip: Quiet hours active
+Dry run complete - no sound played
+```
 
 ### Implementation
 
 ```go
 func main() {
     dryRun := flag.Bool("dry-run", false, "Test without playing sounds")
-
-    // ... existing logic ...
-
-    if *dryRun {
-        log.Info("DRY RUN: Would play %s at volume %.2f", soundPath, volume)
-        log.Info("DRY RUN: Event %s enabled=%v, cooldown=%d", eventType, *eventCfg.Enabled, *eventCfg.Cooldown)
-        return nil
-    }
-
-    return player.Play(soundPath, volume)
-}
-```
-
-### Output Example
-
-```
-$ ccbell stop --dry-run
-DRY RUN: Event 'stop' triggered
-DRY RUN: Sound: ~/.claude/ccbell/sounds/stop.aiff
-DRY RUN: Volume: 0.50
-DRY RUN: Quiet hours: not in effect (22:00-07:00, now=14:30)
-DRY RUN: Cooldown: 0s remaining
-DRY RUN: Would play sound
-```
-
-### Commands
-
-```bash
-/ccbell:test stop --dry-run    # Test without playing
-/ccbell:test all --dry-run     # Test all events
-ccbell stop --dry-run          # Direct invocation
-```
-
----
-
-## Audio Player Compatibility
-
-Dry run mode doesn't interact with audio players:
-- Skips `player.Play()` call entirely
-- No changes to player code required
-- Purely logical operation
-
----
-
-## Implementation
-
-### Flag Addition
-
-```go
-var dryRun = flag.Bool("dry-run", false, "Validate config without playing sounds")
-var dryRunShort = flag.Bool("d", false, "Short form for --dry-run")
-
-// In main logic
-if *dryRun || *dryRunShort {
-    logDryRun(eventType, eventCfg, soundPath, volume, state)
-    return nil
-}
-```
-
-### Logging Function
-
-```go
-func logDryRun(eventType string, eventCfg *config.Event, soundPath string, volume float64, state *state.State) {
-    log.Printf("=== ccbell DRY RUN ===")
-    log.Printf("Event: %s", eventType)
-    log.Printf("Enabled: %v", *eventCfg.Enabled)
-    log.Printf("Sound: %s", soundPath)
-    log.Printf("Volume: %.2f", volume)
-    log.Printf("Quiet hours: %s", getQuietHoursStatus())
-    log.Printf("Cooldown: %ds remaining", state.GetCooldownRemaining(eventType))
-    log.Printf("Would play sound: %s", soundPath)
-}
-```
-
----
-
-## External Dependencies
-
-| Dependency | Type | Cost | Notes |
-|------------|------|------|-------|
-| None | - | - | Pure Go implementation |
-
----
-
-## Claude Code Plugin Feasibility
-
-| Aspect | Status | Notes |
-|--------|--------|-------|
-| **Hook Compatibility** | ✅ Compatible | Works with `Stop`, `Notification`, `SubagentStop` events |
-| **Shell Execution** | ✅ Compatible | Uses standard shell commands |
-| **Timeout Safe** | ✅ Safe | Fast execution, no timeout risk |
-| **Dependencies** | ✅ Minimal | Uses built-in system commands |
-| **Background Service** | ❌ Not Needed | Runs inline with notification |
-
-### Implementation Notes
-
-- Designed for Claude Code hook execution model
-- Uses shell commands compatible with ccbell architecture
-- No additional services or daemons required
-- Works within 30-second hook timeout
-
----
-
-## Repository Impact & Implementation
-
-### ccbell Repository Impact
-
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **Main Flow** | Add | Add `--dry-run` flag, skip actual sound playback |
-| **Commands** | Modify | Enhance `test` command with `-d/--dry-run` flag |
-| **Core Logic** | Add | Add `DryRun() bool` config check |
-
-### cc-plugins Repository Impact
-
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **plugin.json** | No change | Feature in binary, not plugin |
-| **hooks/hooks.json** | No change | Uses existing hooks |
-| **commands/test.md** | Update | Add dry-run flag documentation |
-| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
-
-### Rough Implementation
-
-**ccbell - cmd/ccbell/main.go:**
-```go
-func main() {
-    dryRun := flag.Bool("dry-run", false, "Preview without playing sound")
 
     cfg := config.Load(homeDir)
     state := state.Load(homeDir)
@@ -196,63 +48,46 @@ func main() {
         fmt.Printf("Event: %s\n", eventType)
         fmt.Printf("Sound: %s\n", cfg.Events[eventType].Sound)
         fmt.Printf("Volume: %.2f\n", *cfg.Events[eventType].Volume)
-        if state.IsInCooldown(eventType, *cfg.Events[eventType].Cooldown) {
-            fmt.Println("Would skip: In cooldown")
-        }
-        if c.IsInQuietHours() {
-            fmt.Println("Would skip: Quiet hours active")
-        }
-        fmt.Println("\nDry run complete - no sound played")
         return
     }
-    // ... normal execution
+    player.Play(sound, volume)
 }
 ```
 
----
+### Commands
+
+```bash
+/ccbell:test stop --dry-run    # Test without playing
+/ccbell:test all --dry-run     # Test all events
+```
+
+## Configuration
+
+No config changes - CLI flag only.
+
+## Repository Impact
+
+### ccbell Repository
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **Main Flow** | Add | `--dry-run` flag, skip playback |
+| **Commands** | Modify | Enhance `test` command |
+
+### cc-plugins Repository
+
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **plugin.json** | No change | Feature in binary |
+| **hooks/hooks.json** | No change | Uses existing hooks |
+| **commands/test.md** | Update | Add --dry-run docs |
+| **scripts/ccbell.sh** | Version sync | Match ccbell release |
 
 ## References
 
-### ccbell Implementation Research
-
-- [Main.go](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) - Main entry point
-- [Config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L81-L102) - Config validation occurs
-- [State management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) - Cooldown checking
-
----
-
-## cc-plugins Repository Impact
-
-| Aspect | Impact | Details |
-|--------|--------|---------|
-| **Plugin Manifest** | No changes | Feature implemented in ccbell binary, no plugin.json changes |
-| **Hooks** | No changes | Works within existing hook events (`Stop`, `Notification`, `SubagentStop`) |
-| **Commands** | Documentation update | Enhance `commands/test.md` with `--dry-run` flag |
-| **Sounds** | No changes | No sound file changes needed |
-
-### Technical Details
-
-- **ccbell Version Required**: 0.2.31+
-- **Config Schema Change**: No schema change, adds CLI flag
-- **Files Modified in cc-plugins**:
-  - `plugins/ccbell/commands/test.md` (add --dry-run flag documentation)
-- **Version Sync Required**: `scripts/ccbell.sh` VERSION must match ccbell release tag
-
-### Implementation Checklist
-
-- [ ] Update `commands/test.md` with --dry-run flag examples
-- [ ] Add example dry-run output showing what would happen
-- [ ] When ccbell v0.2.31+ releases, sync version to cc-plugins
-
----
-
-## Supported Platforms
-
-| Platform | Status | Notes |
-|----------|--------|-------|
-| macOS | ✅ Supported | Logic only, no audio |
-| Linux | ✅ Supported | Logic only, no audio |
-| Windows | ❌ Not Supported | ccbell only supports macOS/Linux |
+- [Main.go](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go)
+- [Config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L81-L102)
+- [State management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go)
 
 ---
 

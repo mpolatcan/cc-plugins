@@ -1,36 +1,15 @@
-# Feature: Config Syntax Validation ✅
-
-## Table of Contents
-
-- [Summary](#summary)
-- [Motivation](#motivation)
-- [Benefit](#benefit)
-- [Priority & Complexity](#priority--complexity)
-- [Technical Feasibility](#technical-feasibility)
-- [Implementation](#implementation)
-- [Configuration](#configuration)
-- [Commands](#commands)
-- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
-- [References](#references)
+# Feature: Config Validation ✅
 
 ## Summary
 
 Check config file for JSON syntax errors and schema issues before applying changes.
 
-## Motivation
-
-- Prevent bad configs from breaking ccbell
-- Provide clear error messages
-- Validate before saving
-
----
-
 ## Benefit
 
-- **Faster debugging**: Clear error messages pinpoint exactly what's wrong in the config
-- **Prevention over recovery**: Catches errors before they cause notification failures
-- **Better onboarding**: New users get immediate feedback on configuration mistakes
-- **Reduced support burden**: Self-documenting validation reduces "why isn't this working?" questions
+- **Faster debugging**: Clear error messages pinpoint exactly what's wrong
+- **Prevention over recovery**: Catches errors before notification failures
+- **Better onboarding**: Immediate feedback on configuration mistakes
+- **Reduced support burden**: Self-documenting validation reduces questions
 
 ## Priority & Complexity
 
@@ -39,8 +18,6 @@ Check config file for JSON syntax errors and schema issues before applying chang
 | **Priority** | Medium |
 | **Complexity** | Low |
 | **Category** | Config Management |
-
----
 
 ## Technical Feasibility
 
@@ -55,200 +32,6 @@ Check config file for JSON syntax errors and schema issues before applying chang
 
 ### Implementation
 
-```go
-type ValidationResult struct {
-    Level   string   // "error", "warning", "info"
-    Message string
-    Line    int      // Line number (if available)
-    Field   string   // Config path
-}
-
-func ValidateConfigFile(path string) ([]ValidationResult, error) {
-    results := []ValidationResult{}
-
-    // 1. Read file
-    data, err := os.ReadFile(path)
-    if err != nil {
-        return nil, fmt.Errorf("cannot read file: %w", err)
-    }
-
-    // 2. Syntax validation (JSON)
-    var cfg map[string]interface{}
-    if err := json.Unmarshal(data, &cfg); err != nil {
-        return []ValidationResult{{
-            Level:   "error",
-            Message: fmt.Sprintf("Invalid JSON: %v", err),
-        }}, nil
-    }
-
-    // 3. Schema validation
-    results = append(results, validateSchema(cfg)...)
-
-    // 4. Value validation
-    results = append(results, validateValues(cfg)...)
-
-    // 5. Reference validation
-    results = append(results, validateReferences(cfg)...)
-
-    return results, nil
-}
-```
-
-### Output Formats
-
-**Human:**
-```
-$ ccbell:validate config.json
-
-Validating: config.json
-
-[ERROR]   Field: events.stop.volume
-           Value: 1.5 is greater than maximum 1.0
-
-[WARNING] Field: profiles.missing.events
-           Profile 'missing' referenced but not defined
-
-✓ Found 1 error, 1 warning
-```
-
-**JSON:**
-```json
-{
-  "valid": false,
-  "errors": 1,
-  "warnings": 1,
-  "results": [...]
-}
-```
-
-### Commands
-
-```bash
-/ccbell:validate config.json              # Validate file
-/ccbell:validate                          # Validate active config
-/ccbell:validate config.json --json       # JSON output
-/ccbell:validate --strict                 # Strict mode (warnings as errors)
-```
-
----
-
-## Audio Player Compatibility
-
-Config validation doesn't interact with audio playback:
-- Purely config analysis
-- No player changes required
-- Prevents errors before playback
-
----
-
-## Implementation
-
-### Schema Validation
-
-```go
-func validateSchema(cfg map[string]interface{}) []ValidationResult {
-    results := []ValidationResult{}
-
-    // Check required fields
-    if _, ok := cfg["enabled"]; !ok {
-        results = append(results, ValidationResult{
-            Level:   "warning",
-            Message: "Missing 'enabled' field, defaulting to true",
-            Field:   "enabled",
-        })
-    }
-
-    // Check events structure
-    if events, ok := cfg["events"].(map[string]interface{}); ok {
-        for eventName := range events {
-            if !config.ValidEvents[eventName] {
-                results = append(results, ValidationResult{
-                    Level:   "error",
-                    Message: fmt.Sprintf("Unknown event type: %s", eventName),
-                    Field:   "events." + eventName,
-                })
-            }
-        }
-    }
-
-    return results
-}
-```
-
-### Value Ranges
-
-```go
-func validateValues(cfg map[string]interface{}) []ValidationResult {
-    results := []ValidationResult{}
-
-    // Volume range: 0.0 - 1.0
-    // Cooldown: >= 0
-    // Time format: HH:MM
-}
-```
-
----
-
-## External Dependencies
-
-| Dependency | Type | Cost | Notes |
-|------------|------|------|-------|
-| None | - | - | Pure Go implementation |
-
----
-
-## Claude Code Plugin Feasibility
-
-| Aspect | Status | Notes |
-|--------|--------|-------|
-| **Hook Compatibility** | ✅ Compatible | Works with `Stop`, `Notification`, `SubagentStop` events |
-| **Shell Execution** | ✅ Compatible | Uses standard shell commands |
-| **Timeout Safe** | ✅ Safe | Fast execution, no timeout risk |
-| **Dependencies** | ✅ Minimal | Uses built-in system commands |
-| **Background Service** | ❌ Not Needed | Runs inline with notification |
-
-### Implementation Notes
-
-- Designed for Claude Code hook execution model
-- Uses shell commands compatible with ccbell architecture
-- No additional services or daemons required
-- Works within 30-second hook timeout
-
----
-
-## References
-
-### ccbell Implementation Research
-
-- [Config validation](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L127-L175) - Existing validation pattern
-- [ValidEvents](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L45-L51) - Event validation
-- [Time format](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L54-L54) - Time validation regex
-
----
-
-## Repository Impact & Implementation
-
-### ccbell Repository Impact
-
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **Config** | Modify | Enhance `Validate()` function with syntax/schema checks |
-| **Core Logic** | Modify | Add `ValidateFile(path string)` public function |
-| **Commands** | Modify | Enhance `validate` command with JSON/schema flags |
-| **New File** | Add | `internal/config/validator.go` for reusable validation |
-
-### cc-plugins Repository Impact
-
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **plugin.json** | No change | Feature in binary, not plugin |
-| **hooks/hooks.json** | No change | Uses existing hooks |
-| **commands/validate.md** | Update | Add syntax/schema validation examples |
-| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
-
-### Rough Implementation
-
-**ccbell - internal/config/validator.go:**
 ```go
 type ValidationResult struct {
     Level   string   // "error", "warning", "info"
@@ -270,94 +53,75 @@ func ValidateFile(path string) ([]ValidationResult, error) {
         }}, nil
     }
 
-    // Schema validation
+    // Schema + Value + Reference validation
     results := validateSchema(cfg)
     results = append(results, validateValues(cfg)...)
     results = append(results, validateReferences(cfg)...)
 
     return results, nil
 }
+```
 
-func validateSchema(cfg map[string]interface{}) []ValidationResult {
-    var results []ValidationResult
+### Commands
 
-    // Check required fields
-    if _, ok := cfg["enabled"]; !ok {
-        results = append(results, ValidationResult{
-            Level:   "warning",
-            Message: "Missing 'enabled' field, defaulting to true",
-            Field:   "enabled",
-        })
-    }
+```bash
+/ccbell:validate config.json              # Validate file
+/ccbell:validate                          # Validate active config
+/ccbell:validate --json                   # JSON output
+/ccbell:validate --strict                 # Warnings as errors
+```
 
-    // Check events structure
-    if events, ok := cfg["events"].(map[string]interface{}); ok {
-        for eventName := range events {
-            if !ValidEvents[eventName] {
-                results = append(results, ValidationResult{
-                    Level:   "error",
-                    Message: fmt.Sprintf("Unknown event type: %s", eventName),
-                    Field:   "events." + eventName,
-                })
-            }
-        }
-    }
+### Output Examples
 
-    return results
+**Human:**
+```
+$ ccbell:validate
+
+[ERROR]   Field: events.stop.volume
+           Value: 1.5 exceeds maximum 1.0
+
+✓ Found 1 error, 1 warning
+```
+
+**JSON:**
+```json
+{
+  "valid": false,
+  "errors": 1,
+  "warnings": 1,
+  "results": [...]
 }
 ```
 
-**ccbell - cmd/ccbell/main.go:**
-```go
-func main() {
-    validateCmd := flag.NewFlagSet("validate", flag.ExitOnError)
-    jsonOutput := validateCmd.Bool("json", false, "JSON output")
-    strict := validateCmd.Bool("strict", false, "Warnings as errors")
+## Configuration
 
-    switch os.Args[1] {
-    case "validate":
-        validateCmd.Parse(os.Args[2:])
-        path := configPath // from env or default
-        results, err := config.ValidateFile(path)
-        // ... output formatted results
-    }
-}
-```
+No config changes - enhances existing validation.
 
----
+## Repository Impact
 
-## cc-plugins Repository Impact
+### ccbell Repository
 
-| Aspect | Impact | Details |
-|--------|--------|---------|
-| **Plugin Manifest** | No changes | Feature implemented in ccbell binary, no plugin.json changes |
-| **Hooks** | No changes | Works within existing hook events (`Stop`, `Notification`, `SubagentStop`) |
-| **Commands** | Documentation update | Enhance `commands/validate.md` with syntax/schema validation |
-| **Sounds** | No changes | No sound file changes needed |
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **Config** | Modify | Enhance `Validate()` function |
+| **Core Logic** | Add | `ValidateFile()` public function |
+| **Commands** | Modify | Add `--json`, `--strict` flags |
+| **New File** | Add | `internal/config/validator.go` |
 
-### Technical Details
+### cc-plugins Repository
 
-- **ccbell Version Required**: 0.2.31+
-- **Config Schema Change**: No schema change, enhances existing validation
-- **Files Modified in cc-plugins**:
-  - `plugins/ccbell/commands/validate.md` (update with new validation commands)
-- **Version Sync Required**: `scripts/ccbell.sh` VERSION must match ccbell release tag
+| Component | Impact | Details |
+|-----------|--------|---------|
+| **plugin.json** | No change | Feature in binary |
+| **hooks/hooks.json** | No change | Uses existing hooks |
+| **commands/validate.md** | Update | Add syntax/schema examples |
+| **scripts/ccbell.sh** | Version sync | Match ccbell release |
 
-### Implementation Checklist
+## References
 
-- [ ] Update `commands/validate.md` with syntax/schema validation commands
-- [ ] Add JSON validation example output to validate.md
-- [ ] When ccbell v0.2.31+ releases, sync version to cc-plugins
-
----
-
-## Supported Platforms
-
-| Platform | Status | Notes |
-|----------|--------|-------|
-| macOS | ✅ Supported | Pure Go |
-| Linux | ✅ Supported | Pure Go |
-| Windows | ❌ Not Supported | ccbell only supports macOS/Linux |
+- [Config validation](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L127-L175)
+- [ValidEvents](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L45-L51)
+- [Time format](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L54-L54)
 
 ---
 
