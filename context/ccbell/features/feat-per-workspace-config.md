@@ -4,6 +4,7 @@
 
 - [Summary](#summary)
 - [Motivation](#motivation)
+- [Benefit](#benefit)
 - [Priority & Complexity](#priority--complexity)
 - [Technical Feasibility](#technical-feasibility)
 - [Implementation](#implementation)
@@ -16,9 +17,21 @@
 
 Allow ccbell to read project-specific config from `.claude-ccbell.json` in the workspace root. Enables context-aware notifications (louder for production, subtle for dev).
 
+## Motivation
+
+- Different projects need different notification strategies
+- Production environments may need louder alerts
+- Personal projects might prefer subtle notifications
+- Team configurations can be committed to repos
+
 ---
 
-## Priority & Complexity
+## Benefit
+
+- **Context-aware behavior**: Notifications adapt to the project context
+- **Team consistency**: Shared configs ensure everyone hears the same alerts
+- **Workflow optimization**: Louder for production, subtle for exploration
+- **No global config changes**: Switch between project configs seamlessly
 
 | Attribute | Value |
 |-----------|-------|

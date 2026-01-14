@@ -4,6 +4,7 @@
 
 - [Summary](#summary)
 - [Motivation](#motivation)
+- [Benefit](#benefit)
 - [Priority & Complexity](#priority--complexity)
 - [Technical Feasibility](#technical-feasibility)
 - [Implementation](#implementation)
@@ -23,6 +24,13 @@ Allow users to temporarily adjust notification volume without modifying the conf
 - Useful for users who want different volume per invocation
 
 ---
+
+## Benefit
+
+- **No permanent commitment**: Test volume levels without modifying config files
+- **Session-based control**: Different volumes for different work sessions
+- **Faster iteration**: Quickly find the right volume through trial and error
+- **Convenient one-liners**: Easy to use in scripts and aliases
 
 ## Priority & Complexity
 

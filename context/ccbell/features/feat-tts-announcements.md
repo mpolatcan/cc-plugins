@@ -4,6 +4,7 @@
 
 - [Summary](#summary)
 - [Motivation](#motivation)
+- [Benefit](#benefit)
 - [Priority & Complexity](#priority--complexity)
 - [Technical Feasibility](#technical-feasibility)
 - [Implementation](#implementation)
@@ -23,6 +24,13 @@ Play spoken announcements instead of (or alongside) audio files. Announce events
 - Context-aware: TTS can include event details (e.g., "Claude finished in 3.2 seconds")
 
 ---
+
+## Benefit
+
+- **Accessibility-first**: Voice announcements help users with hearing impairments
+- **Hands-free awareness**: Know what's happening without looking at the screen
+- **Rich context**: TTS can include timing, event details, and custom messages
+- **Personalized experience**: Custom voice clones for unique notification sounds
 
 ## Priority & Complexity
 

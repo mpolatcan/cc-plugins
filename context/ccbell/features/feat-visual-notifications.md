@@ -4,6 +4,7 @@
 
 - [Summary](#summary)
 - [Motivation](#motivation)
+- [Benefit](#benefit)
 - [Priority & Complexity](#priority--complexity)
 - [Technical Feasibility](#technical-feasibility)
 - [Implementation](#implementation)
@@ -24,6 +25,13 @@ Show visual notifications (macOS Notification Center, terminal bell) when Claude
 - Dual-channel confirmation (audio + visual)
 
 ---
+
+## Benefit
+
+- **Accessibility compliance**: Supports users with hearing differences
+- **Noise-restricted environments**: Works in libraries, meetings, shared spaces
+- **Multi-modal feedback**: See and hear notifications for better awareness
+- **Screen periphery awareness**: Notifications appear without interrupting workflow
 
 ## Priority & Complexity
 

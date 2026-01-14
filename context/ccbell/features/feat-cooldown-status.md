@@ -4,6 +4,7 @@
 
 - [Summary](#summary)
 - [Motivation](#motivation)
+- [Benefit](#benefit)
 - [Priority & Complexity](#priority--complexity)
 - [Technical Feasibility](#technical-feasibility)
 - [Implementation](#implementation)
@@ -23,6 +24,13 @@ Display how much time remains before each event can trigger again.
 - Debug cooldown configuration
 
 ---
+
+## Benefit
+
+- **Reduced confusion**: Users understand why notifications aren't firing instead of assuming bugs
+- **Faster troubleshooting**: Visual countdown helps users adjust cooldown settings intuitively
+- **Better control**: Knowing exact timing helps users plan their workflow around notifications
+- **Improved trust**: Transparent behavior makes ccbell feel more predictable and reliable
 
 ## Priority & Complexity
 

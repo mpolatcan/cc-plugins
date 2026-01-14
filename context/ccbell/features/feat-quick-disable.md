@@ -4,6 +4,7 @@
 
 - [Summary](#summary)
 - [Motivation](#motivation)
+- [Benefit](#benefit)
 - [Priority & Complexity](#priority--complexity)
 - [Technical Feasibility](#technical-feasibility)
 - [Implementation](#implementation)
@@ -16,9 +17,21 @@
 
 Temporarily disable notifications for 15min, 1hr, 4hr without changing the full configuration. Quick toggle via command.
 
+## Motivation
+
+- Quick breaks without full config changes
+- Meeting-mode instant toggle
+- Focus session temporary silence
+- No permanent state changes
+
 ---
 
-## Priority & Complexity
+## Benefit
+
+- **Instant focus**: One command silences notifications temporarily
+- **No config editing**: No need to modify config files for temporary changes
+- **Auto-restores**: Notifications automatically resume after the timeout
+- **Meeting-ready**: Quick toggle for calls without leaving ccbell disabled
 
 | Attribute | Value |
 |-----------|-------|

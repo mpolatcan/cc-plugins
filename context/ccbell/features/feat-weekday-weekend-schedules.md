@@ -4,6 +4,7 @@
 
 - [Summary](#summary)
 - [Motivation](#motivation)
+- [Benefit](#benefit)
 - [Priority & Complexity](#priority--complexity)
 - [Technical Feasibility](#technical-feasibility)
 - [Implementation](#implementation)
@@ -16,9 +17,21 @@
 
 Override default quiet hours with weekend-specific schedules.
 
+## Motivation
+
+- Different work patterns on weekends
+- Longer quiet hours for weekend rest
+- Family time without interruptions
+- Flexible schedules for different days
+
 ---
 
-## Priority & Complexity
+## Benefit
+
+- **Work-life balance**: Respects different schedules for weekdays vs. weekends
+- **Automated adaptation**: No manual schedule changes needed
+- **Family-friendly**: Quieter notifications when family is around
+- **Personalized rhythms**: Match notification behavior to personal routines
 
 | Attribute | Value |
 |-----------|-------|

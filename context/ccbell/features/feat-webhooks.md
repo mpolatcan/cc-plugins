@@ -4,6 +4,7 @@
 
 - [Summary](#summary)
 - [Motivation](#motivation)
+- [Benefit](#benefit)
 - [Priority & Complexity](#priority--complexity)
 - [Technical Feasibility](#technical-feasibility)
 - [Implementation](#implementation)
@@ -16,9 +17,21 @@
 
 Send HTTP requests to configured URLs when events trigger. Enable integrations with Slack, IFTTT, Zapier, custom webhooks.
 
+## Motivation
+
+- Team notifications in Slack/Discord
+- Trigger automation workflows
+- Mobile notifications via push services
+- Custom integrations with existing tools
+
 ---
 
-## Priority & Complexity
+## Benefit
+
+- **Team awareness**: Notify entire channels when Claude completes tasks
+- **Automation triggers**: Start workflows based on Claude Code events
+- **Multi-device notifications**: Get alerts on phone via push services
+- **CI/CD integration**: Connect ccbell with existing notification pipelines
 
 | Attribute | Value |
 |-----------|-------|

@@ -4,6 +4,7 @@
 
 - [Summary](#summary)
 - [Motivation](#motivation)
+- [Benefit](#benefit)
 - [Priority & Complexity](#priority--complexity)
 - [Technical Feasibility](#technical-feasibility)
 - [Implementation](#implementation)
@@ -23,6 +24,13 @@ Define custom event names that map to existing events for flexibility.
 - Simplified command interface
 
 ---
+
+## Benefit
+
+- **Personalized workflow**: Developers can use terminology that matches their mental model
+- **Simplified commands**: Short aliases reduce typing and cognitive load
+- **Team standardization**: Teams can share configuration templates with consistent naming
+- **Easier onboarding**: New team members learn "build-complete" instead of memorizing event IDs
 
 ## Priority & Complexity
 

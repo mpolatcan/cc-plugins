@@ -4,6 +4,7 @@
 
 - [Summary](#summary)
 - [Motivation](#motivation)
+- [Benefit](#benefit)
 - [Priority & Complexity](#priority--complexity)
 - [Technical Feasibility](#technical-feasibility)
 - [Implementation](#implementation)
@@ -16,9 +17,21 @@
 
 Preview mode during configuration that lets users hear sounds before saving their selection.
 
+## Motivation
+
+- Hear sounds before committing to them
+- Compare different sounds easily
+- Test volume levels
+- Make informed configuration choices
+
 ---
 
-## Priority & Complexity
+## Benefit
+
+- **Informed decisions**: Hear before you choose, no more config guessing
+- **Easier comparison**: A/B test sounds side by side
+- **No configuration commits**: Preview without saving to config
+- **Faster setup**: Find the perfect sound faster with instant feedback
 
 | Attribute | Value |
 |-----------|-------|

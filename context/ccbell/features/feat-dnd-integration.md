@@ -4,6 +4,7 @@
 
 - [Summary](#summary)
 - [Motivation](#motivation)
+- [Benefit](#benefit)
 - [Priority & Complexity](#priority--complexity)
 - [Technical Feasibility](#technical-feasibility)
 - [Implementation](#implementation)
@@ -23,6 +24,13 @@ Automatically suppress ccbell notifications when the system Do Not Disturb mode 
 - Prevent noise during presentations
 
 ---
+
+## Benefit
+
+- **Seamless focus time**: No need to manually toggle ccbell when entering DnD mode
+- **Meeting-friendly**: Automatically silences during screen-sharing presentations
+- **Single source of truth**: System-level DnD controls everything, reducing cognitive load
+- **Prevents embarrassment**: No unexpected sounds during client calls or pair programming
 
 ## Priority & Complexity
 

@@ -4,6 +4,7 @@
 
 - [Summary](#summary)
 - [Motivation](#motivation)
+- [Benefit](#benefit)
 - [Priority & Complexity](#priority--complexity)
 - [Technical Feasibility](#technical-feasibility)
 - [Implementation](#implementation)
@@ -16,9 +17,21 @@
 
 When multiple events fire quickly (e.g., multiple `stop` events), queue them and play sequentially instead of overlapping chaos.
 
+## Motivation
+
+- Prevent overlapping sounds from multiple rapid events
+- Ensure all notifications are heard
+- Reduce audio chaos during high-activity periods
+- Maintain notification quality over quantity
+
 ---
 
-## Priority & Complexity
+## Benefit
+
+- **Clearer notifications**: Every sound is distinguishable, no overlaps
+- **Complete coverage**: No notifications get lost in the chaos
+- **Less stressful audio**: Smooth notification flow instead of audio pile-up
+- **Better for focus**: Ordered notifications are less jarring than simultaneous ones
 
 | Attribute | Value |
 |-----------|-------|

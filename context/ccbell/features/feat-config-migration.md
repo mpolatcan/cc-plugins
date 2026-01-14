@@ -4,6 +4,7 @@
 
 - [Summary](#summary)
 - [Motivation](#motivation)
+- [Benefit](#benefit)
 - [Priority & Complexity](#priority--complexity)
 - [Technical Feasibility](#technical-feasibility)
 - [Implementation](#implementation)
@@ -23,6 +24,13 @@ Automatically update old config formats to newer versions while preserving setti
 - Automatic schema updates
 
 ---
+
+## Benefit
+
+- **Zero-downtime upgrades**: Users can update ccbell without losing or manually reconfiguring settings
+- **Future-proof configuration**: New features automatically adopted without user intervention
+- **Reduced maintenance burden**: No need for manual config cleanup or migration scripts
+- **Improved user experience**: Seamless transition between versions builds trust and reduces friction
 
 ## Priority & Complexity
 

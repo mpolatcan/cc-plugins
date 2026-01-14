@@ -4,6 +4,7 @@
 
 - [Summary](#summary)
 - [Motivation](#motivation)
+- [Benefit](#benefit)
 - [Priority & Complexity](#priority--complexity)
 - [Technical Feasibility](#technical-feasibility)
 - [Implementation](#implementation)
@@ -16,9 +17,21 @@
 
 Instead of a single sound per event, allow users to define multiple sounds that are randomly selected when an event triggers. This adds variety and helps users recognize different events even without looking.
 
+## Motivation
+
+- Prevent notification fatigue from repetitive sounds
+- Add variety to the notification experience
+- Make different events more distinguishable
+- Create a more dynamic working environment
+
 ---
 
-## Priority & Complexity
+## Benefit
+
+- **Reduced monotony**: Fresh sounds keep notifications feeling new
+- **Better recognition**: Distinct sounds per event without manual switching
+- **Customizable variety**: Choose how many sounds to cycle through
+- **More engaging experience**: Notifications feel less mechanical and repetitive
 
 | Attribute | Value |
 |-----------|-------|

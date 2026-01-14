@@ -4,6 +4,7 @@
 
 - [Summary](#summary)
 - [Motivation](#motivation)
+- [Benefit](#benefit)
 - [Priority & Complexity](#priority--complexity)
 - [Technical Feasibility](#technical-feasibility)
 - [Implementation](#implementation)
@@ -16,9 +17,21 @@
 
 Only trigger notifications when specific conditions are met (e.g., "only notify on long responses" or "notify on errors").
 
+## Motivation
+
+- Reduce notification fatigue from irrelevant events
+- Focus on what matters most to the developer
+- Support different notification strategies per workflow
+- Filter out noise during focused work
+
 ---
 
-## Priority & Complexity
+## Benefit
+
+- **Reduced distraction**: Only important events trigger notifications
+- **Personalized workflow**: Tailor notifications to individual preferences
+- **Context-aware behavior**: Different rules for different types of work
+- **Improved focus**: Less interruption means deeper concentration on complex tasks
 
 | Attribute | Value |
 |-----------|-------|
