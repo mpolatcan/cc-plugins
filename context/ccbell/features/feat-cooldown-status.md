@@ -192,4 +192,4 @@ func formatDuration(seconds int) string {
 
 ---
 
-[Back to Feature Index](../index.md)
+[Back to Feature Index](index.md)

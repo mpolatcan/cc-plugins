@@ -172,4 +172,4 @@ DND integration doesn't interact with audio playback:
 
 ---
 
-[Back to Feature Index](../index.md)
+[Back to Feature Index](index.md)

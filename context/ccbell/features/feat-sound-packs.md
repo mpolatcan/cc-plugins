@@ -536,4 +536,4 @@ func (m *PackManager) InstallPack(packURL string) error {
 
 ---
 
-[Back to Feature Index](../index.md)
+[Back to Feature Index](index.md)

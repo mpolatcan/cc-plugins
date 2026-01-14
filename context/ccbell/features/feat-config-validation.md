@@ -228,4 +228,4 @@ func validateValues(cfg map[string]interface{}) []ValidationResult {
 
 ---
 
-[Back to Feature Index](../index.md)
+[Back to Feature Index](index.md)

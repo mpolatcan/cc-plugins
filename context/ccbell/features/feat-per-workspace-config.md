@@ -254,4 +254,4 @@ Add local config validation that inherits from global config validation.
 
 ---
 
-[Back to Feature Index](../index.md)
+[Back to Feature Index](index.md)

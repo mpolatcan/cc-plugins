@@ -174,4 +174,4 @@ func logDryRun(eventType string, eventCfg *config.Event, soundPath string, volum
 
 ---
 
-[Back to Feature Index](../index.md)
+[Back to Feature Index](index.md)

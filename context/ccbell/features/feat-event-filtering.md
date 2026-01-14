@@ -180,4 +180,4 @@ Claude Code hooks don't currently provide token count in the hook context. This 
 
 ---
 
-[Back to Feature Index](../index.md)
+[Back to Feature Index](index.md)

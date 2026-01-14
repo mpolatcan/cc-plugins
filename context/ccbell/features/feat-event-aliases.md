@@ -202,4 +202,4 @@ func (a *AliasManager) Resolve(eventType string) (string, *EventConfig, error) {
 
 ---
 
-[Back to Feature Index](../index.md)
+[Back to Feature Index](index.md)

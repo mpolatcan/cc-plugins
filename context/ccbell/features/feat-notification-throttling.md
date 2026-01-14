@@ -204,4 +204,4 @@ if c.throttleConfig.Enabled {
 
 ---
 
-[Back to Feature Index](../index.md)
+[Back to Feature Index](index.md)

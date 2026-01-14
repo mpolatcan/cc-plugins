@@ -223,4 +223,4 @@ func (c *CCBell) logMigration(from, to string) {
 
 ---
 
-[Back to Feature Index](../index.md)
+[Back to Feature Index](index.md)

@@ -261,4 +261,4 @@ Full help: ccbell:help --full
 
 ---
 
-[Back to Feature Index](../index.md)
+[Back to Feature Index](index.md)

@@ -194,4 +194,4 @@ Handle both `sound` (single) and `sounds` (array) in config loading.
 
 ---
 
-[Back to Feature Index](../index.md)
+[Back to Feature Index](index.md)

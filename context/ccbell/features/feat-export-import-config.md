@@ -136,4 +136,4 @@ Validate imported config using existing `Config.Validate()` method.
 
 ---
 
-[Back to Feature Index](../index.md)
+[Back to Feature Index](index.md)

@@ -497,4 +497,4 @@ type VisualConfig struct {
 
 ---
 
-[Back to Feature Index](../index.md)
+[Back to Feature Index](index.md)
