@@ -19,40 +19,33 @@ Feasible feature ideas for ccbell as a Claude Code plugin. All features are eval
 
 ---
 
-## Features by Category
-
-### Core Features (High Priority)
+## Features
 
 | Feature | File | Feasibility |
 |---------|------|-------------|
-| **Visual Notifications** | [core/feat-visual-notifications.md](core/feat-visual-notifications.md) | ✅ Compatible |
-| **Per-Workspace Config** | [core/feat-per-workspace-config.md](core/feat-per-workspace-config.md) | ✅ Compatible |
-| **Webhooks** | [core/feat-webhooks.md](core/feat-webhooks.md) | ⚠️ Needs timeout handling |
-| **Sound Packs** | [core/feat-sound-packs.md](core/feat-sound-packs.md) | ✅ Compatible |
-| **Event Filtering** | [core/feat-event-filtering.md](core/feat-event-filtering.md) | ✅ Compatible |
-| **Quick Disable** | [core/feat-quick-disable.md](core/feat-quick-disable.md) | ✅ Compatible |
-| **Weekday/Weekend Schedules** | [core/feat-weekday-weekend-schedules.md](core/feat-weekday-weekend-schedules.md) | ✅ Compatible |
-| **Sound Preview** | [core/feat-sound-preview.md](core/feat-sound-preview.md) | ✅ Compatible |
-| **TTS Announcements** | [core/feat-tts-announcements.md](core/feat-tts-announcements.md) | ⚠️ macOS only (`say`) |
-| **Sound Randomization** | [core/feat-sound-randomization.md](core/feat-sound-randomization.md) | ✅ Compatible |
-| **Export/Import Config** | [core/feat-export-import-config.md](core/feat-export-import-config.md) | ✅ Compatible |
-| **Notification Stacking** | [core/feat-notification-stacking.md](core/feat-notification-stacking.md) | ✅ Compatible |
-| **Notification Throttling** | [core/feat-notification-throttling.md](core/feat-notification-throttling.md) | ✅ Compatible |
-| **Cooldown Status** | [core/feat-cooldown-status.md](core/feat-cooldown-status.md) | ✅ Compatible |
-| **Config Validation** | [core/feat-config-validation.md](core/feat-config-validation.md) | ✅ Compatible |
-| **Config Migration** | [core/feat-config-migration.md](core/feat-config-migration.md) | ✅ Compatible |
-| **Notification Logging** | [core/feat-notification-logging.md](core/feat-notification-logging.md) | ✅ Compatible |
-| **Minimal Mode** | [core/feat-minimal-mode.md](core/feat-minimal-mode.md) | ✅ Compatible |
-| **Event Aliases** | [core/feat-event-aliases.md](core/feat-event-aliases.md) | ✅ Compatible |
-| **Sound Validation** | [core/feat-sound-validation.md](core/feat-sound-validation.md) | ✅ Compatible |
-
-### Audio Features
-
-| Feature | File | Feasibility |
-|---------|------|-------------|
-| **Global Volume Override** | [audio/feat-global-volume-override.md](audio/feat-global-volume-override.md) | ✅ Compatible |
-| **Dry-Run Mode** | [audio/feat-dry-run-mode.md](audio/feat-dry-run-mode.md) | ✅ Compatible |
-| **DnD Integration** | [audio/feat-dnd-integration.md](audio/feat-dnd-integration.md) | ✅ Compatible |
+| **Visual Notifications** | [feat-visual-notifications.md](feat-visual-notifications.md) | ✅ Compatible |
+| **Per-Workspace Config** | [feat-per-workspace-config.md](feat-per-workspace-config.md) | ✅ Compatible |
+| **Webhooks** | [feat-webhooks.md](feat-webhooks.md) | ⚠️ Needs timeout handling |
+| **Sound Packs** | [feat-sound-packs.md](feat-sound-packs.md) | ✅ Compatible |
+| **Event Filtering** | [feat-event-filtering.md](feat-event-filtering.md) | ✅ Compatible |
+| **Quick Disable** | [feat-quick-disable.md](feat-quick-disable.md) | ✅ Compatible |
+| **Weekday/Weekend Schedules** | [feat-weekday-weekend-schedules.md](feat-weekday-weekend-schedules.md) | ✅ Compatible |
+| **Sound Preview** | [feat-sound-preview.md](feat-sound-preview.md) | ✅ Compatible |
+| **TTS Announcements** | [feat-tts-announcements.md](feat-tts-announcements.md) | ⚠️ macOS only (`say`) |
+| **Sound Randomization** | [feat-sound-randomization.md](feat-sound-randomization.md) | ✅ Compatible |
+| **Export/Import Config** | [feat-export-import-config.md](feat-export-import-config.md) | ✅ Compatible |
+| **Notification Stacking** | [feat-notification-stacking.md](feat-notification-stacking.md) | ✅ Compatible |
+| **Notification Throttling** | [feat-notification-throttling.md](feat-notification-throttling.md) | ✅ Compatible |
+| **Cooldown Status** | [feat-cooldown-status.md](feat-cooldown-status.md) | ✅ Compatible |
+| **Config Validation** | [feat-config-validation.md](feat-config-validation.md) | ✅ Compatible |
+| **Config Migration** | [feat-config-migration.md](feat-config-migration.md) | ✅ Compatible |
+| **Notification Logging** | [feat-notification-logging.md](feat-notification-logging.md) | ✅ Compatible |
+| **Minimal Mode** | [feat-minimal-mode.md](feat-minimal-mode.md) | ✅ Compatible |
+| **Event Aliases** | [feat-event-aliases.md](feat-event-aliases.md) | ✅ Compatible |
+| **Sound Validation** | [feat-sound-validation.md](feat-sound-validation.md) | ✅ Compatible |
+| **Global Volume Override** | [feat-global-volume-override.md](feat-global-volume-override.md) | ✅ Compatible |
+| **Dry-Run Mode** | [feat-dry-run-mode.md](feat-dry-run-mode.md) | ✅ Compatible |
+| **DnD Integration** | [feat-dnd-integration.md](feat-dnd-integration.md) | ✅ Compatible |
 
 ---
 
@@ -84,25 +77,6 @@ Feasible feature ideas for ccbell as a Claude Code plugin. All features are eval
 2. **TTS Announcements** - macOS `say` only
 3. **Notification Stacking** - Queue to temp file
 4. **Notification Logging** - Append to log file
-
----
-
-## Removed Features
-
-Features removed due to Claude Code plugin constraints:
-
-| Category | Removed | Reason |
-|----------|---------|--------|
-| GUI-based (WebUI, dashboards) | ~50 | No native UI access |
-| Monitoring (email, API, cron) | ~200 | No background services |
-| Audio DSP (reverb, equalizer) | ~30 | Overkill for notifications |
-| Infrastructure (docker, k8s) | ~100 | Not relevant |
-| Analytics/Recommendations | ~20 | Overkill |
-| Scheduling (cron-like) | ~15 | No cron-like scheduling |
-| Duplicates/Overlap | ~40 | Already exists |
-
-**Total Removed:** 455 features
-**Total Remaining:** 23 features
 
 ---
 
