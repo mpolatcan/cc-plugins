@@ -11,7 +11,7 @@ Brief one-line description of the feature.
 
 1. [Summary](#summary)
 2. [Benefit](#benefit)
-3. [Priority & Complexity](#priority--complexity)
+3. [Priority \& Complexity](#priority--complexity)
 4. [Feasibility](#feasibility)
    - [Claude Code](#claude-code)
    - [Audio Player](#audio-player)
@@ -40,14 +40,13 @@ Why should this feature be implemented?
 | Use Cases | What scenarios does this enable? |
 | Value Proposition | What makes this worth implementing? |
 
-## Priority & Complexity
+## Priority \& Complexity
 
 | Aspect | Assessment |
 |--------|------------|
-| Priority | [High/Medium/Low] |
-| Complexity | [High/Medium/Low] |
-| Estimated Effort | [Small/Medium/Large] |
-| Risk Level | [Low/Medium/High] |
+| Priority | `[High]` / `[Medium]` / `[Low]` |
+| Complexity | `[High]` / `[Medium]` / `[Low]` |
+| Risk Level | `[Low]` / `[Medium]` / `[High]` |
 
 ## Feasibility
 
@@ -116,30 +115,34 @@ Files that may be affected in ccbell:
 
 Steps required in cc-plugins repository:
 
-1. Update `plugin.json` version
-2. Update `ccbell.sh` if needed
-3. Add/update command documentation
-4. Add/update hooks configuration
-5. Add new sound files if applicable
+```bash
+# 1. Update plugin.json version
+# 2. Update ccbell.sh if needed
+# 3. Add/update command documentation
+# 4. Add/update hooks configuration
+# 5. Add new sound files if applicable
+```
 
 ### ccbell
 
 Steps required in ccbell repository:
 
-1. Implement feature in Go code
-2. Update configuration handling
-3. Add necessary hooks
-4. Test audio playback
-5. Update version in main.go
-6. Tag and release vX.X.X
-7. Sync version to cc-plugins
+```bash
+# 1. Implement feature in Go code
+# 2. Update configuration handling
+# 3. Add necessary hooks
+# 4. Test audio playback
+# 5. Update version in main.go
+# 6. Tag and release vX.X.X
+# 7. Sync version to cc-plugins
+```
 
 ## External Dependencies
 
 | Dependency | Version | Purpose | Required |
 |------------|---------|---------|----------|
-| | | | [Yes/No] |
-| | | | [Yes/No] |
+| `` | | | `[Yes]` / `[No]` |
+| `` | | | `[Yes]` / `[No]` |
 
 ## Research Sources
 
