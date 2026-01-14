@@ -39,7 +39,7 @@ Show visual notifications (macOS Notification Center, terminal bell) when Claude
 |-----------|-------|
 | **Priority** | High |
 | **Complexity** | Low |
-| **Estimated Effort** | 2-3 days |
+| **Category** | Display |
 
 ---
 

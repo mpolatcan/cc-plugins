@@ -38,7 +38,7 @@ Automatically suppress ccbell notifications when the system Do Not Disturb mode 
 |-----------|-------|
 | **Priority** | High |
 | **Complexity** | Low |
-| **Estimated Effort** | 2-3 days |
+| **Category** | Scheduling |
 
 ---
 

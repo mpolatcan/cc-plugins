@@ -38,7 +38,7 @@ Check config file for JSON syntax errors and schema issues before applying chang
 |-----------|-------|
 | **Priority** | Medium |
 | **Complexity** | Low |
-| **Estimated Effort** | 1 day |
+| **Category** | Config Management |
 
 ---
 

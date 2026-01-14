@@ -33,11 +33,13 @@ Export current ccbell configuration to a portable JSON file. Import configuratio
 - **Rapid onboarding**: New team members get productive instantly with shared configs
 - **Experimentation safe**: Export before changes, import to restore if needed
 
+## Priority & Complexity
+
 | Attribute | Value |
 |-----------|-------|
 | **Priority** | Nice to Have |
 | **Complexity** | Low |
-| **Estimated Effort** | 1-2 days |
+| **Category** | Config Management |
 
 ---
 

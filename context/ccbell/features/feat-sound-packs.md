@@ -39,7 +39,7 @@ Allow users to browse, preview, and install sound packs that bundle sounds for a
 |-----------|-------|
 | **Priority** | High |
 | **Complexity** | Medium |
-| **Estimated Effort** | 5-7 days |
+| **Category** | Audio |
 
 ---
 

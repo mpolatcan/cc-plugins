@@ -38,7 +38,7 @@ Automatically update old config formats to newer versions while preserving setti
 |-----------|-------|
 | **Priority** | Low |
 | **Complexity** | Medium |
-| **Estimated Effort** | 3-4 days |
+| **Category** | Config Management |
 
 ---
 

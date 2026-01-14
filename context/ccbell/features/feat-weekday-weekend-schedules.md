@@ -33,11 +33,13 @@ Override default quiet hours with weekend-specific schedules.
 - **Family-friendly**: Quieter notifications when family is around
 - **Personalized rhythms**: Match notification behavior to personal routines
 
+## Priority & Complexity
+
 | Attribute | Value |
 |-----------|-------|
 | **Priority** | Medium |
 | **Complexity** | Low |
-| **Estimated Effort** | 1-2 days |
+| **Category** | Scheduling |
 
 ---
 

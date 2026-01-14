@@ -33,11 +33,13 @@ Temporarily disable notifications for 15min, 1hr, 4hr without changing the full 
 - **Auto-restores**: Notifications automatically resume after the timeout
 - **Meeting-ready**: Quick toggle for calls without leaving ccbell disabled
 
+## Priority & Complexity
+
 | Attribute | Value |
 |-----------|-------|
 | **Priority** | Medium |
 | **Complexity** | Low |
-| **Estimated Effort** | 1-2 days |
+| **Category** | Notification Control |
 
 ---
 

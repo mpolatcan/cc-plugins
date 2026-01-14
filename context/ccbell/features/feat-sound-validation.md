@@ -38,7 +38,7 @@ Check sound files and configuration for issues before use.
 |-----------|-------|
 | **Priority** | Medium |
 | **Complexity** | Low |
-| **Estimated Effort** | 1-2 days |
+| **Category** | Audio |
 
 ---
 

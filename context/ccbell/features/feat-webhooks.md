@@ -33,11 +33,13 @@ Send HTTP requests to configured URLs when events trigger. Enable integrations w
 - **Multi-device notifications**: Get alerts on phone via push services
 - **CI/CD integration**: Connect ccbell with existing notification pipelines
 
+## Priority & Complexity
+
 | Attribute | Value |
 |-----------|-------|
 | **Priority** | High |
 | **Complexity** | Medium |
-| **Estimated Effort** | 3-4 days |
+| **Category** | Integration |
 
 ---
 

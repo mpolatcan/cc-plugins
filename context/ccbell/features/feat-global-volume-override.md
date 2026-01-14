@@ -38,7 +38,7 @@ Allow users to temporarily adjust notification volume without modifying the conf
 |-----------|-------|
 | **Priority** | Medium |
 | **Complexity** | Low |
-| **Estimated Effort** | 1-2 days |
+| **Category** | Audio |
 
 ---
 

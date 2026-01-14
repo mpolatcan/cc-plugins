@@ -33,11 +33,13 @@ When multiple events fire quickly (e.g., multiple `stop` events), queue them and
 - **Less stressful audio**: Smooth notification flow instead of audio pile-up
 - **Better for focus**: Ordered notifications are less jarring than simultaneous ones
 
+## Priority & Complexity
+
 | Attribute | Value |
 |-----------|-------|
 | **Priority** | Nice to Have |
 | **Complexity** | Medium |
-| **Estimated Effort** | 3-4 days |
+| **Category** | Notification Control |
 
 ---
 

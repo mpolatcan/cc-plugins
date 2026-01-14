@@ -33,11 +33,13 @@ Only trigger notifications when specific conditions are met (e.g., "only notify 
 - **Context-aware behavior**: Different rules for different types of work
 - **Improved focus**: Less interruption means deeper concentration on complex tasks
 
+## Priority & Complexity
+
 | Attribute | Value |
 |-----------|-------|
 | **Priority** | Medium |
 | **Complexity** | Low |
-| **Estimated Effort** | 2-3 days |
+| **Category** | Notification Control |
 
 ---
 

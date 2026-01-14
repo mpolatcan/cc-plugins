@@ -38,7 +38,7 @@ Maintain a detailed log of all notification events for debugging and analysis.
 |-----------|-------|
 | **Priority** | Low |
 | **Complexity** | Low |
-| **Estimated Effort** | 1-2 days |
+| **Category** | Logging |
 
 ---
 

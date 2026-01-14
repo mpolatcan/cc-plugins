@@ -33,11 +33,13 @@ Instead of a single sound per event, allow users to define multiple sounds that 
 - **Customizable variety**: Choose how many sounds to cycle through
 - **More engaging experience**: Notifications feel less mechanical and repetitive
 
+## Priority & Complexity
+
 | Attribute | Value |
 |-----------|-------|
 | **Priority** | Nice to Have |
 | **Complexity** | Low |
-| **Estimated Effort** | 2-3 days |
+| **Category** | Audio |
 
 ---
 

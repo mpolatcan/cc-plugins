@@ -38,7 +38,7 @@ Display how much time remains before each event can trigger again.
 |-----------|-------|
 | **Priority** | Low |
 | **Complexity** | Low |
-| **Estimated Effort** | 1 day |
+| **Category** | Display |
 
 ---
 

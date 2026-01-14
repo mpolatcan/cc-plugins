@@ -38,7 +38,7 @@ Simplified configuration mode with fewer options for users who want simplicity.
 |-----------|-------|
 | **Priority** | Medium |
 | **Complexity** | Low |
-| **Estimated Effort** | 1-2 days |
+| **Category** | Onboarding |
 
 ---
 

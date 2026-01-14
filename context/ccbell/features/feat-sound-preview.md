@@ -33,11 +33,13 @@ Preview mode during configuration that lets users hear sounds before saving thei
 - **No configuration commits**: Preview without saving to config
 - **Faster setup**: Find the perfect sound faster with instant feedback
 
+## Priority & Complexity
+
 | Attribute | Value |
 |-----------|-------|
 | **Priority** | Medium |
 | **Complexity** | Low |
-| **Estimated Effort** | 1-2 days |
+| **Category** | Audio |
 
 ---
 

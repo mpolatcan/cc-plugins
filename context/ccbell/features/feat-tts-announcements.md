@@ -38,7 +38,7 @@ Play spoken announcements instead of (or alongside) audio files. Announce events
 |-----------|-------|
 | **Priority** | Nice to Have |
 | **Complexity** | High |
-| **Estimated Effort** | 7-10 days |
+| **Category** | Audio |
 
 ---
 

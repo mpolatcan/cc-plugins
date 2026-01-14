@@ -38,7 +38,7 @@ Prevent notification spam by limiting the total number of notifications within a
 |-----------|-------|
 | **Priority** | Medium |
 | **Complexity** | Low |
-| **Estimated Effort** | 2-3 days |
+| **Category** | Notification Control |
 
 ---
 

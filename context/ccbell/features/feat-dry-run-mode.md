@@ -39,7 +39,7 @@ Run ccbell in dry run mode to validate configuration and logic without actually 
 |-----------|-------|
 | **Priority** | High |
 | **Complexity** | Low |
-| **Estimated Effort** | 1 day |
+| **Category** | Testing |
 
 ---
 

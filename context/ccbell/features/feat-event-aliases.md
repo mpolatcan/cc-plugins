@@ -38,7 +38,7 @@ Define custom event names that map to existing events for flexibility.
 |-----------|-------|
 | **Priority** | Low |
 | **Complexity** | Low |
-| **Estimated Effort** | 1-2 days |
+| **Category** | Configuration |
 
 ---
 

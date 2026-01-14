@@ -33,11 +33,13 @@ Allow ccbell to read project-specific config from `.claude-ccbell.json` in the w
 - **Workflow optimization**: Louder for production, subtle for exploration
 - **No global config changes**: Switch between project configs seamlessly
 
+## Priority & Complexity
+
 | Attribute | Value |
 |-----------|-------|
 | **Priority** | High |
 | **Complexity** | Low |
-| **Estimated Effort** | 1-2 days |
+| **Category** | Config Management |
 
 ---
 
