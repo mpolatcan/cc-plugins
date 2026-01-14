@@ -28,19 +28,6 @@ Allow ccbell to read project-specific config from `.claude-ccbell.json` in the w
 
 ---
 
-
-## Table of Contents
-
-- [Summary](#summary)
-- [Motivation](#motivation)
-- [Priority & Complexity](#priority--complexity)
-- [Technical Feasibility](#technical-feasibility)
-- [Implementation](#implementation)
-- [Configuration](#configuration)
-- [Commands](#commands)
-- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
-- [References](#references)
-
 ## Technical Feasibility
 
 ### Current Configuration Analysis
@@ -233,9 +220,6 @@ Add local config validation that inherits from global config validation.
 
 ---
 
-
----
-
 ## Claude Code Plugin Feasibility
 
 | Aspect | Status | Notes |
@@ -267,3 +251,7 @@ Add local config validation that inherits from global config validation.
 - [Current config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) - Base implementation to extend
 - [Config merge pattern](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L206-L220) - Existing merge logic
 - [Environment variable usage](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) - Uses `CLAUDE_PLUGIN_ROOT` pattern
+
+---
+
+[Back to Feature Index](../index.md)

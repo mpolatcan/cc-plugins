@@ -28,19 +28,6 @@ Override default quiet hours with weekend-specific schedules.
 
 ---
 
-
-## Table of Contents
-
-- [Summary](#summary)
-- [Motivation](#motivation)
-- [Priority & Complexity](#priority--complexity)
-- [Technical Feasibility](#technical-feasibility)
-- [Implementation](#implementation)
-- [Configuration](#configuration)
-- [Commands](#commands)
-- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
-- [References](#references)
-
 ## Technical Feasibility
 
 ### Current Quiet Hours Analysis
@@ -154,9 +141,6 @@ The existing `IsInQuietHours()` method can be extended with a parameter or a new
 
 ---
 
-
----
-
 ## Claude Code Plugin Feasibility
 
 | Aspect | Status | Notes |
@@ -187,3 +171,7 @@ The existing `IsInQuietHours()` method can be extended with a parameter or a new
 - [Current quiet hours implementation](https://github.com/mpolatcan/ccbell/blob/main/internal/config/quiethours.go) - Base to extend with weekday/weekend schedules
 - [Time parsing](https://github.com/mpolatcan/ccbell/blob/main/internal/config/quiethours.go) - HH:MM format parsing pattern
 - [Config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) - For quiet hours config
+
+---
+
+[Back to Feature Index](../index.md)

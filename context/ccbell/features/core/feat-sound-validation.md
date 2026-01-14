@@ -34,19 +34,6 @@ Check sound files and configuration for issues before use.
 
 ---
 
-
-## Table of Contents
-
-- [Summary](#summary)
-- [Motivation](#motivation)
-- [Priority & Complexity](#priority--complexity)
-- [Technical Feasibility](#technical-feasibility)
-- [Implementation](#implementation)
-- [Configuration](#configuration)
-- [Commands](#commands)
-- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
-- [References](#references)
-
 ## Technical Feasibility
 
 ### Validation Checks
@@ -223,9 +210,6 @@ func (v *Validator) AutoFix(results []CheckResult) ([]FixResult, error) {
 
 ---
 
-
----
-
 ## Claude Code Plugin Feasibility
 
 | Aspect | Status | Notes |
@@ -266,3 +250,7 @@ func (v *Validator) AutoFix(results []CheckResult) ([]FixResult, error) {
 | macOS | ✅ Supported | Via ffprobe |
 | Linux | ✅ Supported | Via ffprobe |
 | Windows | ❌ Not Supported | ccbell only supports macOS/Linux |
+
+---
+
+[Back to Feature Index](../index.md)

@@ -35,19 +35,6 @@ Run ccbell in dry run mode to validate configuration and logic without actually 
 
 ---
 
-
-## Table of Contents
-
-- [Summary](#summary)
-- [Motivation](#motivation)
-- [Priority & Complexity](#priority--complexity)
-- [Technical Feasibility](#technical-feasibility)
-- [Implementation](#implementation)
-- [Configuration](#configuration)
-- [Commands](#commands)
-- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
-- [References](#references)
-
 ## Technical Feasibility
 
 ### Current Architecture Analysis
@@ -148,9 +135,6 @@ func logDryRun(eventType string, eventCfg *config.Event, soundPath string, volum
 
 ---
 
-
----
-
 ## Claude Code Plugin Feasibility
 
 | Aspect | Status | Notes |
@@ -187,3 +171,7 @@ func logDryRun(eventType string, eventCfg *config.Event, soundPath string, volum
 | macOS | ✅ Supported | Logic only, no audio |
 | Linux | ✅ Supported | Logic only, no audio |
 | Windows | ❌ Not Supported | ccbell only supports macOS/Linux |
+
+---
+
+[Back to Feature Index](../index.md)

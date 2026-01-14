@@ -34,19 +34,6 @@ Check config file for JSON syntax errors and schema issues before applying chang
 
 ---
 
-
-## Table of Contents
-
-- [Summary](#summary)
-- [Motivation](#motivation)
-- [Priority & Complexity](#priority--complexity)
-- [Technical Feasibility](#technical-feasibility)
-- [Implementation](#implementation)
-- [Configuration](#configuration)
-- [Commands](#commands)
-- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
-- [References](#references)
-
 ## Technical Feasibility
 
 ### Validation Levels
@@ -202,9 +189,6 @@ func validateValues(cfg map[string]interface{}) []ValidationResult {
 
 ---
 
-
----
-
 ## Claude Code Plugin Feasibility
 
 | Aspect | Status | Notes |
@@ -241,3 +225,7 @@ func validateValues(cfg map[string]interface{}) []ValidationResult {
 | macOS | ✅ Supported | Pure Go |
 | Linux | ✅ Supported | Pure Go |
 | Windows | ❌ Not Supported | ccbell only supports macOS/Linux |
+
+---
+
+[Back to Feature Index](../index.md)

@@ -28,19 +28,6 @@ Send HTTP requests to configured URLs when events trigger. Enable integrations w
 
 ---
 
-
-## Table of Contents
-
-- [Summary](#summary)
-- [Motivation](#motivation)
-- [Priority & Complexity](#priority--complexity)
-- [Technical Feasibility](#technical-feasibility)
-- [Implementation](#implementation)
-- [Configuration](#configuration)
-- [Commands](#commands)
-- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
-- [References](#references)
-
 ## Technical Feasibility
 
 ### Current Architecture Analysis
@@ -191,9 +178,6 @@ if cfg.Webhooks != nil {
 
 ---
 
-
----
-
 ## Claude Code Plugin Feasibility
 
 | Aspect | Status | Notes |
@@ -258,3 +242,7 @@ if cfg.Webhooks != nil {
 /ccbell:webhooks test stop
 /ccbell:webhooks remove Slack
 ```
+
+---
+
+[Back to Feature Index](../index.md)

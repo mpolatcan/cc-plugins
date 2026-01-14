@@ -28,19 +28,6 @@ Instead of a single sound per event, allow users to define multiple sounds that 
 
 ---
 
-
-## Table of Contents
-
-- [Summary](#summary)
-- [Motivation](#motivation)
-- [Priority & Complexity](#priority--complexity)
-- [Technical Feasibility](#technical-feasibility)
-- [Implementation](#implementation)
-- [Configuration](#configuration)
-- [Commands](#commands)
-- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
-- [References](#references)
-
 ## Technical Feasibility
 
 ### Current State
@@ -174,9 +161,6 @@ Handle both `sound` (single) and `sounds` (array) in config loading.
 
 ---
 
-
----
-
 ## Claude Code Plugin Feasibility
 
 | Aspect | Status | Notes |
@@ -207,3 +191,7 @@ Handle both `sound` (single) and `sounds` (array) in config loading.
 - [Current config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) - Event struct to extend with sound array
 - [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) - `Play()` method for playing selected sound
 - [Config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) - For backward compatibility handling
+
+---
+
+[Back to Feature Index](../index.md)

@@ -34,19 +34,6 @@ Play spoken announcements instead of (or alongside) audio files. Announce events
 
 ---
 
-
-## Table of Contents
-
-- [Summary](#summary)
-- [Motivation](#motivation)
-- [Priority & Complexity](#priority--complexity)
-- [Technical Feasibility](#technical-feasibility)
-- [Implementation](#implementation)
-- [Configuration](#configuration)
-- [Commands](#commands)
-- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
-- [References](#references)
-
 ## Technical Feasibility
 
 ### Audio Playback (for TTS output)
@@ -332,3 +319,7 @@ func findTTSEngine() string {
 - [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) - For playing generated TTS WAV files
 - [Platform detection](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go#L34-L91) - macOS `say` available, Linux needs package install
 - [ffplay as fallback](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) - Can play any format TTS generates
+
+---
+
+[Back to Feature Index](../index.md)

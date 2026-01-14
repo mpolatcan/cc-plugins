@@ -34,19 +34,6 @@ Define custom event names that map to existing events for flexibility.
 
 ---
 
-
-## Table of Contents
-
-- [Summary](#summary)
-- [Motivation](#motivation)
-- [Priority & Complexity](#priority--complexity)
-- [Technical Feasibility](#technical-feasibility)
-- [Implementation](#implementation)
-- [Configuration](#configuration)
-- [Commands](#commands)
-- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
-- [References](#references)
-
 ## Technical Feasibility
 
 ### Alias Configuration
@@ -177,9 +164,6 @@ func (a *AliasManager) Resolve(eventType string) (string, *EventConfig, error) {
 
 ---
 
-
----
-
 ## Claude Code Plugin Feasibility
 
 | Aspect | Status | Notes |
@@ -215,3 +199,7 @@ func (a *AliasManager) Resolve(eventType string) (string, *EventConfig, error) {
 | macOS | ✅ Supported | Pure Go |
 | Linux | ✅ Supported | Pure Go |
 | Windows | ❌ Not Supported | ccbell only supports macOS/Linux |
+
+---
+
+[Back to Feature Index](../index.md)

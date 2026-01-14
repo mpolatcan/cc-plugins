@@ -28,19 +28,6 @@ When multiple events fire quickly (e.g., multiple `stop` events), queue them and
 
 ---
 
-
-## Table of Contents
-
-- [Summary](#summary)
-- [Motivation](#motivation)
-- [Priority & Complexity](#priority--complexity)
-- [Technical Feasibility](#technical-feasibility)
-- [Implementation](#implementation)
-- [Configuration](#configuration)
-- [Commands](#commands)
-- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
-- [References](#references)
-
 ## Technical Feasibility
 
 ### Current Architecture Analysis
@@ -171,9 +158,6 @@ Notification stacking requires changes to the execution model:
 
 ---
 
-
----
-
 ## Claude Code Plugin Feasibility
 
 | Aspect | Status | Notes |
@@ -200,3 +184,7 @@ Notification stacking requires changes to the execution model:
 - [Current main.go](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) - Short-lived process model that needs to change
 - [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) - Uses `cmd.Start()` for non-blocking playback
 - [State management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) - For persistent queue storage option
+
+---
+
+[Back to Feature Index](../index.md)

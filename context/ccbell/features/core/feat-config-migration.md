@@ -34,19 +34,6 @@ Automatically update old config formats to newer versions while preserving setti
 
 ---
 
-
-## Table of Contents
-
-- [Summary](#summary)
-- [Motivation](#motivation)
-- [Priority & Complexity](#priority--complexity)
-- [Technical Feasibility](#technical-feasibility)
-- [Implementation](#implementation)
-- [Configuration](#configuration)
-- [Commands](#commands)
-- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
-- [References](#references)
-
 ## Technical Feasibility
 
 ### Migration Chain
@@ -198,9 +185,6 @@ func (c *CCBell) logMigration(from, to string) {
 
 ---
 
-
----
-
 ## Claude Code Plugin Feasibility
 
 | Aspect | Status | Notes |
@@ -236,3 +220,7 @@ func (c *CCBell) logMigration(from, to string) {
 | macOS | ✅ Supported | Pure Go |
 | Linux | ✅ Supported | Pure Go |
 | Windows | ❌ Not Supported | ccbell only supports macOS/Linux |
+
+---
+
+[Back to Feature Index](../index.md)

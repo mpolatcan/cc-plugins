@@ -34,19 +34,6 @@ Maintain a detailed log of all notification events for debugging and analysis.
 
 ---
 
-
-## Table of Contents
-
-- [Summary](#summary)
-- [Motivation](#motivation)
-- [Priority & Complexity](#priority--complexity)
-- [Technical Feasibility](#technical-feasibility)
-- [Implementation](#implementation)
-- [Configuration](#configuration)
-- [Commands](#commands)
-- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
-- [References](#references)
-
 ## Technical Feasibility
 
 ### Log Format
@@ -226,9 +213,6 @@ func (f *Formatter) formatText(entry LogEntry) string {
 
 ---
 
-
----
-
 ## Claude Code Plugin Feasibility
 
 | Aspect | Status | Notes |
@@ -265,3 +249,7 @@ func (f *Formatter) formatText(entry LogEntry) string {
 | macOS | ✅ Supported | File I/O |
 | Linux | ✅ Supported | File I/O |
 | Windows | ❌ Not Supported | ccbell only supports macOS/Linux |
+
+---
+
+[Back to Feature Index](../index.md)

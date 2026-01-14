@@ -28,19 +28,6 @@ Export current ccbell configuration to a portable JSON file. Import configuratio
 
 ---
 
-
-## Table of Contents
-
-- [Summary](#summary)
-- [Motivation](#motivation)
-- [Priority & Complexity](#priority--complexity)
-- [Technical Feasibility](#technical-feasibility)
-- [Implementation](#implementation)
-- [Configuration](#configuration)
-- [Commands](#commands)
-- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
-- [References](#references)
-
 ## Technical Feasibility
 
 ### Current Configuration Analysis
@@ -120,9 +107,6 @@ Validate imported config using existing `Config.Validate()` method.
 
 ---
 
-
----
-
 ## Claude Code Plugin Feasibility
 
 | Aspect | Status | Notes |
@@ -149,3 +133,7 @@ Validate imported config using existing `Config.Validate()` method.
 - [Current config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) - Base for export/import implementation
 - [Config validation](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) - `Validate()` method for imported configs
 - [JSON marshaling](https://pkg.go.dev/encoding/json) - For config serialization
+
+---
+
+[Back to Feature Index](../index.md)

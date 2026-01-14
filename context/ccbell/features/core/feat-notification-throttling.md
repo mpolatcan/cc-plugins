@@ -34,19 +34,6 @@ Prevent notification spam by limiting the total number of notifications within a
 
 ---
 
-
-## Table of Contents
-
-- [Summary](#summary)
-- [Motivation](#motivation)
-- [Priority & Complexity](#priority--complexity)
-- [Technical Feasibility](#technical-feasibility)
-- [Implementation](#implementation)
-- [Configuration](#configuration)
-- [Commands](#commands)
-- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
-- [References](#references)
-
 ## Technical Feasibility
 
 ### Throttling Configuration
@@ -178,9 +165,6 @@ if c.throttleConfig.Enabled {
 
 ---
 
-
----
-
 ## Claude Code Plugin Feasibility
 
 | Aspect | Status | Notes |
@@ -217,3 +201,7 @@ if c.throttleConfig.Enabled {
 | macOS | ✅ Supported | Time-based throttling |
 | Linux | ✅ Supported | Time-based throttling |
 | Windows | ❌ Not Supported | ccbell only supports macOS/Linux |
+
+---
+
+[Back to Feature Index](../index.md)

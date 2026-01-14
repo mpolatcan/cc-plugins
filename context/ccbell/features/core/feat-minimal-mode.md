@@ -34,19 +34,6 @@ Simplified configuration mode with fewer options for users who want simplicity.
 
 ---
 
-
-## Table of Contents
-
-- [Summary](#summary)
-- [Motivation](#motivation)
-- [Priority & Complexity](#priority--complexity)
-- [Technical Feasibility](#technical-feasibility)
-- [Implementation](#implementation)
-- [Configuration](#configuration)
-- [Commands](#commands)
-- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
-- [References](#references)
-
 ## Technical Feasibility
 
 ### Minimal Configuration
@@ -235,9 +222,6 @@ Full help: ccbell:help --full
 
 ---
 
-
----
-
 ## Claude Code Plugin Feasibility
 
 | Aspect | Status | Notes |
@@ -274,3 +258,7 @@ Full help: ccbell:help --full
 | macOS | ✅ Supported | Config only |
 | Linux | ✅ Supported | Config only |
 | Windows | ❌ Not Supported | ccbell only supports macOS/Linux |
+
+---
+
+[Back to Feature Index](../index.md)

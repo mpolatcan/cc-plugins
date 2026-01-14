@@ -28,19 +28,6 @@ Preview mode during configuration that lets users hear sounds before saving thei
 
 ---
 
-
-## Table of Contents
-
-- [Summary](#summary)
-- [Motivation](#motivation)
-- [Priority & Complexity](#priority--complexity)
-- [Technical Feasibility](#technical-feasibility)
-- [Implementation](#implementation)
-- [Configuration](#configuration)
-- [Commands](#commands)
-- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
-- [References](#references)
-
 ## Technical Feasibility
 
 ### Current Audio Player Analysis
@@ -145,9 +132,6 @@ For non-loop preview, rely on the sound file's natural length. Current players (
 
 ---
 
-
----
-
 ## Claude Code Plugin Feasibility
 
 | Aspect | Status | Notes |
@@ -174,3 +158,7 @@ For non-loop preview, rely on the sound file's natural length. Current players (
 - [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) - `Play()` method to use for preview
 - [Player implementation](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) - Shows non-blocking playback via `cmd.Start()`
 - [ffplay loop option](https://ffmpeg.org/ffplay.html) - For loop preview functionality
+
+---
+
+[Back to Feature Index](../index.md)

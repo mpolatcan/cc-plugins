@@ -34,19 +34,6 @@ Automatically suppress ccbell notifications when the system Do Not Disturb mode 
 
 ---
 
-
-## Table of Contents
-
-- [Summary](#summary)
-- [Motivation](#motivation)
-- [Priority & Complexity](#priority--complexity)
-- [Technical Feasibility](#technical-feasibility)
-- [Implementation](#implementation)
-- [Configuration](#configuration)
-- [Commands](#commands)
-- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
-- [References](#references)
-
 ## Technical Feasibility
 
 ### Platform DND Detection
@@ -140,9 +127,6 @@ DND integration doesn't interact with audio playback:
 
 ---
 
-
----
-
 ## Claude Code Plugin Feasibility
 
 | Aspect | Status | Notes |
@@ -185,3 +169,7 @@ DND integration doesn't interact with audio playback:
 | macOS | ✅ Supported | Via defaults read |
 | Linux | ⚠️ Partial | GNOME/KDE supported |
 | Windows | ❌ Not Supported | ccbell only supports macOS/Linux |
+
+---
+
+[Back to Feature Index](../index.md)

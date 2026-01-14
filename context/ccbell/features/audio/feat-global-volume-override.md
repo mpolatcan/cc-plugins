@@ -34,19 +34,6 @@ Allow users to temporarily adjust notification volume without modifying the conf
 
 ---
 
-
-## Table of Contents
-
-- [Summary](#summary)
-- [Motivation](#motivation)
-- [Priority & Complexity](#priority--complexity)
-- [Technical Feasibility](#technical-feasibility)
-- [Implementation](#implementation)
-- [Configuration](#configuration)
-- [Commands](#commands)
-- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
-- [References](#references)
-
 ## Technical Feasibility
 
 ### Current Main Analysis
@@ -144,9 +131,6 @@ func resolveVolume(configVolume, cliVolume *float64) float64 {
 
 ---
 
-
----
-
 ## Claude Code Plugin Feasibility
 
 | Aspect | Status | Notes |
@@ -183,3 +167,7 @@ func resolveVolume(configVolume, cliVolume *float64) float64 {
 | macOS | ✅ Supported | Via afplay -v flag |
 | Linux | ✅ Supported | Via mpv/ffplay volume args |
 | Windows | ❌ Not Supported | ccbell only supports macOS/Linux |
+
+---
+
+[Back to Feature Index](../index.md)

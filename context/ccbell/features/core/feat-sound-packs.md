@@ -35,19 +35,6 @@ Allow users to browse, preview, and install sound packs that bundle sounds for a
 
 ---
 
-
-## Table of Contents
-
-- [Summary](#summary)
-- [Motivation](#motivation)
-- [Priority & Complexity](#priority--complexity)
-- [Technical Feasibility](#technical-feasibility)
-- [Implementation](#implementation)
-- [Configuration](#configuration)
-- [Commands](#commands)
-- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
-- [References](#references)
-
 ## Technical Feasibility
 
 ### Current Audio Player Analysis
@@ -513,9 +500,6 @@ func (m *PackManager) InstallPack(packURL string) error {
 
 ---
 
-
----
-
 ## Claude Code Plugin Feasibility
 
 | Aspect | Status | Notes |
@@ -549,3 +533,7 @@ func (m *PackManager) InstallPack(packURL string) error {
 - [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) - Shows supported formats (aiff, wav, mp3, ogg, flac via mpv/ffplay)
 - [Sound path resolution](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) - `ResolveSoundPath()` method to extend with `pack:` scheme
 - [Config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) - For pack configuration
+
+---
+
+[Back to Feature Index](../index.md)

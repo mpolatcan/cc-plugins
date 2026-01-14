@@ -28,19 +28,6 @@ Only trigger notifications when specific conditions are met (e.g., "only notify 
 
 ---
 
-
-## Table of Contents
-
-- [Summary](#summary)
-- [Motivation](#motivation)
-- [Priority & Complexity](#priority--complexity)
-- [Technical Feasibility](#technical-feasibility)
-- [Implementation](#implementation)
-- [Configuration](#configuration)
-- [Commands](#commands)
-- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
-- [References](#references)
-
 ## Technical Feasibility
 
 ### Current Architecture Analysis
@@ -160,9 +147,6 @@ Claude Code hooks don't currently provide token count in the hook context. This 
 
 ---
 
-
----
-
 ## Claude Code Plugin Feasibility
 
 | Aspect | Status | Notes |
@@ -193,3 +177,7 @@ Claude Code hooks don't currently provide token count in the hook context. This 
 
 - [Current main.go flow](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) - Integration point for event filtering
 - [Event validation](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L45-L51) - `ValidEvents` map pattern
+
+---
+
+[Back to Feature Index](../index.md)

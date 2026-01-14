@@ -28,19 +28,6 @@ Temporarily disable notifications for 15min, 1hr, 4hr without changing the full 
 
 ---
 
-
-## Table of Contents
-
-- [Summary](#summary)
-- [Motivation](#motivation)
-- [Priority & Complexity](#priority--complexity)
-- [Technical Feasibility](#technical-feasibility)
-- [Implementation](#implementation)
-- [Configuration](#configuration)
-- [Commands](#commands)
-- [Claude Code Plugin Feasibility](#claude-code-plugin-feasibility)
-- [References](#references)
-
 ## Technical Feasibility
 
 ### Current State Analysis
@@ -158,9 +145,6 @@ if state, err := stateManager.Load(); err == nil {
 
 ---
 
-
----
-
 ## Claude Code Plugin Feasibility
 
 | Aspect | Status | Notes |
@@ -187,3 +171,7 @@ if state, err := stateManager.Load(); err == nil {
 - [Current state management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) - Base to extend with quick disable state
 - [State file location](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) - `~/.claude/ccbell.state` pattern
 - [Time parsing](https://pkg.go.dev/time) - Go time package for duration handling
+
+---
+
+[Back to Feature Index](../index.md)
