@@ -212,5 +212,13 @@ Add local config validation that inherits from global config validation.
 
 ## References
 
-- [Current config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go)
-- [Config merge pattern](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L206-L220)
+### Research Sources
+
+- [Go filepath package](https://pkg.go.dev/path/filepath) - For path resolution
+- [os.Stat documentation](https://pkg.go.dev/os#Stat) - For config file detection
+
+### ccbell Implementation Research
+
+- [Current config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) - Base implementation to extend
+- [Config merge pattern](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L206-L220) - Existing merge logic
+- [Environment variable usage](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) - Uses `CLAUDE_PLUGIN_ROOT` pattern

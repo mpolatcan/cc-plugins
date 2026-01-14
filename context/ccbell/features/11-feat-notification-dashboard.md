@@ -154,4 +154,8 @@ The dashboard would be a separate CLI command that reads from the history store.
 
 ## References
 
-- [Current state management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go)
+### ccbell Implementation Research
+
+- [Current state management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) - Base to extend with notification history
+- [State file structure](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) - JSON storage pattern
+- [LastPlayed tracking](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) - Existing timestamp tracking

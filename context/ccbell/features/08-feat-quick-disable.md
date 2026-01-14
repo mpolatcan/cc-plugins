@@ -137,4 +137,8 @@ if state, err := stateManager.Load(); err == nil {
 
 ## References
 
-- [Current state management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go)
+### ccbell Implementation Research
+
+- [Current state management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) - Base to extend with quick disable state
+- [State file location](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) - `~/.claude/ccbell.state` pattern
+- [Time parsing](https://pkg.go.dev/time) - Go time package for duration handling

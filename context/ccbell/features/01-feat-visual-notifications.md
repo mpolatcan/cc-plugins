@@ -454,6 +454,13 @@ type VisualConfig struct {
 
 ## References
 
+### Research Sources
+
 - [AppleScript Notification](https://apple.stackexchange.com/questions/57412/how-can-i-trigger-a-notification-from-the-apple-command-line)
 - [notify-send man page](https://man7.org/linux/man-pages/man1/notify-send.1.html)
-- [Current ccbell audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go)
+
+### ccbell Implementation Research
+
+- [Current ccbell audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) - Used for audio playback via `afplay` (macOS) and `mpv/paplay/aplay/ffplay` (Linux)
+- [Platform detection code](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go#L34-L91) - Shows supported platforms (macOS, Linux only)
+- [Config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) - Reference for adding new config sections

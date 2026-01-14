@@ -146,6 +146,14 @@ Cache calendar data for 5-10 minutes to reduce API calls.
 
 ## References
 
+### Research Sources
+
 - [Google Calendar API](https://developers.google.com/calendar/api)
 - [Microsoft Graph API](https://docs.microsoft.com/en-us/graph/api/resources/calendar)
-- [Current quiet hours implementation](https://github.com/mpolatcan/ccbell/blob/main/internal/config/quiethours.go)
+- [CalDAV protocol](https://tools.ietf.org/html/rfc4918) - For self-hosted calendar integration
+
+### ccbell Implementation Research
+
+- [Current quiet hours implementation](https://github.com/mpolatcan/ccbell/blob/main/internal/config/quiethours.go) - Base to extend with calendar integration
+- [Time parsing](https://github.com/mpolatcan/ccbell/blob/main/internal/config/quiethours.go) - HH:MM format parsing
+- [Config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) - For adding calendar config

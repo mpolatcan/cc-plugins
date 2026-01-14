@@ -492,7 +492,15 @@ func (m *PackManager) InstallPack(packURL string) error {
 
 ## References
 
+### Research Sources
+
 - [Homebrew Brew Formulas](https://docs.brew.sh/Formula-Cookbook) - Similar distribution model
 - [VSCode Extension Marketplace](https://marketplace.visualstudio.com/) - Proven model
 - [Neovim Plugin Manager](https://github.com/junegunn/vim-plug) - Community packs
-- [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go)
+- [archive/zip Go package](https://pkg.go.dev/archive/zip) - For ZIP extraction
+
+### ccbell Implementation Research
+
+- [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) - Shows supported formats (aiff, wav, mp3, ogg, flac via mpv/ffplay)
+- [Sound path resolution](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) - `ResolveSoundPath()` method to extend with `pack:` scheme
+- [Config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) - For pack configuration

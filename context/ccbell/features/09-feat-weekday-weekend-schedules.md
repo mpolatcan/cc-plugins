@@ -133,5 +133,12 @@ The existing `IsInQuietHours()` method can be extended with a parameter or a new
 
 ## References
 
-- [Current quiet hours implementation](https://github.com/mpolatcan/ccbell/blob/main/internal/config/quiethours.go)
-- [Go time package](https://pkg.go.dev/time)
+### Research Sources
+
+- [Go time package](https://pkg.go.dev/time) - For weekday/weekend detection
+
+### ccbell Implementation Research
+
+- [Current quiet hours implementation](https://github.com/mpolatcan/ccbell/blob/main/internal/config/quiethours.go) - Base to extend with weekday/weekend schedules
+- [Time parsing](https://github.com/mpolatcan/ccbell/blob/main/internal/config/quiethours.go) - HH:MM format parsing pattern
+- [Config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) - For quiet hours config

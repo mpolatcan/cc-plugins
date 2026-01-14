@@ -99,4 +99,8 @@ Validate imported config using existing `Config.Validate()` method.
 
 ## References
 
-- [Current config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go)
+### ccbell Implementation Research
+
+- [Current config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) - Base for export/import implementation
+- [Config validation](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) - `Validate()` method for imported configs
+- [JSON marshaling](https://pkg.go.dev/encoding/json) - For config serialization

@@ -124,4 +124,8 @@ For non-loop preview, rely on the sound file's natural length. Current players (
 
 ## References
 
-- [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go)
+### ccbell Implementation Research
+
+- [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) - `Play()` method to use for preview
+- [Player implementation](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) - Shows non-blocking playback via `cmd.Start()`
+- [ffplay loop option](https://ffmpeg.org/ffplay.html) - For loop preview functionality

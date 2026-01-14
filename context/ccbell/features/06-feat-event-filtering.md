@@ -139,5 +139,12 @@ Claude Code hooks don't currently provide token count in the hook context. This 
 
 ## References
 
-- [Current main.go flow](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go)
+### Research Sources
+
 - [Go regexp package](https://pkg.go.dev/regexp)
+- [Go time package](https://pkg.go.dev/time) - For duration parsing
+
+### ccbell Implementation Research
+
+- [Current main.go flow](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) - Integration point for event filtering
+- [Event validation](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L45-L51) - `ValidEvents` map pattern

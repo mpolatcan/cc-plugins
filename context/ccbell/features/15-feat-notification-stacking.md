@@ -150,5 +150,8 @@ Notification stacking requires changes to the execution model:
 
 ## References
 
-- [Current main.go](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go)
-- [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go)
+### ccbell Implementation Research
+
+- [Current main.go](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) - Short-lived process model that needs to change
+- [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) - Uses `cmd.Start()` for non-blocking playback
+- [State management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) - For persistent queue storage option

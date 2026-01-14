@@ -157,6 +157,14 @@ func (p *Player) playWithFadeFFmpeg(path string, volume float64, fadeIn, fadeOut
 
 ## References
 
+### Research Sources
+
 - [FFmpeg audio filters](https://ffmpeg.org/ffmpeg-filters.html#afade)
-- [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go)
 - [go-audio library](https://github.com/go-audio/audio)
+- [ebitengine/oto](https://github.com/ebitengine/oto) - Go audio playback library
+
+### ccbell Implementation Research
+
+- [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) - Shows ffplay is already a supported fallback player
+- [Player args](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go#L76-L91) - ffplay arguments pattern for adding fade filters
+- [Volume handling](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) - Current volume range 0.0-1.0

@@ -153,5 +153,12 @@ Handle both `sound` (single) and `sounds` (array) in config loading.
 
 ## References
 
-- [Current config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go)
-- [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go)
+### Research Sources
+
+- [Go math/rand](https://pkg.go.dev/math/rand) - For random selection
+
+### ccbell Implementation Research
+
+- [Current config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) - Event struct to extend with sound array
+- [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) - `Play()` method for playing selected sound
+- [Config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) - For backward compatibility handling

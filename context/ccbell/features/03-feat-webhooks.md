@@ -170,9 +170,16 @@ if cfg.Webhooks != nil {
 
 ## References
 
+### Research Sources
+
 - [Go net/http package](https://pkg.go.dev/net/http)
 - [Slack Webhooks](https://api.slack.com/messaging/webhooks)
 - [IFTTT Webhooks](https://ifttt.com/maker_webhooks)
+
+### ccbell Implementation Research
+
+- [Main flow](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) - Integration point for webhook triggering
+- [Go http.Client timeout](https://pkg.go.dev/net/http#Client) - For webhook timeout handling
 
 ## Configuration
 

@@ -148,7 +148,8 @@ TTS requires audio playback, which uses the existing player infrastructure:
 |----------|-------|-----------|-------|
 | macOS | ✅ | ✅ | ✅ (Python) |
 | Linux | ✅ | ✅ | ✅ |
-| Windows | ❌ | ❌ | ❌ (ccbell only supports macOS/Linux) |
+
+Note: ccbell only supports macOS and Linux. Windows is not supported.
 
 ### Caching Strategy
 
@@ -160,9 +161,16 @@ Cache TTS output to avoid regenerating:
 
 ## References
 
+### Research Sources
+
 - [Flite TTS](http://cmuflite.org/)
 - [Flite Go Bindings](https://github.com/gen2brain/flite-go)
 - [eSpeak NG](https://github.com/espeak-ng/espeak-ng)
 - [Piper TTS](https://github.com/rhasspy/piper)
 - [Kokoro TTS](https://github.com/hexgrad/Kokoro-82M)
-- [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go)
+
+### ccbell Implementation Research
+
+- [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) - For playing generated TTS WAV files
+- [Platform detection](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go#L34-L91) - macOS `say` available, Linux needs package install
+- [ffplay as fallback](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) - Can play any format TTS generates
