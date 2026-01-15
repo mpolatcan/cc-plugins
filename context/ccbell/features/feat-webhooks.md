@@ -155,20 +155,243 @@ No new hooks needed - webhooks integrated into main flow.
 
 Webhooks sent independently of audio playback.
 
-### Other Findings
+### Webhook Platform Options Research
 
-Webhook features:
-- Multiple webhook configurations
-- Event filtering per webhook
-- Custom headers support
+#### 1. Telegram Bot API (Recommended - Free, Feature-Rich)
+
+- **URL**: https://core.telegram.org/bots/api
+- **Cost**: Completely free
+- **Features**:
+  - Send messages, photos, videos, documents, polls
+  - Inline keyboards and callback buttons
+  - Message formatting (Markdown, HTML)
+  - Group and channel support
+  - No message rate limits for bots
+- **Webhook Setup**:
+  - Create bot via @BotFather
+  - Set webhook: `https://api.telegram.org/bot<TOKEN>/setWebhook?url=<YOUR_URL>`
+  - Receive updates as JSON POST requests
+- **Best For**: Personal notifications, group alerts, rich media notifications
+
+#### 2. Slack Incoming Webhooks (Recommended - Team Integration)
+
+- **URL**: https://api.slack.com/messaging/webhooks
+- **Cost**: Free for standard usage
+- **Features**:
+  - Rich message formatting with Block Kit
+  - Attachments with colors and fields
+  - Message buttons and interactive components
+  - Thread replies and file uploads
+  - Enterprise grid support
+- **Webhook Setup**:
+  - Create Slack App in api.slack.com
+  - Enable Incoming Webhooks
+  - Select channel and copy webhook URL
+- **Example Payload**:
+```json
+{
+  "text": "Claude finished task",
+  "blocks": [
+    {
+      "type": "section",
+      "text": {"type": "mrkdwn", "text": "*Claude finished*\\nTask completed successfully"}
+    }
+  ]
+}
+```
+- **Best For**: Team notifications, workflow integrations, CI/CD alerts
+
+#### 3. WhatsApp Business API (Meta)
+
+- **URL**: https://developers.facebook.com/docs/whatsapp/cloud-api
+- **Cost**: Tiered pricing (free tier available)
+- **Features**:
+  - Text messages with formatting
+  - Media attachments (images, documents, video)
+  - Interactive buttons and lists
+  - Template messages for notifications
+  - Two-way conversations
+- **Setup Requirements**:
+  - Meta Business account
+  - WhatsApp Business API access
+  - Phone number verification
+- **Best For**: Personal notifications, high-priority alerts
+
+#### 4. n8n Webhooks (Self-Hosted Automation)
+
+- **URL**: https://n8n.io/
+- **Cost**: Free self-hosted, cloud tiers available
+- **Features**:
+  - Visual workflow builder
+  - 400+ integrations
+  - Conditional logic and error handling
+  - Data transformation
+  - Self-hosted for full control
+- **Webhook Handling**:
+  - Receive webhooks from ccbell
+  - Transform and route to any service
+  - Chain multiple actions
+- **Example Workflows**:
+  - ccbell webhook → n8n → Slack + Email + SMS
+  - ccbell webhook → n8n → Database logging
+  - ccbell webhook → n8n → Custom API calls
+- **Best For**: Complex automation, multi-channel routing, data enrichment
+
+#### 5. IFTTT Maker Webhooks (Simple Automation)
+
+- **URL**: https://ifttt.com/maker_webhooks
+- **Cost**: Free (limited), Pro tiers available
+- **Features**:
+  - Simple trigger → action model
+  - 700+ service integrations
+  - Email, SMS, notifications via IFTTT app
+  - Applet creation without coding
+- **Webhook Format**:
+  - Event URL: `https://maker.ifttt.com/trigger/{event}/with/key/{key}`
+  - GET or POST requests supported
+  - Values passed as JSON
+- **Example**:
+```
+POST https://maker.ifttt.com/trigger/ccbell_complete/with/key/xxx
+Content-Type: application/json
+{"value1": "Claude finished", "value2": "Task details"}
+```
+- **Best For**: Simple notifications, IFTTT ecosystem integration, mobile alerts
+
+#### 6. Zapier Webhooks (Commercial Automation)
+
+- **URL**: https://zapier.com/apps/webhook/integrations
+- **Cost**: Free tier (limited), paid plans from $69/mo
+- **Features**:
+  - 5,000+ app integrations
+  - Multi-step Zaps
+  - Filters and conditional logic
+  - Built-in data formatting
+  - Scheduled triggers
+- **Webhook Handling**:
+  - Catch hook trigger in Zapier
+  - Connect to 5,000+ apps
+  - Auto-forward to email, SMS, Slack, etc.
+- **Best For**: Enterprise integrations, complex multi-step workflows
+
+#### 7. Discord Webhooks (Recommended - Developer Friendly)
+
+- **URL**: https://discord.com/developers/docs/resources/webhook
+- **Cost**: Completely free
+- **Features**:
+  - Rich embeds with colors, images, fields
+  - Username and avatar customization
+  - Thread support
+  - Message editing and deletion
+  - File attachments
+- **Webhook Setup**:
+  - Server Settings → Integrations → Webhooks
+  - Copy webhook URL
+- **Example Embed**:
+```json
+{
+  "content": null,
+  "embeds": [{
+    "title": "Claude Finished",
+    "description": "Task completed successfully",
+    "color": 5763714,
+    "fields": [
+      {"name": "Duration", "value": "2m 34s"},
+      {"name": "Files", "value": "5 modified"}
+    ]
+  }]
+}
+```
+- **Best For**: Developer notifications, gaming communities, indie teams
+
+#### 8. Microsoft Teams Webhooks (Deprecated)
+
+- **Status**: Incoming Webhooks deprecated December 2025
+- **Migration**: Use Microsoft Power Automate or Graph API
+- **Alternatives**:
+  - Microsoft Power Automate (cloud flows)
+  - Teams Graph API webhooks
+  - Azure Logic Apps
+- **Graph API Setup**:
+  - Register Azure AD application
+  - Subscribe to team/channel resources
+  - Use Delta subscriptions for changes
+- **Best For**: Legacy enterprise systems (migration needed)
+
+#### 9. Make.com (formerly Integromat)
+
+- **URL**: https://www.make.com/
+- **Cost**: Free tier (1,000 ops/month), paid from $9/mo
+- **Features**:
+  - Visual scenario builder
+  - 1,500+ app integrations
+  - Advanced data operations
+  - Error handling and debugging
+  - Real-time execution
+- **Webhook Handling**:
+  - HTTP Request module to receive webhooks
+  - Connect to any service
+  - Complex routing and transformations
+- **Best For**: Visual workflow design, enterprise integrations
+
+#### 10. Custom HTTP Endpoints
+
+- **Go net/http**: Native support
+- **Use Cases**:
+  - Internal dashboards
+  - Custom notification systems
+  - Logging platforms
+  - Home automation (Home Assistant, Node-RED)
+
+### Webhook Security Considerations
+
+| Aspect | Recommendation |
+|--------|----------------|
+| **Authentication** | Use API keys, tokens, or HMAC signatures |
+| **HTTPS** | Always use HTTPS for production webhooks |
+| **Secret Keys** | Verify webhook signatures where supported |
+| **Rate Limiting** | Implement exponential backoff on failures |
+| **Timeout** | Set reasonable timeouts (5-10 seconds) |
+| **Retry Logic** | 3 attempts with increasing delays |
+
+### Webhook Payload Best Practices
+
+```json
+{
+  "event": "command_completed",
+  "timestamp": "2026-01-15T10:30:00Z",
+  "data": {
+    "hook_id": "ccbell-hook-001",
+    "event_type": "stop",
+    "message": "Claude finished",
+    "duration_seconds": 45,
+    "files_modified": 3
+  }
+}
+```
+
+### Webhook Features Summary
+
+- Multiple webhook configurations per event type
+- Event filtering (fire on specific events only)
+- Custom headers and authentication
 - Retry logic with exponential backoff
-- JSON payload with event data
+- Payload transformation support
+- Rich media support (Slack, Discord, Telegram)
+- Multi-channel routing via n8n/IFTTT/Zapier
 
 ## Research Sources
 
 | Source | Description |
 |--------|-------------|
+| [Telegram Bot API](https://core.telegram.org/bots/api) | :books: Telegram bot documentation |
+| [Slack Incoming Webhooks](https://api.slack.com/messaging/webhooks) | :books: Slack webhook integration guide |
+| [WhatsApp Business API](https://developers.facebook.com/docs/whatsapp/cloud-api) | :books: WhatsApp cloud API docs |
+| [n8n Webhooks](https://n8n.io/) | :books: n8n workflow automation |
+| [IFTTT Maker Webhooks](https://ifttt.com/maker_webhooks) | :books: IFTTT Maker Webhooks documentation |
+| [Zapier Webhooks](https://zapier.com/apps/webhook/integrations) | :books: Zapier webhook triggers |
+| [Discord Webhooks](https://discord.com/developers/docs/resources/webhook) | :books: Discord webhook API docs |
+| [Microsoft Teams Graph API](https://learn.microsoft.com/en-us/graph/api/resources/webhooks) | :books: Teams Graph API webhooks |
+| [Make.com Webhooks](https://www.make.com/) | :books: Make automation platform |
 | [Go net/http package](https://pkg.go.dev/net/http) | :books: HTTP client |
-| [Slack Webhooks](https://api.slack.com/messaging/webhooks) | :books: Slack integration |
-| [IFTTT Webhooks](https://ifttt.com/maker_webhooks) | :books: IFTTT integration |
 | [Main flow](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) | :books: Main flow |
