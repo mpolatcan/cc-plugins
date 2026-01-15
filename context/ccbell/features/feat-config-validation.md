@@ -154,18 +154,109 @@ No new hooks needed - uses existing event hooks.
 
 Not affected by this feature.
 
-### Other Findings
+### Validation Levels
 
-Validation should support multiple levels:
+#### 1. Syntax Validation
+- **Level**: Basic
+- **Checks**: Valid JSON, no parse errors
+- **Tools**: `json.Valid()`, `json.Decoder`
+
+```go
+func ValidateSyntax(data []byte) error {
+    var config Config
+    return json.Unmarshal(data, &config)
+}
+```
+
+#### 2. Schema Validation
+- **Level**: Medium
+- **Checks**: Required fields, field types, enum values
+- **Tools**: Go struct tags, custom validators
+
+```go
+type Config struct {
+    Version string `json:"version" validate:"required,semver"`
+    Volume  float64 `json:"volume" validate:"min=0,max=1"`
+    Events  []Event `validate:"dive"`
+}
+```
+
+#### 3. Value Validation
+- **Level**: High
+- **Checks**: Volume range (0-1), valid time formats, enum values
+- **Custom rules**: Event names, profile references
+
+```go
+func ValidateValues(config Config) error {
+    if config.Volume < 0 || config.Volume > 1 {
+        return fmt.Errorf("volume must be between 0 and 1, got %f", config.Volume)
+    }
+    if !IsValidTimeFormat(config.QuietHours.Start) {
+        return fmt.Errorf("invalid quiet hours start time: %s", config.QuietHours.Start)
+    }
+    return nil
+}
+```
+
+#### 4. Reference Validation
+- **Level**: Highest
+- **Checks**: Profile existence, sound file paths, webhook URLs
+
+```go
+func ValidateReferences(config Config) error {
+    for _, event := range config.Events {
+        if !SoundFileExists(event.Sound) {
+            return fmt.Errorf("sound file not found: %s", event.Sound)
+        }
+        if _, ok := config.Profiles[event.Profile]; !ok && event.Profile != "" {
+            return fmt.Errorf("profile not found: %s", event.Profile)
+        }
+    }
+    return nil
+}
+```
+
+### JSON Schema Validation Options
+
+#### go-playground/validator (Recommended)
+- **URL**: https://github.com/go-playground/validator
+- **Features**:
+  - Struct tag-based validation
+  - 100+ built-in validators
+  - Custom validators support
+  - Translations/localization
+- **Install**: `go get github.com/go-playground/validator/v10`
+
+#### ozzo-validation
+- **URL**: https://github.com/goozp/ozzo-validation
+- **Features**:
+  - Code-based rules (not tags)
+  - Type-safe validations
+  - Custom error messages
+- **Best For**: Complex validation logic
+
+#### custom Validation
+- Use Go's native capabilities
+- No external dependency required
+- Full control over error messages
+
+### Validation Features
+
 - Syntax: Valid JSON checking
 - Schema: Required fields validation
-- Values: Valid ranges checking
-- References: Profile existence checking
+- Values: Valid ranges checking (volume, time)
+- References: Profile existence, sound file paths
+- Detailed error messages with line numbers
+- --strict mode for comprehensive checks
+- --json mode for programmatic use
 
 ## Research Sources
 
 | Source | Description |
 |--------|-------------|
+| [go-playground/validator](https://github.com/go-playground/validator) | :books: Go struct validation library |
+| [ozzo-validation](https://github.com/goozp/ozzo-validation) | :books: Code-based validation |
+| [Go JSON Package](https://pkg.go.dev/encoding/json) | :books: JSON encoding/decoding |
 | [Config validation](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L127-L175) | :books: Current validation implementation |
 | [ValidEvents](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L45-L51) | :books: Event validation |
 | [Time format](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L54-L54) | :books: Time format validation |

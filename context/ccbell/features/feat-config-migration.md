@@ -155,17 +155,80 @@ No new hooks needed - uses existing event hooks.
 
 Not affected by this feature.
 
-### Other Findings
+### Migration Patterns
 
-Config migration pattern follows standard practices:
-- Version field in config
-- Ordered migration chain
+#### Semantic Versioning for Config
+- **Format**: `major.minor.patch` (e.g., v1.2.0)
+- **Major**: Breaking changes (require migration)
+- **Minor**: New features (backward compatible)
+- **Patch**: Bug fixes (no migration needed)
+
+#### Migration Chain Pattern
+```go
+type Migration struct {
+    FromVersion string
+    ToVersion   string
+    Migrate     func(Config) (Config, error)
+}
+
+var migrations = []Migration{
+    {FromVersion: "0.1", ToVersion: "0.2", migrateV01ToV02},
+    {FromVersion: "0.2", ToVersion: "0.3", migrateV02ToV03},
+    {FromVersion: "0.3", ToVersion: "1.0", migrateV03ToV10},
+}
+
+func MigrateConfig(config Config) (Config, error) {
+    for _, m := range migrations {
+        if config.Version == m.FromVersion {
+            return m.Migrate(config)
+        }
+    }
+    return config, nil
+}
+```
+
+#### Dry-Run Pattern
+```go
+type MigrationResult struct {
+    Original    Config
+    Migrated    Config
+    Changes     []string
+    Warnings    []string
+    Errors      []string
+}
+
+func DryRunMigration(config Config) (MigrationResult, error) {
+    migrated, err := MigrateConfig(config)
+    if err != nil {
+        return MigrationResult{Errors: []string{err.Error()}}, err
+    }
+    return MigrationResult{
+        Original: config,
+        Migrated: migrated,
+        Changes:  DescribeChanges(config, migrated),
+    }, nil
+}
+```
+
+#### Rollback Support
+- Keep backup of original config during migration
+- Implement rollback command for failed migrations
+- Time-limited rollback window (e.g., 24 hours)
+
+### Config Migration Features
+
+- Version field in config for tracking
+- Ordered migration chain for version-to-version transforms
 - Dry-run support for preview
-- Rollback capability consideration
+- Automatic migration on config load
+- Rollback capability with backup
+- Migration log for audit trail
 
 ## Research Sources
 
 | Source | Description |
 |--------|-------------|
+| [Semantic Versioning](https://semver.org/) | :books: Version specification |
+| [Go JSON Package](https://pkg.go.dev/encoding/json) | :books: JSON encoding/decoding |
 | [Config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) | :books: Current config loading implementation |
 | [Config validation](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L127-L175) | :books: Schema validation approach |
