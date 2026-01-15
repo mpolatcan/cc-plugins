@@ -154,18 +154,88 @@ No new hooks needed - logging integrated into main flow.
 
 Not affected by this feature.
 
-### Other Findings
+### Logging Implementation Patterns
 
-Logging features:
-- Timestamp, event type, sound, volume tracking
-- Suppression reasons (quiet_hours, cooldown)
-- Log rotation with max size and file count
-- Statistics and query capabilities
+#### Structured Logging (Recommended)
+```go
+type NotificationLog struct {
+    ID           string    `json:"id"`
+    Timestamp    time.Time `json:"timestamp"`
+    EventType    string    `json:"event_type"`
+    Sound        string    `json:"sound"`
+    Volume       float64   `json:"volume"`
+    Profile      string    `json:"profile,omitempty"`
+    Duration     float64   `json:"duration_seconds,omitempty"`
+    Suppressed   bool      `json:"suppressed"`
+    Reason       string    `json:"reason,omitempty"`
+    TokenCount   int       `json:"token_count,omitempty"`
+}
+```
+
+#### Log Rotation with go-rotatelogs
+- **URL**: https://github.com/lestrrat-go/rotatelogs
+- **Features**:
+  - Time-based rotation
+  - Size-based rotation
+  - Compression support
+  - Cleanup policies
+- **Install**: `go get github.com/lestrrat-go/rotatelogs`
+
+```go
+import "github.com/lestrrat-go/rotatelogs"
+
+log, _ := rotatelogs.New(
+    "/var/log/ccbell notifications.%Y%m%d%H%M.log",
+    rotatelogs.WithMaxAge(24 * time.Hour),
+    rotatelogs.WithRotationTime(time.Hour),
+)
+```
+
+#### Log Analysis Commands
+```bash
+# View recent logs
+/ccbell:log tail
+
+# Filter by event type
+/ccbell:log show --event stop
+
+# Show statistics
+/ccbell:log stats
+
+# Export to JSON
+/ccbell:log export --format json > ccbell.json
+
+# Search for suppressed notifications
+/ccbell:log show --suppressed
+```
+
+### Logging Features
+
+- **Timestamp, event type, sound, volume tracking**
+- **Suppression reasons** (quiet_hours, cooldown, throttling, DND)
+- **Log rotation** with max size and file count
+- **Statistics and query capabilities**
+- **Structured output** (JSON, text)
+- **Log compression** for disk efficiency
+- **Real-time tail** with follow mode
+
+### Log Query Patterns
+
+| Query | Command |
+|-------|---------|
+| Last N entries | `/ccbell:log tail --count 100` |
+| By event type | `/ccbell:log show --event stop` |
+| Time range | `/ccbell:log show --from "2026-01-15 10:00" --to "2026-01-15 12:00"` |
+| Suppressed only | `/ccbell:log show --suppressed` |
+| Statistics | `/ccbell:log stats` |
 
 ## Research Sources
 
 | Source | Description |
 |--------|-------------|
+| [lestrrat-go/rotatelogs](https://github.com/lestrrat-go/rotatelogs) | :books: Log rotation library |
+| [Go log package](https://pkg.go.dev/log) | :books: Standard logging |
+| [Zap Logger](https://github.com/uber-go/zap) | :books: High-performance structured logging |
 | [Main flow](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) | :books: Main flow |
 | [State management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) | :books: State management |
 | [Logger pattern](https://github.com/mpolatcan/ccbell/blob/main/internal/logger/logger.go) | :books: Logger implementation |

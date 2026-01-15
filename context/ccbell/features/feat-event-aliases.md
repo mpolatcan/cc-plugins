@@ -153,16 +153,106 @@ No new hooks needed - uses existing event hooks.
 
 Not affected by this feature.
 
-### Other Findings
+### Alias Implementation Patterns
 
-Alias configuration supports:
-- Target event mapping
-- Enabled/disabled state
-- Optional sound override
+#### Alias Resolution with Priority
+```go
+type Alias struct {
+    Target   string  `json:"target"`   // Original event name
+    Sound    string  `json:"sound,omitempty"`  // Optional sound override
+    Enabled  bool    `json:"enabled"`
+    Priority int     `json:"priority"`  // Higher = more specific
+}
+
+var aliases = map[string]Alias{
+    "done":      {Target: "stop", Priority: 1},
+    "finished":  {Target: "stop", Priority: 1},
+    "complete":  {Target: "stop", Priority: 1},
+    "ask":       {Target: "permission", Priority: 1},
+    "waiting":   {Target: "idle", Priority: 1},
+    "agent":     {Target: "subagent", Priority: 1},
+}
+
+func ResolveEvent(input string) (string, Alias) {
+    if alias, ok := aliases[input]; ok {
+        return alias.Target, alias
+    }
+    return input, Alias{Enabled: true}
+}
+```
+
+#### Alias Expansion in Config
+```go
+func ExpandConfig(config Config) Config {
+    expanded := config
+
+    for i, event := range expanded.Events {
+        if alias, ok := aliases[event.Name]; ok {
+            expanded.Events[i].Name = alias.Target
+            if alias.Sound != "" && event.Sound == "" {
+                expanded.Events[i].Sound = alias.Sound
+            }
+        }
+    }
+
+    return expanded
+}
+```
+
+#### Alias Validation
+```go
+func ValidateAlias(name, target string) error {
+    // Check alias doesn't conflict with real events
+    if IsValidEvent(target) && !IsAlias(name) {
+        return fmt.Errorf("'%s' is a real event, cannot be an alias", target)
+    }
+
+    // Check target exists
+    if !IsValidEvent(target) && !IsAlias(target) {
+        return fmt.Errorf("target '%s' does not exist", target)
+    }
+
+    return nil
+}
+```
+
+### Alias Configuration Examples
+
+```json
+{
+  "aliases": {
+    "done": {
+      "target": "stop",
+      "enabled": true,
+      "priority": 1
+    },
+    "finished": {
+      "target": "stop",
+      "enabled": true,
+      "priority": 1
+    },
+    "ask": {
+      "target": "permission",
+      "enabled": true,
+      "priority": 1
+    }
+  }
+}
+```
+
+### Alias Features
+
+- **Target event mapping** (alias → real event)
+- **Enabled/disabled state** per alias
+- **Optional sound override** per alias
+- **Priority system** for conflicting aliases
+- **Validation** to prevent conflicts
+- **Expansion** in config loading
 
 ## Research Sources
 
 | Source | Description |
 |--------|-------------|
+| [Go map](https://pkg.go.dev/map) | :books: Map data structure |
 | [Config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) | :books: Current config structure |
 | [Main flow](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) | :books: Main flow |

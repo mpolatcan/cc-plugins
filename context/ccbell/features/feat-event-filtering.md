@@ -154,17 +154,95 @@ No new hooks needed - filter check before existing hooks.
 
 Playback is skipped when filter conditions are not met.
 
-### Other Findings
+### Filter Implementation Patterns
 
-Filter types supported:
-- token_count: Min/max tokens in response
-- pattern: Regex match on message content
-- duration: Min/max response duration
+#### Go regexp Optimization
+- Compile regex patterns once at startup
+- Use `regexp.MustCompile()` for static patterns
+- Cache compiled patterns for dynamic filters
+
+```go
+var patternCache = sync.Map{}
+
+func GetCompiledPattern(pattern string) *regexp.Regexp {
+    if cached, ok := patternCache.Load(pattern); ok {
+        return cached.(*regexp.Regexp)
+    }
+    compiled := regexp.MustCompile(pattern)
+    patternCache.Store(pattern, compiled)
+    return compiled
+}
+```
+
+#### Token Count Filter
+```go
+type TokenCountFilter struct {
+    Min int `json:"min"`
+    Max int `json:"max"`
+}
+
+func (f TokenCountFilter) ShouldNotify(event EventData) bool {
+    count := event.TokenCount
+    if f.Min > 0 && count < f.Min {
+        return false
+    }
+    if f.Max > 0 && count > f.Max {
+        return false
+    }
+    return true
+}
+```
+
+#### Duration Filter
+```go
+type DurationFilter struct {
+    Min string `json:"min"` // e.g., "5s"
+    Max string `json:"max"` // e.g., "5m"
+}
+
+func (f DurationFilter) ShouldNotify(event EventData) bool {
+    minDuration, _ := time.ParseDuration(f.Min)
+    maxDuration, _ := time.ParseDuration(f.Max)
+
+    if minDuration > 0 && event.Duration < minDuration {
+        return false
+    }
+    if maxDuration > 0 && event.Duration > maxDuration {
+        return false
+    }
+    return true
+}
+```
+
+#### Custom Expression Filter (CEL)
+- **URL**: https://github.com/google/cel-go
+- **Purpose**: Safe expression evaluation
+- **Use Case**: Complex multi-condition filters
+- **Benefits**: Type-safe, sandboxed, extensible
+
+### Filter Types Supported
+
+- **token_count**: Min/max tokens in response
+- **pattern**: Regex match on message content
+- **duration**: Min/max response duration
+- **keywords**: Contains/exclude keywords
+- **event_type**: Match specific event subtypes
+- **time_range**: Only notify during specific hours
+- **custom**: CEL expression for complex logic
+
+### Filter Combination Logic
+
+- **AND**: All filters must pass
+- **OR**: Any filter can pass
+- **Priority**: Filters applied in order
+- **Short-circuit**: Stop on first failure
 
 ## Research Sources
 
 | Source | Description |
 |--------|-------------|
 | [Go regexp package](https://pkg.go.dev/regexp) | :books: Pattern matching |
+| [CEL - Common Expression Language](https://github.com/google/cel-go) | :books: Safe expression evaluation |
+| [Go time package](https://pkg.go.dev/time) | :books: Duration parsing |
 | [Main flow](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) | :books: Main flow |
 | [ValidEvents](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L45-L51) | :books: Event structure |

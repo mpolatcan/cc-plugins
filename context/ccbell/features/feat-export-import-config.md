@@ -154,12 +154,116 @@ No new hooks needed - uses existing event hooks.
 
 Not affected by this feature.
 
-### Other Findings
+### Export/Import Implementation
 
-Export/Import features:
-- Export to file with optional secrets exclusion
-- Import from file or URL
-- Merge or replace on import
+#### Export with Redaction
+```go
+func ExportConfig(config Config, redactSecrets bool) ([]byte, error) {
+    export := ConfigExport{
+        Version:   config.Version,
+        Events:    config.Events,
+        Profiles:  config.Profiles,
+        QuietHours: config.QuietHours,
+        Created:   time.Now().UTC(),
+    }
+
+    if redactSecrets && config.Webhooks != nil {
+        export.Webhooks = redactWebhooks(config.Webhooks)
+    }
+
+    return json.MarshalIndent(export, "", "  ")
+}
+
+func redactWebhooks(webhooks []Webhook) []Webhook {
+    redacted := make([]Webhook, len(webhooks))
+    for i, wh := range webhooks {
+        redacted[i] = wh
+        redacted[i].Headers = nil // Remove auth headers
+        if strings.Contains(redacted[i].URL, "token=") {
+            redacted[i].URL = strings.ReplaceAll(redacted[i].URL, "token=xxx", "token=[REDACTED]")
+        }
+    }
+    return redacted
+}
+```
+
+#### Import with Merge Strategy
+```go
+type MergeStrategy string
+
+const (
+    MergeStrategyReplace MergeStrategy = "replace"
+    MergeStrategyMerge   MergeStrategy = "merge"
+    MergeStrategySkip    MergeStrategy = "skip"
+)
+
+func ImportConfig(path string, strategy MergeStrategy, validate bool) (Config, error) {
+    data, err := os.ReadFile(path)
+    if err != nil {
+        return Config{}, err
+    }
+
+    var imported Config
+    if err := json.Unmarshal(data, &imported); err != nil {
+        return Config{}, fmt.Errorf("invalid JSON: %w", err)
+    }
+
+    if validate {
+        if err := ValidateConfig(imported); err != nil {
+            return Config{}, fmt.Errorf("validation failed: %w", err)
+        }
+    }
+
+    current, err := LoadConfig(GetDefaultPath())
+    if err != nil && !os.IsNotExist(err) {
+        return Config{}, err
+    }
+
+    switch strategy {
+    case MergeStrategyReplace:
+        return imported, nil
+    case MergeStrategyMerge:
+        return MergeConfigs(current, imported), nil
+    case MergeStrategySkip:
+        return current, nil
+    }
+
+    return current, nil
+}
+```
+
+#### Import from URL
+```go
+func ImportFromURL(url string, strategy MergeStrategy) (Config, error) {
+    resp, err := http.Get(url)
+    if err != nil {
+        return Config{}, err
+    }
+    defer resp.Body.Close()
+
+    if resp.StatusCode != http.StatusOK {
+        return Config{}, fmt.Errorf("HTTP %d", resp.StatusCode)
+    }
+
+    var imported Config
+    decoder := json.NewDecoder(resp.Body)
+    if err := decoder.Decode(&imported); err != nil {
+        return Config{}, err
+    }
+
+    // Process same as file import
+    return ImportConfigParsed(imported, strategy)
+}
+```
+
+### Export/Import Features
+
+- **Export to file** with optional secrets exclusion
+- **Import from file or URL** (HTTP/HTTPS/GitHub raw)
+- **Merge or replace** on import
+- **Validation before import** (optional)
+- **Version tracking** in exported files
+- **Dry-run import** to preview changes
 
 ## Research Sources
 
@@ -168,3 +272,4 @@ Export/Import features:
 | [Config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) | :books: Config loading |
 | [Config validation](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) | :books: Validation |
 | [JSON marshaling](https://pkg.go.dev/encoding/json) | :books: JSON handling |
+| [Go HTTP client](https://pkg.go.dev/net/http) | :books: HTTP fetching |

@@ -73,7 +73,9 @@ How will audio playback be handled?
 
 Are external tools or libraries required?
 
-No external dependencies - uses Go standard library.
+| Dependency | Version | Purpose | Required |
+|------------|---------|---------|----------|
+| None | | | `[No]` |
 
 ## Usage in ccbell Plugin
 
@@ -130,9 +132,10 @@ Steps required in ccbell repository:
 2. Extend IsInQuietHours() with weekday/weekend logic
 3. Add --weekday and --weekend flags to quiet hours command
 4. Support timezone configuration
-5. Update version in main.go
-6. Tag and release vX.X.X
-7. Sync version to cc-plugins
+5. Add holiday schedule support with date list
+6. Update version in main.go
+7. Tag and release vX.X.X
+8. Sync version to cc-plugins
 
 ## External Dependencies
 
@@ -154,19 +157,220 @@ No new hooks needed - quiet hours check integrated into main flow.
 
 Playback is skipped during quiet hours based on day of week.
 
-### Other Findings
+### Timezone-Aware Scheduling Implementation
 
-Schedule features:
-- Default quiet hours (fallback)
-- Weekday-specific schedule (Mon-Fri)
-- Weekend-specific schedule (Sat-Sun)
-- Timezone support
-- Flexible start/end times
+#### Timezone Configuration
+```go
+type TimezoneConfig struct {
+    Zone     string `json:"zone"`      // e.g., "America/New_York"
+    Offset   int    `json:"offset"`    // e.g., -5 (hours from UTC)
+    AutoDetect bool `json:"autoDetect"` // Use system timezone
+}
+
+func (t *TimezoneConfig) GetLocation() (*time.Location, error) {
+    if t.AutoDetect || t.Zone == "" {
+        return time.Local, nil
+    }
+    if t.Offset != 0 {
+        return time.FixedZone(t.Zone, t.Offset*3600), nil
+    }
+    return time.LoadLocation(t.Zone)
+}
+
+func IsInQuietHoursWithTZ(config QuietHoursConfig, tz *time.Location, now time.Time) bool {
+    if tz != nil {
+        now = now.In(tz)
+    }
+
+    weekday := now.Weekday()
+    isWeekend := weekday == time.Saturday || weekday == time.Sunday
+
+    var window TimeWindow
+    if isWeekend && config.Weekend != nil {
+        window = *config.Weekend
+    } else if !isWeekend && config.Weekday != nil {
+        window = *config.Weekday
+    } else if config.Default != nil {
+        window = *config.Default
+    } else {
+        return false // No quiet hours configured
+    }
+
+    return now.Format("15:04") >= window.Start && now.Format("15:04") <= window.End
+}
+```
+
+#### Holiday Scheduling
+```go
+type HolidayConfig struct {
+    Dates    []string `json:"dates"`    // e.g., ["2026-01-01", "2026-12-25"]
+    Names    map[string]string `json:"names"` // date -> holiday name
+    UseWeekendRules bool `json:"useWeekendRules"` // Use weekend schedule on holidays
+}
+
+var nationalHolidays = map[string]bool{
+    "2026-01-01": true,  // New Year's Day
+    "2026-01-20": true,  // MLK Day
+    "2026-02-17": true,  // Presidents Day
+    "2026-05-26": true,  // Memorial Day
+    "2026-07-04": true,  // Independence Day
+    "2026-09-01": true,  // Labor Day
+    "2026-11-27": true,  // Thanksgiving
+    "2026-12-25": true,  // Christmas
+}
+
+func IsHoliday(date time.Time) bool {
+    dateStr := date.Format("2006-01-02")
+    return nationalHolidays[dateStr]
+}
+
+func IsInQuietHours(config QuietHoursConfig, now time.Time) bool {
+    // Check if today is a holiday
+    if IsHoliday(now) && config.Holidays != nil && config.Holidays.UseWeekendRules {
+        if config.Weekend != nil {
+            return isTimeInWindow(now, *config.Weekend)
+        }
+    }
+
+    return isInQuietHoursWithTZ(config, nil, now)
+}
+```
+
+#### Flexible Day Groups
+```go
+type DayGroup string
+
+const (
+    DayGroupWeekday DayGroup = "weekday"   // Mon-Fri
+    DayGroupWeekend DayGroup = "weekend"   // Sat-Sun
+    DayGroupMon     DayGroup = "monday"
+    DayGroupTue     DayGroup = "tuesday"
+    DayGroupWed     DayGroup = "wednesday"
+    DayGroupThu     DayGroup = "thursday"
+    DayGroupFri     DayGroup = "friday"
+    DayGroupSat     DayGroup = "saturday"
+    DayGroupSun     DayGroup = "sunday"
+)
+
+type ScheduleRule struct {
+    Days    []DayGroup `json:"days"`
+    Window  TimeWindow `json:"window"`
+    Enabled bool       `json:"enabled"`
+}
+
+func (s *ScheduleRule) Matches(day time.Weekday) bool {
+    dayName := DayGroup(strings.ToLower(day.String()))
+    for _, d := range s.Days {
+        if d == dayName || d == DayGroupWeekday && day >= time.Monday && day <= time.Friday || d == DayGroupWeekend && (day == time.Saturday || day == time.Sunday) {
+            return true
+        }
+    }
+    return false
+}
+```
+
+#### Multi-Window Support
+```go
+type AdvancedTimeWindow struct {
+    Start   string `json:"start"`
+    End     string `json:"end"`
+    Enabled bool   `json:"enabled"`
+}
+
+type AdvancedQuietHours struct {
+    Default     []AdvancedTimeWindow `json:"default"`
+    Weekday     []AdvancedTimeWindow `json:"weekday"`
+    Weekend     []AdvancedTimeWindow `json:"weekend"`
+    Timezone    TimezoneConfig       `json:"timezone"`
+    Holidays    HolidayConfig        `json:"holidays"`
+}
+
+func IsInQuietHoursAdvanced(config AdvancedQuietHours, now time.Time) bool {
+    loc, _ := config.Timezone.GetLocation()
+    localNow := now.In(loc)
+
+    day := localNow.Weekday()
+    var windows []AdvancedTimeWindow
+
+    if day == time.Saturday || day == time.Sunday {
+        windows = config.Weekend
+    } else {
+        windows = config.Weekday
+    }
+
+    if len(windows) == 0 {
+        windows = config.Default
+    }
+
+    currentTime := localNow.Format("15:04")
+    for _, w := range windows {
+        if w.Enabled && currentTime >= w.Start && currentTime <= w.End {
+            return true
+        }
+    }
+    return false
+}
+```
+
+### Schedule Features
+
+- **Default quiet hours** (fallback when no specific schedule)
+- **Weekday-specific schedule** (Mon-Fri)
+- **Weekend-specific schedule** (Sat-Sun)
+- **Timezone support** (configurable per schedule)
+- **Holiday scheduling** (use weekend rules on holidays)
+- **Multiple time windows** (e.g., nap time + nighttime)
+- **Flexible day groups** (custom day combinations)
+- **Smart defaults** (sensible out-of-box experience)
+
+### Config Examples
+
+#### Basic Weekday/Weekend
+```json
+{
+  "quietHours": {
+    "weekday": { "start": "22:00", "end": "07:00" },
+    "weekend": { "start": "23:00", "end": "09:00" }
+  }
+}
+```
+
+#### Advanced with Timezone and Holidays
+```json
+{
+  "quietHours": {
+    "weekday": [{ "start": "22:00", "end": "07:00" }],
+    "weekend": [{ "start": "23:00", "end": "09:00" }],
+    "timezone": { "zone": "America/New_York", "autoDetect": false },
+    "holidays": {
+      "dates": ["2026-01-01", "2026-12-25"],
+      "useWeekendRules": true
+    }
+  }
+}
+```
+
+#### Multi-Window Schedule
+```json
+{
+  "quietHours": {
+    "weekday": [
+      { "start": "12:00", "end": "13:00", "enabled": true },
+      { "start": "22:00", "end": "07:00", "enabled": true }
+    ],
+    "weekend": [
+      { "start": "23:00", "end": "09:00", "enabled": true }
+    ]
+  }
+}
+```
 
 ## Research Sources
 
 | Source | Description |
 |--------|-------------|
-| [Go time package](https://pkg.go.dev/time) | :books: Time handling |
+| [Go time package](https://pkg.go.dev/time) | :books: Time handling and timezones |
+| [IANA Timezone Database](https://www.iana.org/time-zones) | :books: Official timezone definitions |
 | [Current quiet hours implementation](https://github.com/mpolatcan/ccbell/blob/main/internal/config/quiethours.go) | :books: Quiet hours |
 | [Time parsing](https://github.com/mpolatcan/ccbell/blob/main/internal/config/quiethours.go) | :books: Time parsing |
+| [US Federal Holidays](https://www.opm.gov/policy-data-oversight/pay-leave/federal-holidays/) | :books: Federal holiday dates |

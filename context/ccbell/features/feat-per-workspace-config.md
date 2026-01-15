@@ -153,18 +153,128 @@ No new hooks needed - workspace config loaded at startup.
 
 Not affected by this feature.
 
-### Other Findings
+### Workspace Config Implementation
 
-Workspace config features:
-- `.claude-ccbell.json` in workspace root
-- Inherit option for global config
-- Profile and volume overrides
-- Event-level customization
+#### Config Loading with Workspace Detection
+```go
+type WorkspaceConfig struct {
+    Path     string
+    Filename string = ".claude-ccbell.json"
+}
+
+func FindWorkspaceConfig(root string) (string, error) {
+    current := root
+
+    for {
+        configPath := filepath.Join(current, ".claude-ccbell.json")
+        if _, err := os.Stat(configPath); err == nil {
+            return configPath, nil
+        }
+
+        parent := filepath.Dir(current)
+        if parent == current {
+            break // Reached filesystem root
+        }
+        current = parent
+    }
+
+    return "", os.ErrNotExist
+}
+
+func LoadWithWorkspace(globalPath, workspaceRoot string) (Config, error) {
+    global, err := LoadConfig(globalPath)
+    if err != nil {
+        return Config{}, err
+    }
+
+    workspacePath, err := FindWorkspaceConfig(workspaceRoot)
+    if err != nil {
+        return global, nil // No workspace config, return global only
+    }
+
+    workspace, err := LoadConfig(workspacePath)
+    if err != nil {
+        return Config{}, fmt.Errorf("failed to load workspace config: %w", err)
+    }
+
+    return MergeConfigs(global, workspace), nil
+}
+```
+
+#### Deep Merge for Config Objects
+```go
+func MergeConfigs(base, override Config) Config {
+    merged := base
+
+    // Override events
+    if len(override.Events) > 0 {
+        merged.Events = mergeEvents(base.Events, override.Events)
+    }
+
+    // Override profiles (add new, update existing)
+    if len(override.Profiles) > 0 {
+        merged.Profiles = mergeProfiles(base.Profiles, override.Profiles)
+    }
+
+    // Override quiet hours
+    if override.QuietHours.Start != "" {
+        merged.QuietHours = override.QuietHours
+    }
+
+    // Override volume (if set)
+    if override.Volume > 0 {
+        merged.Volume = override.Volume
+    }
+
+    return merged
+}
+
+func mergeEvents(base, override []Event) []Event {
+    result := append([]Event{}, base...)
+    overrideMap := make(map[string]Event)
+
+    for _, e := range override {
+        overrideMap[e.Name] = e
+    }
+
+    for i, e := range result {
+        if override, ok := overrideMap[e.Name]; ok {
+            result[i] = mergeEvent(e, override)
+            delete(overrideMap, e.Name)
+        }
+    }
+
+    for _, e := range overrideMap {
+        result = append(result, e)
+    }
+
+    return result
+}
+```
+
+#### Config Precedence
+```
+Priority (highest to lowest):
+1. Command-line flags
+2. Workspace config (.claude-ccbell.json)
+3. User config (~/.config/ccbell/config.json)
+4. Default values
+```
+
+### Workspace Config Features
+
+- **`.claude-ccbell.json`** in workspace root
+- **Auto-discovery** by walking up directory tree
+- **Inherit option** for global config (use global as base)
+- **Profile and volume overrides** (workspace can change settings)
+- **Event-level customization** (override specific events)
+- **Clear precedence** (workspace > global)
 
 ## Research Sources
 
 | Source | Description |
 |--------|-------------|
+| [Go filepath](https://pkg.go.dev/path/filepath) | :books: Path manipulation |
 | [Config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) | :books: Config loading |
 | [Config merge pattern](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L206-L220) | :books: Merge patterns |
 | [Environment variable usage](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) | :books: Environment handling |

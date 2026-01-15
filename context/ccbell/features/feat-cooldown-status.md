@@ -153,17 +153,84 @@ No new hooks needed - uses existing event hooks.
 
 Not affected by this feature.
 
-### Other Findings
+### Cooldown Display Implementation
 
-Cooldown display should show:
-- Ready status for events not in cooldown
-- Time remaining for events in cooldown
-- Estimated resume time
+#### Human-Readable Duration Formatting
+```go
+func FormatDuration(d time.Duration) string {
+    if d < time.Second {
+        return "ready"
+    }
+    if d < time.Minute {
+        return fmt.Sprintf("%ds", int(d.Seconds()))
+    }
+    if d < time.Hour {
+        minutes := int(d.Minutes())
+        seconds := int(d.Seconds()) % 60
+        return fmt.Sprintf("%dm %ds", minutes, seconds)
+    }
+    hours := int(d.Hours())
+    minutes := int(d.Minutes()) % 60
+    return fmt.Sprintf("%dh %dm", hours, minutes)
+}
+
+func GetCooldownStatus(state State, event string) string {
+    remaining, ok := state.Cooldowns[event]
+    if !ok {
+        return "ready"
+    }
+    if time.Now().After(remaining) {
+        return "ready"
+    }
+    return FormatDuration(time.Until(remaining))
+}
+```
+
+#### Visual Progress Bar
+```go
+func CooldownProgressBar(remaining, total time.Duration) string {
+    percent := float64(remaining) / float64(total)
+    width := 10
+    filled := int(percent * float64(width))
+
+    bar := "["
+    for i := 0; i < width; i++ {
+        if i < filled {
+            bar += "="
+        } else {
+            bar += " "
+        }
+    }
+    bar += "]"
+
+    return fmt.Sprintf("%s %s remaining", bar, FormatDuration(remaining))
+}
+```
+
+#### Cooldown Status Display
+```
+Event          Cooldown    Status
+----           --------    ------
+stop           ready       [==========]
+permission     2m 30s      [======    ]
+idle           ready       [==========]
+subagent       45s         [===       ]
+```
+
+### Cooldown Display Features
+
+- **Ready status** for events not in cooldown
+- **Time remaining** for events in cooldown
+- **Estimated resume time** (e.g., "resumes at 10:45 AM")
+- **Visual progress bar** for quick scanning
+- **Color-coded status** (green=ready, yellow=partial, red=active)
+- **Summary line** showing blocked events count
 
 ## Research Sources
 
 | Source | Description |
 |--------|-------------|
+| [Go time package](https://pkg.go.dev/time) | :books: Duration handling |
 | [State management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) | :books: Current state implementation |
 | [Cooldown logic](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) | :books: Cooldown tracking |
 | [Config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) | :books: Config structure |

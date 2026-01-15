@@ -155,13 +155,116 @@ No new hooks needed - throttling check integrated into main flow.
 
 Playback is skipped when throttling limit is exceeded.
 
-### Other Findings
+### Throttling Implementation Patterns
 
-Throttling features:
-- Max count per time window
-- Burst limit for short periods
-- Action when limit exceeded (silence/warn)
-- Reset command to clear throttle windows
+#### Sliding Window Algorithm
+```go
+type ThrottleManager struct {
+    maxCount  int
+    window    time.Duration
+    events    []time.Time
+    mu        sync.Mutex
+}
+
+func (t *ThrottleManager) Allow() bool {
+    t.mu.Lock()
+    defer t.mu.Unlock()
+
+    now := time.Now()
+    cutoff := now.Add(-t.window)
+
+    // Remove old events
+    var valid []time.Time
+    for _, e := range t.events {
+        if e.After(cutoff) {
+            valid = append(valid, e)
+        }
+    }
+    t.events = valid
+
+    if len(t.events) >= t.maxCount {
+        return false // Throttled
+    }
+
+    t.events = append(t.events, now)
+    return true
+}
+```
+
+#### Token Bucket Algorithm
+```go
+type TokenBucket struct {
+    tokens     float64
+    capacity   float64
+    rate       float64
+    lastUpdate time.Time
+    mu         sync.Mutex
+}
+
+func (tb *TokenBucket) Allow() bool {
+    tb.mu.Lock()
+    defer tb.mu.Unlock()
+
+    now := time.Now()
+    elapsed := now.Sub(tb.lastUpdate).Seconds()
+    tb.tokens = math.Min(tb.capacity, tb.tokens+elapsed*tb.rate)
+    tb.lastUpdate = now
+
+    if tb.tokens >= 1 {
+        tb.tokens--
+        return true
+    }
+    return false
+}
+```
+
+#### Sliding Log with Redis (Distributed)
+- **Use Case**: Multi-instance environments
+- **Library**: https://github.com/redis/go-redis
+- **Commands**: ZADD, ZREMRANGEBYSCORE, ZCARD
+
+```go
+func RedisThrottle(client *redis.Client, key string, limit int, window time.Duration) bool {
+    now := time.Now().UnixMilli()
+    windowStart := now - window.Milliseconds()
+
+    pipe := client.Pipeline()
+
+    // Add current event
+    pipe.ZAdd(ctx, key, &redis.Z{
+        Score:  float64(now),
+        Member: fmt.Sprintf("%d", now),
+    })
+
+    // Remove old events
+    pipe.ZRemRangeByScore(ctx, key, "-inf", fmt.Sprintf("%d", windowStart))
+
+    // Count remaining
+    countCmd := pipe.ZCard(ctx, key)
+
+    _, _ = pipe.Exec(ctx)
+
+    return int(countCmd.Val()) <= limit
+}
+```
+
+### Throttling Features
+
+- **Max count per time window** (e.g., 10 notifications per 5 minutes)
+- **Burst limit** for short periods (e.g., max 3 in 30 seconds)
+- **Action when limit exceeded** (silence/warn/silent)
+- **Reset command** to clear throttle windows
+- **Granular control** by event type
+- **Distributed throttling** (Redis) for multi-instance
+
+### Throttling Strategies
+
+| Strategy | Description | Use Case |
+|----------|-------------|----------|
+| **Sliding Window** | Count events in rolling time window | General use |
+| **Token Bucket** | Allow burst with gradual refill | Burst handling |
+| **Fixed Window** | Simple count per hour/day | Basic rate limiting |
+| **Distributed** | Redis-based for multi-instance | Server environments |
 
 ## Research Sources
 
@@ -169,4 +272,6 @@ Throttling features:
 |--------|-------------|
 | [State management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) | :books: State management |
 | [Cooldown logic](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) | :books: Cooldown patterns |
+| [Redis go-redis](https://github.com/redis/go-redis) | :books: Redis client for distributed throttling |
+| [Rate Limiting Patterns](https://github.com/uber-go/ratelimit) | :books: Uber's rate limiter |
 | [Main flow](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) | :books: Main flow |
