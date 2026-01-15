@@ -154,18 +154,73 @@ No new hooks needed - uses existing event hooks.
 
 Not affected by this feature.
 
-### Other Findings
+### Interactive CLI Design Patterns
 
-Minimal mode features:
+#### Survey Library (Recommended)
+- **URL**: https://github.com/AlecAivazis/survey
+- **Features**:
+  - Interactive prompts (confirm, select, input, multiline)
+  - Validation support
+  - Custom themes
+  - ANSI output compatibility
+- **Install**: `go get github.com/AlecAivazis/survey/v2`
+- **Best For**: Rich interactive CLI experiences
+
+#### Chewitt (Interactive Prompts)
+- **URL**: https://github.com/AlecAivazis/chewitt
+- **Features**:
+  - Simple confirmation prompts
+  - Select menus
+  - Input validation
+- **Best For**: Lightweight interactive prompts
+
+#### Go Prompts Pattern
+- Use `AskUserQuestion` for Claude Code integration
+- Use standard input/output for terminal-based wizards
+- Support non-interactive mode with default values
+
+### Wizard Flow Design
+
+1. **Welcome Screen**
+   - Brief introduction to ccbell
+   - Confirm starting wizard
+
+2. **Sound Selection**
+   - Select bundled sounds or custom path
+   - Preview sounds before selection
+
+3. **Event Configuration**
+   - Enable/disable events (stop, permission, idle, subagent)
+   - Assign sounds per event
+
+4. **Volume Setup**
+   - Test volume levels
+   - Set default volume (suggested: 0.5)
+
+5. **Quiet Hours (Optional)**
+   - Configure time window
+   - Set default: 22:00-07:00
+
+6. **Summary & Apply**
+   - Review configuration
+   - Apply or go back to edit
+
+### Minimal Mode Features
+
 - Interactive wizard with guided questions
 - Opinionated defaults (volume 0.5, quiet hours 22:00-07:00)
 - Simplified event configuration
 - Option to upgrade to full config later
+- Non-interactive mode with preset configurations
+- Skip option for advanced settings
 
 ## Research Sources
 
 | Source | Description |
 |--------|-------------|
+| [Survey - Go Interactive Prompts](https://github.com/AlecAivazis/survey) | :books: Interactive CLI prompts library |
+| [Chewitt - Simple Prompts](https://github.com/AlecAivazis/chewitt) | :books: Lightweight prompts |
 | [Config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L81-L102) | :books: Config loading |
 | [Default config](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L64-L77) | :books: Default config |
 | [Quiet hours](https://github.com/mpolatcan/ccbell/blob/main/internal/config/quiethours.go) | :books: Quiet hours |
+| [Interactive CLI Design](https://uxdesign.cc/interactive-cli-design-patterns-8f6a2fa7e86e) | :books: CLI UX design patterns |

@@ -154,18 +154,96 @@ No new hooks needed - queue management integrated into main flow.
 
 Queue manager controls sequential playback with configurable delays.
 
-### Other Findings
+### Queue Implementation Patterns
 
-Stacking features:
-- Max queue size limit
-- Play delay between notifications
+#### Go channel-based Queue (Recommended)
+```go
+type NotificationQueue struct {
+    queue chan Notification
+    mu    sync.Mutex
+}
+
+func (q *NotificationQueue) Enqueue(n Notification) {
+    q.mu.Lock()
+    select {
+    case q.queue <- n:
+    default:
+        // Queue full, apply drop policy
+    }
+    q.mu.Unlock()
+}
+
+func (q *NotificationQueue) Process() {
+    for notification := range q.queue {
+        PlayNotification(notification)
+        time.Sleep(q.delay)
+    }
+}
+```
+
+#### Ring Buffer for Memory Efficiency
+```go
+type RingBuffer struct {
+    buffer []Notification
+    head   int
+    tail   int
+    size   int
+    mu     sync.Mutex
+}
+
+func (r *RingBuffer) Push(n Notification) {
+    r.mu.Lock()
+    r.buffer[r.tail] = n
+    r.tail = (r.tail + 1) % len(r.buffer)
+    if r.size == len(r.buffer) {
+        r.head = (r.head + 1) % len(r.buffer) // Overwrite oldest
+    } else {
+        r.size++
+    }
+    r.mu.Unlock()
+}
+```
+
+#### Priority Queue for Event Ordering
+```go
+type PriorityItem struct {
+    notification Notification
+    priority     int // Higher = more urgent
+}
+
+type PriorityQueue struct {
+    items []PriorityItem
+    mu    sync.Mutex
+}
+
+func (p *PriorityQueue) Push(item PriorityItem) {
+    heap.Push(&p.items, item)
+}
+```
+
+### Stacking Features
+
+- Max queue size limit (default: 10)
+- Play delay between notifications (default: 500ms)
 - Drop policy (oldest/newest) when queue full
+- Priority handling for important events
 - Status and clear commands
+- Persist queue across restarts (optional)
+
+### Queue Management Best Practices
+
+- Use non-blocking enqueue to prevent delays
+- Implement graceful shutdown handling
+- Provide visual feedback for queue state
+- Allow bulk clear for emergency situations
 
 ## Research Sources
 
 | Source | Description |
 |--------|-------------|
+| [Go channels](https://pkg.go.dev/channel) | :books: Channel-based concurrency |
+| [Go container/ring](https://pkg.go.dev/container/ring) | :books: Ring buffer implementation |
+| [Go container/heap](https://pkg.go.dev/container/heap) | :books: Priority queue |
 | [Current main.go](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) | :books: Main entry point |
 | [Audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Audio playback |
 | [State management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) | :books: State management |

@@ -155,17 +155,57 @@ No new hooks needed - quick disable check integrated into main flow.
 
 Playback is skipped when quick disable is active.
 
-### Other Findings
+### Timer Implementation Options
 
-Quick disable features:
-- Duration options: 15m, 1h, 4h
+#### Go time Package (Recommended)
+- **Duration parsing**: `time.ParseDuration("15m")`
+- **Timer creation**: `time.NewTimer(duration)`
+- **Channel-based notification**: Timer.C channel
+- **Best For**: Simple timer needs
+
+#### time.Ticker for Periodic Checks
+```go
+ticker := time.NewTicker(1 * time.Minute)
+go func() {
+    for range ticker.C {
+        if time.Now().After(quickDisableUntil) {
+            DisableQuickMode()
+        }
+    }
+}()
+```
+
+#### Context with Timeout
+```go
+ctx, cancel := context.WithTimeout(context.Background(), duration)
+defer cancel()
+select {
+case <-ctx.Done():
+    // Quick disable expired
+}
+```
+
+### Quick Disable Features
+
+- Duration options: 15m, 30m, 1h, 2h, 4h, custom
 - Status command showing time remaining
 - Cancel command to restore immediately
 - Auto-cancel when duration expires
+- Visual indicator in status command
+- Persistent across sessions (saved to state file)
+
+### User Experience
+
+- Clear countdown display
+- Confirmation before enabling
+- Easy cancellation with `/ccbell:disable` shortcut
+- Visual notification when quick mode expires
 
 ## Research Sources
 
 | Source | Description |
 |--------|-------------|
+| [Go time Package](https://pkg.go.dev/time) | :books: Time handling and timers |
+| [Go Context](https://pkg.go.dev/context) | :books: Context with cancellation |
 | [State management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) | :books: State management |
 | [State file location](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) | :books: State file handling |
