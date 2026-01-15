@@ -1,11 +1,11 @@
 ---
-name: Extra Hook Sounds
-description: Add sound notifications for additional Claude Code hook events (SessionStart, SessionEnd, PreToolUse, PostToolUse, UserPromptSubmit)
+name: Session Hook Sounds
+description: Add sound notifications for SessionStart and SessionEnd Claude Code hook events
 ---
 
-# Feature: Extra Hook Sounds
+# Feature: Session Hook Sounds
 
-Add sound notifications for additional Claude Code hook events beyond the current Stop, Notification, and SubagentStop support.
+Add sound notifications for SessionStart and SessionEnd Claude Code hook events.
 
 ## Table of Contents
 
@@ -29,7 +29,7 @@ Add sound notifications for additional Claude Code hook events beyond the curren
 
 ## Summary
 
-Extend ccbell to play sounds for additional Claude Code hook events: SessionStart, SessionEnd, PreToolUse, PostToolUse, and UserPromptSubmit. This enables users to have auditory awareness of more workflow events.
+Extend ccbell to play sounds for session lifecycle events: SessionStart and SessionEnd. Know when a Claude Code session begins and ends without looking at the terminal.
 
 ## Benefit
 
@@ -43,7 +43,7 @@ Extend ccbell to play sounds for additional Claude Code hook events: SessionStar
 
 | Aspect | Assessment |
 |--------|------------|
-| :rocket: Priority | 🟡 Medium |
+| :rocket: Priority | 🟢 Low |
 | :construction: Complexity | 🟢 Low |
 | :warning: Risk Level | 🟢 Low |
 
@@ -55,7 +55,7 @@ Can this be implemented using Claude Code's native features?
 
 | Feature | Description |
 |---------|-------------|
-| :keyboard: Commands | New `hooks` command to manage extra hook sounds |
+| :keyboard: Commands | New `session` command to manage session sounds |
 | :hook: Hooks | Add new hook definitions to hooks.json |
 | :toolbox: Tools | Read, Write, Bash tools for hook configuration |
 
@@ -84,9 +84,9 @@ Describe how this feature integrates with the existing ccbell plugin:
 
 | Aspect | Description |
 |--------|-------------|
-| :hand: User Interaction | Users run `/ccbell:hooks configure` to enable/disable extra hook sounds |
-| :wrench: Configuration | Adds `hooks` section with event → sound mappings |
-| :gear: Default Behavior | All extra hook sounds disabled by default |
+| :hand: User Interaction | Users run `/ccbell:session configure` to enable/disable session sounds |
+| :wrench: Configuration | Adds `session` section with session_start and session_end events |
+| :gear: Default Behavior | Both session sounds disabled by default |
 
 ## Repository Impact
 
@@ -98,9 +98,9 @@ Files that may be affected in cc-plugins:
 |------|-------------|
 | `plugins/ccbell/.claude-plugin/plugin.json` | :package: Plugin manifest (version bump) |
 | `plugins/ccbell/scripts/ccbell.sh` | :arrow_down: Download script (version sync) |
-| `plugins/ccbell/hooks/hooks.json` | :hook: Add new hook definitions for extra events |
-| `plugins/ccbell/commands/*.md` | :page_facing_up: Add `hooks.md` command doc |
-| `plugins/ccbell/sounds/` | :sound: Add new sounds for extra hooks |
+| `plugins/ccbell/hooks/hooks.json` | :hook: Add SessionStart and SessionEnd hook definitions |
+| `plugins/ccbell/commands/*.md` | :page_facing_up: Add `session.md` command doc |
+| `plugins/ccbell/sounds/` | :sound: Add session_start.aiff and session_end.aiff |
 
 ### ccbell
 
@@ -108,10 +108,9 @@ Files that may be affected in ccbell:
 
 | File | Description |
 |------|-------------|
-| `main.go` | :rocket: Main entry point (add hook event routing) |
-| `config/config.go` | :wrench: Add `hooks` configuration section |
+| `main.go` | :rocket: Main entry point (add session event routing) |
+| `config/config.go` | :wrench: Add `session` configuration section |
 | `audio/player.go` | :speaker: Audio playback logic (no change needed) |
-| `internal/hooks/hooks.go` | :hook: Hook event handling |
 
 ## Implementation Plan
 
@@ -121,22 +120,20 @@ Steps required in cc-plugins repository:
 
 1. Update plugin.json version
 2. Update ccbell.sh if needed
-3. Add new hook definitions to hooks.json
-4. Add hooks.md command documentation
-5. Add new sound files for extra hooks
+3. Add SessionStart and SessionEnd hook definitions to hooks.json
+4. Add session.md command documentation
+5. Add session_start.aiff and session_end.aiff sound files
 6. Commit and push
 
 ### ccbell
 
 Steps required in ccbell repository:
 
-1. Add hooks section to config structure
-2. Create internal/hooks/hooks.go for event handling
-3. Update main.go to route new hook events
-4. Add `--hook` flag to specify which hook event triggered
-5. Update version in main.go
-6. Tag and release vX.X.X
-7. Sync version to cc-plugins
+1. Add session section to config structure
+2. Update main.go to route session_start and session_end events
+3. Update version in main.go
+4. Tag and release vX.X.X
+5. Sync version to cc-plugins
 
 ## External Dependencies
 
@@ -155,21 +152,21 @@ Steps required in ccbell repository:
 
 ## Research Details
 
-### Claude Code Available Hook Events
+### Claude Code Session Hook Events
 
-Claude Code supports the following hook events:
+Claude Code supports session lifecycle hooks:
 
-| Event | Trigger | Use Case for Sound |
-|-------|---------|-------------------|
+| Event | Trigger | Use Case |
+|-------|---------|----------|
 | `SessionStart` | Claude Code session begins | Session started notification |
 | `SessionEnd` | Claude Code session ends | Session completed notification |
-| `Stop` | Main agent considers stopping | ✅ Already supported |
-| `SubagentStop` | Subagent considers stopping | ✅ Already supported |
-| `Notification` | Permission/idle prompts | ✅ Already supported |
-| `PreToolUse` | Before any tool is called | Tool execution started |
-| `PostToolUse` | After a tool completes | Tool execution finished |
-| `UserPromptSubmit` | User submits a prompt | User input received |
-| `PreCompact` | Before transcript compaction | Internal event |
+
+### Why Only Session Hooks?
+
+Other hook events like `PreToolUse` and `PostToolUse` fire on EVERY tool call (potentially 100+ times per session), which would create audio chaos. Session hooks are:
+- Infrequent (once per session)
+- Meaningful (session lifecycle events)
+- Non-intrusive (user won't be overwhelmed)
 
 ### Current Hook Configuration
 
@@ -188,7 +185,7 @@ Current ccbell hooks.json:
 
 ### Proposed Hook Configuration
 
-New hooks.json with extra hook sounds:
+New hooks.json with session hooks:
 
 ```json
 {
@@ -199,94 +196,53 @@ New hooks.json with extra hook sounds:
   ],
   "SubagentStop": [{ "matcher": "*", "hooks": [{ "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh subagent", "timeout": 10 }] }],
   "SessionStart": [{ "matcher": "*", "hooks": [{ "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh session_start", "timeout": 10 }] }],
-  "SessionEnd": [{ "matcher": "*", "hooks": [{ "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh session_end", "timeout": 10 }] }],
-  "PreToolUse": [{ "matcher": ".*", "hooks": [{ "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh pretooluse", "timeout": 5 }] }],
-  "PostToolUse": [{ "matcher": ".*", "hooks": [{ "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh posttooluse", "timeout": 5 }] }],
-  "UserPromptSubmit": [{ "matcher": ".*", "hooks": [{ "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh user_prompt", "timeout": 10 }] }]
+  "SessionEnd": [{ "matcher": "*", "hooks": [{ "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ccbell.sh session_end", "timeout": 10 }] }]
 }
 ```
 
 ### Configuration Schema
 
-New `hooks` configuration section:
+New `session` configuration section:
 
 ```json
 {
-  "hooks": {
+  "session": {
     "session_start": {
       "enabled": false,
       "sound": "bundled:session_start",
-      "volume": 0.5,
-      "cooldown": 0
+      "volume": 0.5
     },
     "session_end": {
       "enabled": false,
       "sound": "bundled:session_end",
-      "volume": 0.5,
-      "cooldown": 0
-    },
-    "pretooluse": {
-      "enabled": false,
-      "sound": "bundled:pretooluse",
-      "volume": 0.3,
-      "cooldown": 1
-    },
-    "posttooluse": {
-      "enabled": false,
-      "sound": "bundled:posttooluse",
-      "volume": 0.3,
-      "cooldown": 1
-    },
-    "user_prompt": {
-      "enabled": false,
-      "sound": "bundled:user_prompt",
-      "volume": 0.5,
-      "cooldown": 0
+      "volume": 0.5
     }
   }
 }
 ```
 
-### Sound Design Considerations
+### Sound Design
 
-| Hook Event | Suggested Sound | Cooldown |
-|------------|-----------------|----------|
-| SessionStart | Gentle startup chime | 0s |
-| SessionEnd | Soft exit sound | 0s |
-| PreToolUse | Very subtle click | 1s |
-| PostToolUse | Very subtle click | 1s |
-| UserPromptSubmit | Notification-like | 0s |
-
-**Note:** PreToolUse and PostToolUse fire very frequently (on every tool call), so sounds should be:
-- Very short in duration
-- Lower volume
-- Longer cooldowns enabled by default
+| Event | Suggested Sound |
+|-------|-----------------|
+| SessionStart | Gentle startup chime |
+| SessionEnd | Soft exit sound |
 
 ### Go Implementation
 
 #### Config Update
 
 ```go
-type HookConfig struct {
+type SessionConfig struct {
     Enabled  bool    `json:"enabled,omitempty"`
     Sound    string  `json:"sound,omitempty"`
     Volume   float64 `json:"volume,omitempty"`
-    Cooldown int     `json:"cooldown,omitempty"`
 }
 
 type Config struct {
     // ... existing fields ...
-    Hooks map[string]*HookConfig `json:"hooks,omitempty"`
+    Session *SessionConfig `json:"session,omitempty"`
 }
-
-// Extra hook events
-const (
-    HookSessionStart    = "session_start"
-    HookSessionEnd      = "session_end"
-    HookPreToolUse      = "pretooluse"
-    HookPostToolUse     = "posttooluse"
-    HookUserPromptSubmit = "user_prompt"
-)
 ```
 
 #### Main.go Update
@@ -300,24 +256,21 @@ var validEvents = map[string]bool{
     "subagent":          true,
     "session_start":     true,
     "session_end":       true,
-    "pretooluse":        true,
-    "posttooluse":       true,
-    "user_prompt":       true,
 }
 ```
 
 ### Command Interface
 
-New `/ccbell:hooks` command:
+New `/ccbell:session` command:
 
 ```
-/ccbell:hooks          # Show current hook configurations
-/ccbell:hooks enable   # Enable a specific hook sound
-/ccbell:hooks disable  # Disable a specific hook sound
-/ccbell:hooks configure # Interactive setup for hook sounds
+/ccbell:session          # Show current session configurations
+/ccbell:session enable   # Enable session sounds
+/ccbell:session disable  # Disable session sounds
+/ccbell:session configure # Interactive setup for session sounds
 ```
 
-### Research Sources
+## Research Sources
 
 | Source | Description |
 |--------|-------------|
