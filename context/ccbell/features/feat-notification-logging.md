@@ -1,110 +1,175 @@
-# Feature: Notification Logging 📋
+---
+name: Notification Logging
+description: Maintain a detailed log of all notification events for debugging and analysis
+---
 
-## Summary
+# Notification Logging
 
 Maintain a detailed log of all notification events for debugging and analysis.
 
+## Table of Contents
+
+1. [Summary](#summary)
+2. [Benefit](#benefit)
+3. [Priority & Complexity](#priority--complexity)
+4. [Feasibility](#feasibility)
+   - [Claude Code](#claude-code)
+   - [Audio Player](#audio-player)
+   - [External Dependencies](#external-dependencies)
+5. [Usage in ccbell Plugin](#usage-in-ccbell-plugin)
+6. [Repository Impact](#repository-impact)
+   - [cc-plugins](#cc-plugins)
+   - [ccbell](#ccbell)
+7. [Implementation](#implementation)
+   - [cc-plugins](#cc-plugins-1)
+   - [ccbell](#ccbell-1)
+8. [External Dependencies](#external-dependencies-1)
+9. [Research Details](#research-details)
+10. [Research Sources](#research-sources)
+
+## Summary
+
+Maintain a detailed log of all notification events for debugging and analysis. Provides historical visibility into notification behavior.
+
 ## Benefit
 
-- **Historical visibility**: Review what notifications fired and when
-- **Pattern recognition**: Identify trends in Claude Code usage
-- **Audit trail**: Track notification behavior for troubleshooting
-- **Data-driven optimization**: Refine settings based on log data
+| Aspect | Description |
+|--------|-------------|
+| :bust_in_silhouette: User Impact | Review what notifications fired and when |
+| :memo: Use Cases | Pattern recognition, audit trail, troubleshooting |
+| :dart: Value Proposition | Data-driven optimization based on log data |
 
 ## Priority & Complexity
 
-| Attribute | Value |
-|-----------|-------|
-| **Priority** | Low |
-| **Complexity** | Low |
-| **Category** | Logging |
+| Aspect | Assessment |
+|--------|------------|
+| :rocket: Priority | `[Low]` |
+| :construction: Complexity | `[Low]` |
+| :warning: Risk Level | `[Low]` |
 
-## Technical Feasibility
+## Feasibility
 
-### Log Format
+### Claude Code
 
-```
-2026-01-14 10:32:05 [INFO]  stop      ~/.claude/ccbell/sounds/stop.aiff   vol=0.50
-2026-01-14 10:32:08 [INFO]  permission  bundled:permission_prompt.aiff   vol=0.70
-2026-01-14 10:32:15 [INFO]  idle      bundled:idle_prompt.aiff           suppressed=quiet_hours
-```
+Can this be implemented using Claude Code's native features?
 
-### Configuration
+| Feature | Description |
+|---------|-------------|
+| :keyboard: Commands | New `log` command with tail/show/clear/stats |
+| :hook: Hooks | Uses existing hooks for event handling |
+| :toolbox: Tools | Read, Write, Bash tools for log operations |
 
-```json
-{
-  "logging": {
-    "enabled": true,
-    "path": "~/.claude/ccbell/notification.log",
-    "level": "info",
-    "max_size_mb": 10,
-    "max_files": 5
-  }
-}
-```
+### Audio Player
 
-### Implementation
+How will audio playback be handled?
 
-```go
-type NotificationLog struct {
-    Path      string
-    MaxSizeMB int
-    MaxFiles  int
-}
+| Aspect | Description |
+|--------|-------------|
+| :speaker: afplay | Not affected by this feature |
+| :computer: Platform Support | Cross-platform compatible |
+| :musical_note: Audio Formats | No audio format changes |
 
-type LogEntry struct {
-    Timestamp  time.Time
-    Event      string
-    Sound      string
-    Volume     float64
-    Reason     string  // "played", "suppressed_quiet_hours", "suppressed_cooldown"
-}
+### External Dependencies
 
-func (l *NotificationLog) Append(entry LogEntry) error {
-    data, _ := json.Marshal(entry)
-    f, _ := os.OpenFile(l.Path, os.O_APPEND|os.O_CREATE, 0644)
-    defer f.Close()
-    _, err := f.WriteString(string(data) + "\n")
-    return err
-}
-```
+Are external tools or libraries required?
 
-### Commands
+No external dependencies - uses Go standard library.
 
-```bash
-/ccbell:log tail               # Show recent logs
-/ccbell:log show --today       # Today's logs
-/ccbell:log clear              # Clear log file
-/ccbell:log stats              # Log statistics
-```
+## Usage in ccbell Plugin
+
+Describe how this feature integrates with the existing ccbell plugin:
+
+| Aspect | Description |
+|--------|-------------|
+| :hand: User Interaction | Users run `/ccbell:log` commands to view/manage logs |
+| :wrench: Configuration | Adds `logging` section to config |
+| :gear: Default Behavior | Logs notification events automatically |
 
 ## Repository Impact
 
-### ccbell Repository
+### cc-plugins
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **Config** | Add | `logging` section |
-| **Core Logic** | Add | `Logger` with Append/Rotate |
-| **New File** | Add | `internal/logger/notification.go` |
-| **Commands** | Add | `log` command |
+Files that may be affected in cc-plugins:
 
-### cc-plugins Repository
+| File | Description |
+|------|-------------|
+| `plugins/ccbell/.claude-plugin/plugin.json` | :package: Plugin manifest (version bump) |
+| `plugins/ccbell/scripts/ccbell.sh` | :arrow_down: Download script (version sync) |
+| `plugins/ccbell/hooks/hooks.json` | :hook: Hook definitions (no change) |
+| `plugins/ccbell/commands/*.md` | :page_facing_up: Add `log.md` command doc |
+| `plugins/ccbell/sounds/` | :sound: Audio files (no change) |
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **plugin.json** | No change | Feature in binary |
-| **hooks/hooks.json** | No change | Uses existing hooks |
-| **commands/log.md** | Add | New command doc |
-| **commands/status.md** | Update | Add logging status |
-| **scripts/ccbell.sh** | Version sync | Match ccbell release |
+### ccbell
 
-## References
+Files that may be affected in ccbell:
 
-- [Main flow](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go)
-- [State management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go)
-- [Logger pattern](https://github.com/mpolatcan/ccbell/blob/main/internal/logger/logger.go)
+| File | Description |
+|------|-------------|
+| `main.go` | :rocket: Main entry point (version bump) |
+| `config/config.go` | :wrench: Add `logging` section |
+| `audio/player.go` | :speaker: Audio playback logic (no change) |
+| `hooks/*.go` | :hook: Hook implementations (no change) |
 
----
+## Implementation
 
-[Back to Feature Index](index.md)
+### cc-plugins
+
+Steps required in cc-plugins repository:
+
+```bash
+# 1. Update plugin.json version
+# 2. Update ccbell.sh if needed
+# 3. Add/update command documentation
+# 4. Add/update hooks configuration
+# 5. Add new sound files if applicable
+```
+
+### ccbell
+
+Steps required in ccbell repository:
+
+```bash
+# 1. Add logging section to config structure
+# 2. Create internal/logger/notification.go
+# 3. Implement Logger with Append/Rotate methods
+# 4. Add log command with tail/show/clear/stats options
+# 5. Update version in main.go
+# 6. Tag and release vX.X.X
+# 7. Sync version to cc-plugins
+```
+
+## External Dependencies
+
+| Dependency | Version | Purpose | Required |
+|------------|---------|---------|----------|
+| None | | | `[No]` |
+
+## Research Details
+
+### Claude Code Plugins
+
+Plugin manifest supports commands. New log command can be added.
+
+### Claude Code Hooks
+
+No new hooks needed - logging integrated into main flow.
+
+### Audio Playback
+
+Not affected by this feature.
+
+### Other Findings
+
+Logging features:
+- Timestamp, event type, sound, volume tracking
+- Suppression reasons (quiet_hours, cooldown)
+- Log rotation with max size and file count
+- Statistics and query capabilities
+
+## Research Sources
+
+| Source | Description |
+|--------|-------------|
+| [Main flow](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) | :books: Main flow |
+| [State management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) | :books: State management |
+| [Logger pattern](https://github.com/mpolatcan/ccbell/blob/main/internal/logger/logger.go) | :books: Logger implementation |

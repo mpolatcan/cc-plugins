@@ -1,100 +1,173 @@
-# Feature: Cooldown Status Display ⏱️
+---
+name: Cooldown Status Display
+description: Display how much time remains before each event can trigger again
+---
 
-## Summary
+# Cooldown Status Display
 
 Display how much time remains before each event can trigger again.
 
+## Table of Contents
+
+1. [Summary](#summary)
+2. [Benefit](#benefit)
+3. [Priority & Complexity](#priority--complexity)
+4. [Feasibility](#feasibility)
+   - [Claude Code](#claude-code)
+   - [Audio Player](#audio-player)
+   - [External Dependencies](#external-dependencies)
+5. [Usage in ccbell Plugin](#usage-in-ccbell-plugin)
+6. [Repository Impact](#repository-impact)
+   - [cc-plugins](#cc-plugins)
+   - [ccbell](#ccbell)
+7. [Implementation](#implementation)
+   - [cc-plugins](#cc-plugins-1)
+   - [ccbell](#ccbell-1)
+8. [External Dependencies](#external-dependencies-1)
+9. [Research Details](#research-details)
+10. [Research Sources](#research-sources)
+
+## Summary
+
+Display how much time remains before each event can trigger again. Helps users understand why notifications aren't firing and adjust their workflow accordingly.
+
 ## Benefit
 
-- **Reduced confusion**: Users understand why notifications aren't firing
-- **Faster troubleshooting**: Visual countdown helps adjust cooldown settings
-- **Better control**: Knowing exact timing helps plan workflow
-- **Improved trust**: Transparent behavior makes ccbell predictable
+| Aspect | Description |
+|--------|-------------|
+| :bust_in_silhouette: User Impact | Users understand why notifications aren't firing |
+| :memo: Use Cases | Troubleshooting cooldown settings, planning workflow |
+| :dart: Value Proposition | Transparent behavior makes ccbell predictable |
 
 ## Priority & Complexity
 
-| Attribute | Value |
-|-----------|-------|
-| **Priority** | Low |
-| **Complexity** | Low |
-| **Category** | Display |
+| Aspect | Assessment |
+|--------|------------|
+| :rocket: Priority | `[Low]` |
+| :construction: Complexity | `[Low]` |
+| :warning: Risk Level | `[Low]` |
 
-## Technical Feasibility
+## Feasibility
 
-### Status Output
+### Claude Code
 
-```
-$ /ccbell:status cooldown
+Can this be implemented using Claude Code's native features?
 
-=== Cooldown Status ===
+| Feature | Description |
+|---------|-------------|
+| :keyboard: Commands | Enhanced `status` command with cooldown subcommand |
+| :hook: Hooks | Uses existing hooks for event handling |
+| :toolbox: Tools | Read, Write, Bash tools for state access |
 
-stop:               Ready (0s remaining)
-permission_prompt:  Ready (0s remaining)
-idle_prompt:        23s remaining (until 14:32:45)
-subagent:           Ready (0s remaining)
-```
+### Audio Player
 
-### Implementation
+How will audio playback be handled?
 
-```go
-func (s *State) GetCooldownRemaining(eventType string) int {
-    if s.Cooldowns == nil { return 0 }
+| Aspect | Description |
+|--------|-------------|
+| :speaker: afplay | Not affected by this feature |
+| :computer: Platform Support | Cross-platform compatible |
+| :musical_note: Audio Formats | No audio format changes |
 
-    endTime, ok := s.Cooldowns[eventType]
-    if !ok { return 0 }
+### External Dependencies
 
-    remaining := int(time.Until(endTime).Seconds())
-    if remaining < 0 { return 0 }
-    return remaining
-}
+Are external tools or libraries required?
 
-func formatDuration(seconds int) string {
-    if seconds < 60 {
-        return fmt.Sprintf("%ds", seconds)
-    }
-    if seconds < 3600 {
-        return fmt.Sprintf("%dm %ds", seconds/60, seconds%60)
-    }
-    return fmt.Sprintf("%dh %dm", seconds/3600, (seconds%3600)/60)
-}
-```
+No external dependencies - uses Go standard library.
 
-### Commands
+## Usage in ccbell Plugin
 
-```bash
-/ccbell:status              # Full status including cooldown
-/ccbell:status cooldown     # Cooldown-specific status
-/ccbell:cooldown reset      # Reset all cooldowns
-```
+Describe how this feature integrates with the existing ccbell plugin:
 
-## Configuration
-
-No config changes - enhances status display.
+| Aspect | Description |
+|--------|-------------|
+| :hand: User Interaction | Users run `/ccbell:status` or `/ccbell:status cooldown` |
+| :wrench: Configuration | No config changes - enhances status display |
+| :gear: Default Behavior | Shows cooldown status automatically in status output |
 
 ## Repository Impact
 
-### ccbell Repository
+### cc-plugins
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **State** | Add | `GetCooldownRemaining()` method |
-| **Commands** | Modify | Enhance `status` command |
+Files that may be affected in cc-plugins:
 
-### cc-plugins Repository
+| File | Description |
+|------|-------------|
+| `plugins/ccbell/.claude-plugin/plugin.json` | :package: Plugin manifest (version bump) |
+| `plugins/ccbell/scripts/ccbell.sh` | :arrow_down: Download script (version sync) |
+| `plugins/ccbell/hooks/hooks.json` | :hook: Hook definitions (no change) |
+| `plugins/ccbell/commands/*.md` | :page_facing_up: Update `status.md` with cooldown section |
+| `plugins/ccbell/sounds/` | :sound: Audio files (no change) |
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **plugin.json** | No change | Feature in binary |
-| **hooks/hooks.json** | No change | Uses existing hooks |
-| **commands/status.md** | Update | Add cooldown section |
-| **scripts/ccbell.sh** | Version sync | Match ccbell release |
+### ccbell
 
-## References
+Files that may be affected in ccbell:
 
-- [State management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go)
-- [Cooldown logic](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go)
-- [Config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go)
+| File | Description |
+|------|-------------|
+| `main.go` | :rocket: Main entry point (version bump) |
+| `config/config.go` | :wrench: Configuration handling (no change) |
+| `audio/player.go` | :speaker: Audio playback logic (no change) |
+| `hooks/*.go` | :hook: Hook implementations (no change) |
 
----
+## Implementation
 
-[Back to Feature Index](index.md)
+### cc-plugins
+
+Steps required in cc-plugins repository:
+
+```bash
+# 1. Update plugin.json version
+# 2. Update ccbell.sh if needed
+# 3. Add/update command documentation
+# 4. Add/update hooks configuration
+# 5. Add new sound files if applicable
+```
+
+### ccbell
+
+Steps required in ccbell repository:
+
+```bash
+# 1. Add GetCooldownRemaining() method to State
+# 2. Add formatDuration() helper function
+# 3. Enhance status command to show cooldown info
+# 4. Update version in main.go
+# 5. Tag and release vX.X.X
+# 6. Sync version to cc-plugins
+```
+
+## External Dependencies
+
+| Dependency | Version | Purpose | Required |
+|------------|---------|---------|----------|
+| None | | | `[No]` |
+
+## Research Details
+
+### Claude Code Plugins
+
+Plugin manifest supports commands. Status command enhancement uses existing patterns.
+
+### Claude Code Hooks
+
+No new hooks needed - uses existing event hooks.
+
+### Audio Playback
+
+Not affected by this feature.
+
+### Other Findings
+
+Cooldown display should show:
+- Ready status for events not in cooldown
+- Time remaining for events in cooldown
+- Estimated resume time
+
+## Research Sources
+
+| Source | Description |
+|--------|-------------|
+| [State management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) | :books: Current state implementation |
+| [Cooldown logic](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) | :books: Cooldown tracking |
+| [Config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) | :books: Config structure |

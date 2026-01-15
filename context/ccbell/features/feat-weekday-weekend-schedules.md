@@ -1,140 +1,176 @@
-# Feature: Weekday/Weekend Schedules 📅
+---
+name: Weekday/Weekend Schedules
+description: Override default quiet hours with weekend-specific schedules
+---
+
+# Weekday/Weekend Schedules
+
+Override default quiet hours with weekend-specific schedules. Respects different schedules for weekdays vs. weekends.
+
+## Table of Contents
+
+1. [Summary](#summary)
+2. [Benefit](#benefit)
+3. [Priority & Complexity](#priority--complexity)
+4. [Feasibility](#feasibility)
+   - [Claude Code](#claude-code)
+   - [Audio Player](#audio-player)
+   - [External Dependencies](#external-dependencies)
+5. [Usage in ccbell Plugin](#usage-in-ccbell-plugin)
+6. [Repository Impact](#repository-impact)
+   - [cc-plugins](#cc-plugins)
+   - [ccbell](#ccbell)
+7. [Implementation](#implementation)
+   - [cc-plugins](#cc-plugins-1)
+   - [ccbell](#ccbell-1)
+8. [External Dependencies](#external-dependencies-1)
+9. [Research Details](#research-details)
+10. [Research Sources](#research-sources)
 
 ## Summary
 
-Override default quiet hours with weekend-specific schedules.
+Override default quiet hours with weekend-specific schedules. Automated adaptation to different schedules for weekdays vs. weekends.
 
 ## Benefit
 
-- **Work-life balance**: Respects different schedules for weekdays vs. weekends
-- **Automated adaptation**: No manual schedule changes needed
-- **Family-friendly**: Quieter notifications when family is around
-- **Personalized rhythms**: Match notification behavior to personal routines
+| Aspect | Description |
+|--------|-------------|
+| :bust_in_silhouette: User Impact | Respects different schedules for work-life balance |
+| :memo: Use Cases | Family-friendly, personalized rhythms |
+| :dart: Value Proposition | Automated adaptation, no manual changes needed |
 
 ## Priority & Complexity
 
-| Attribute | Value |
-|-----------|-------|
-| **Priority** | Medium |
-| **Complexity** | Low |
-| **Category** | Scheduling |
+| Aspect | Assessment |
+|--------|------------|
+| :rocket: Priority | `[Medium]` |
+| :construction: Complexity | `[Low]` |
+| :warning: Risk Level | `[Low]` |
 
-## Technical Feasibility
+## Feasibility
 
-### Configuration
+### Claude Code
 
-```json
-{
-  "quiet_hours": {
-    "enabled": true,
-    "default": {
-      "start": "22:00",
-      "end": "07:00"
-    },
-    "weekday": {
-      "start": "22:00",
-      "end": "07:00"
-    },
-    "weekend": {
-      "start": "23:00",
-      "end": "09:00"
-    }
-  }
-}
-```
+Can this be implemented using Claude Code's native features?
 
-### Implementation
+| Feature | Description |
+|---------|-------------|
+| :keyboard: Commands | Enhanced `quiet hours` command with weekday/weekend options |
+| :hook: Hooks | Uses existing hooks for event handling |
+| :toolbox: Tools | Read, Write, Bash tools for config manipulation |
 
-```go
-type TimeWindow struct {
-    Start string `json:"start"`
-    End   string `json:"end"`
-}
+### Audio Player
 
-type QuietHoursConfig struct {
-    Enabled  *bool        `json:"enabled,omitempty"`
-    Default  *TimeWindow  `json:"default,omitempty"`
-    Weekday  *TimeWindow  `json:"weekday,omitempty"`
-    Weekend  *TimeWindow  `json:"weekend,omitempty"`
-    Timezone *string      `json:"timezone,omitempty"`
-}
+How will audio playback be handled?
 
-func IsInQuietHours(cfg *QuietHoursConfig) bool {
-    if !cfg.Enabled() {
-        return false
-    }
+| Aspect | Description |
+|--------|-------------|
+| :speaker: afplay | Not affected - quiet hours check before playback |
+| :computer: Platform Support | Cross-platform compatible |
+| :musical_note: Audio Formats | No audio format changes |
 
-    now := time.Now()
-    isWeekend := now.Weekday() == time.Saturday || now.Weekday() == time.Sunday
+### External Dependencies
 
-    var window *TimeWindow
-    if isWeekend && cfg.Weekend != nil {
-        window = cfg.Weekend
-    } else if !isWeekend && cfg.Weekday != nil {
-        window = cfg.Weekday
-    } else {
-        window = cfg.Default
-    }
+Are external tools or libraries required?
 
-    if window == nil {
-        return false
-    }
+No external dependencies - uses Go standard library.
 
-    return isInTimeWindow(now, window.Start, window.End)
-}
+## Usage in ccbell Plugin
 
-func isInTimeWindow(now time.Time, start, end string) bool {
-    startParts := strings.Split(start, ":")
-    endParts := strings.Split(end, ":")
-    startH, _ := strconv.Atoi(startParts[0])
-    startM, _ := strconv.Atoi(startParts[1])
-    endH, _ := strconv.Atoi(endParts[0])
-    endM, _ := strconv.Atoi(endParts[1])
+Describe how this feature integrates with the existing ccbell plugin:
 
-    currentMinutes := now.Hour()*60 + now.Minute()
-    startMinutes := startH*60 + startM
-    endMinutes := endH*60 + endM
-
-    if startMinutes <= endMinutes {
-        return currentMinutes >= startMinutes && currentMinutes < endMinutes
-    }
-    return currentMinutes >= startMinutes || currentMinutes < endMinutes
-}
-```
-
-### Commands
-
-```bash
-/ccbell:quiet hours --weekday 22:00-07:00
-/ccbell:quiet hours --weekend 23:00-09:00
-/ccbell:quiet hours status
-```
+| Aspect | Description |
+|--------|-------------|
+| :hand: User Interaction | Users run `/ccbell:quiet hours --weekday 22:00-07:00`, `/ccbell:quiet hours --weekend 23:00-09:00` |
+| :wrench: Configuration | Extends `QuietHours` with `weekday` and `weekend` TimeWindow |
+| :gear: Default Behavior | Uses weekday schedule Mon-Fri, weekend Sat-Sun |
 
 ## Repository Impact
 
-### ccbell Repository
+### cc-plugins
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **Config** | Modify | Extend `QuietHours` with `weekday` and `weekend` TimeWindow |
-| **Core Logic** | Modify | Extend `IsInQuietHours()` with weekday/weekend logic |
-| **Config Loading** | No change | Uses existing config loading |
+Files that may be affected in cc-plugins:
 
-### cc-plugins Repository
+| File | Description |
+|------|-------------|
+| `plugins/ccbell/.claude-plugin/plugin.json` | :package: Plugin manifest (version bump) |
+| `plugins/ccbell/scripts/ccbell.sh` | :arrow_down: Download script (version sync) |
+| `plugins/ccbell/hooks/hooks.json` | :hook: Hook definitions (no change) |
+| `plugins/ccbell/commands/*.md` | :page_facing_up: Update configure.md with weekday/weekend options |
+| `plugins/ccbell/sounds/` | :sound: Audio files (no change) |
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **plugin.json** | No change | Feature in binary |
-| **hooks/hooks.json** | No change | Uses existing hooks |
-| **commands/configure.md** | Update | Add weekday/weekend schedule options |
-| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+### ccbell
 
-## References
+Files that may be affected in ccbell:
 
-- [Go time package](https://pkg.go.dev/time)
-- [Current quiet hours implementation](https://github.com/mpolatcan/ccbell/blob/main/internal/config/quiethours.go)
-- [Time parsing](https://github.com/mpolatcan/ccbell/blob/main/internal/config/quiethours.go)
+| File | Description |
+|------|-------------|
+| `main.go` | :rocket: Main entry point (version bump) |
+| `config/config.go` | :wrench: Extend QuietHours with weekday/weekend |
+| `audio/player.go` | :speaker: Check quiet hours before playback |
+| `hooks/*.go` | :hook: Hook implementations (no change) |
 
----
+## Implementation
 
-[Back to Feature Index](index.md)
+### cc-plugins
+
+Steps required in cc-plugins repository:
+
+```bash
+# 1. Update plugin.json version
+# 2. Update ccbell.sh if needed
+# 3. Add/update command documentation
+# 4. Add/update hooks configuration
+# 5. Add new sound files if applicable
+```
+
+### ccbell
+
+Steps required in ccbell repository:
+
+```bash
+# 1. Extend QuietHoursConfig with weekday and weekend TimeWindow
+# 2. Extend IsInQuietHours() with weekday/weekend logic
+# 3. Add --weekday and --weekend flags to quiet hours command
+# 4. Support timezone configuration
+# 5. Update version in main.go
+# 6. Tag and release vX.X.X
+# 7. Sync version to cc-plugins
+```
+
+## External Dependencies
+
+| Dependency | Version | Purpose | Required |
+|------------|---------|---------|----------|
+| None | | | `[No]` |
+
+## Research Details
+
+### Claude Code Plugins
+
+Plugin manifest supports commands. Schedule options can be added to configure command.
+
+### Claude Code Hooks
+
+No new hooks needed - quiet hours check integrated into main flow.
+
+### Audio Playback
+
+Playback is skipped during quiet hours based on day of week.
+
+### Other Findings
+
+Schedule features:
+- Default quiet hours (fallback)
+- Weekday-specific schedule (Mon-Fri)
+- Weekend-specific schedule (Sat-Sun)
+- Timezone support
+- Flexible start/end times
+
+## Research Sources
+
+| Source | Description |
+|--------|-------------|
+| [Go time package](https://pkg.go.dev/time) | :books: Time handling |
+| [Current quiet hours implementation](https://github.com/mpolatcan/ccbell/blob/main/internal/config/quiethours.go) | :books: Quiet hours |
+| [Time parsing](https://github.com/mpolatcan/ccbell/blob/main/internal/config/quiethours.go) | :books: Time parsing |

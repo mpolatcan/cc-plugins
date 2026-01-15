@@ -1,97 +1,174 @@
-# Feature: Export/Import Config 📤
+---
+name: Export/Import Config
+description: Export current ccbell configuration to a portable JSON file and import from files or URLs
+---
 
-## Summary
+# Export/Import Config
 
 Export current ccbell configuration to a portable JSON file. Import configurations from files or URLs.
 
+## Table of Contents
+
+1. [Summary](#summary)
+2. [Benefit](#benefit)
+3. [Priority & Complexity](#priority--complexity)
+4. [Feasibility](#feasibility)
+   - [Claude Code](#claude-code)
+   - [Audio Player](#audio-player)
+   - [External Dependencies](#external-dependencies)
+5. [Usage in ccbell Plugin](#usage-in-ccbell-plugin)
+6. [Repository Impact](#repository-impact)
+   - [cc-plugins](#cc-plugins)
+   - [ccbell](#ccbell)
+7. [Implementation](#implementation)
+   - [cc-plugins](#cc-plugins-1)
+   - [ccbell](#ccbell-1)
+8. [External Dependencies](#external-dependencies-1)
+9. [Research Details](#research-details)
+10. [Research Sources](#research-sources)
+
+## Summary
+
+Export current ccbell configuration to a portable JSON file. Import configurations from files or URLs. Enables team collaboration and easy backup.
+
 ## Benefit
 
-- **Team collaboration**: Standardize notification setups
-- **Easy backup**: Protect configurations from accidental loss
-- **Rapid onboarding**: New members get productive instantly
-- **Experimentation safe**: Export before changes, restore if needed
+| Aspect | Description |
+|--------|-------------|
+| :bust_in_silhouette: User Impact | Team collaboration, easy backup protection |
+| :memo: Use Cases | Standardizing notification setups across team members |
+| :dart: Value Proposition | New members get productive instantly |
 
 ## Priority & Complexity
 
-| Attribute | Value |
-|-----------|-------|
-| **Priority** | Nice to Have |
-| **Complexity** | Low |
-| **Category** | Config Management |
+| Aspect | Assessment |
+|--------|------------|
+| :rocket: Priority | `[Low]` |
+| :construction: Complexity | `[Low]` |
+| :warning: Risk Level | `[Low]` |
 
-## Technical Feasibility
+## Feasibility
 
-### Commands
+### Claude Code
 
-```bash
-/ccbell:config export --file ~/ccbell-config.json
-/ccbell:config import ~/ccbell-config.json
-/ccbell:config import https://example.com/my-config.json
-```
+Can this be implemented using Claude Code's native features?
 
-### Implementation
+| Feature | Description |
+|---------|-------------|
+| :keyboard: Commands | New `config` command with export/import options |
+| :hook: Hooks | Uses existing hooks for event handling |
+| :toolbox: Tools | Read, Write, Bash tools for file operations |
 
-```go
-func (c *Config) Export(path string, includeSecrets bool) error {
-    exportCfg := c.DeepCopy()
+### Audio Player
 
-    if !includeSecrets {
-        exportCfg.GlobalVolume = nil
-        for _, event := range exportCfg.Events {
-            event.Volume = nil
-        }
-    }
+How will audio playback be handled?
 
-    data, _ := json.MarshalIndent(exportCfg, "", "  ")
-    return os.WriteFile(path, data, 0644)
-}
+| Aspect | Description |
+|--------|-------------|
+| :speaker: afplay | Not affected by this feature |
+| :computer: Platform Support | Cross-platform compatible |
+| :musical_note: Audio Formats | No audio format changes |
 
-func (c *Config) Import(path string, merge bool) error {
-    data, err := os.ReadFile(path)
-    if err != nil { return err }
+### External Dependencies
 
-    var imported Config
-    if err := json.Unmarshal(data, &imported); err != nil {
-        return fmt.Errorf("invalid config: %w", err)
-    }
+Are external tools or libraries required?
 
-    if merge {
-        return c.Merge(&imported)
-    }
-    *c = imported
-    return nil
-}
-```
+No external dependencies - uses Go's standard `encoding/json`.
 
-## Configuration
+## Usage in ccbell Plugin
 
-No schema change - pure JSON serialization.
+Describe how this feature integrates with the existing ccbell plugin:
+
+| Aspect | Description |
+|--------|-------------|
+| :hand: User Interaction | Users run `/ccbell:config export` or `/ccbell:config import` |
+| :wrench: Configuration | No schema change - pure JSON serialization |
+| :gear: Default Behavior | Supports merge or replace on import |
 
 ## Repository Impact
 
-### ccbell Repository
+### cc-plugins
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **Config** | Add | `Export()`, `Import()`, `Merge()` methods |
-| **Commands** | Add | `config` command (export, import) |
-| **New File** | Add | `internal/config/export.go` |
+Files that may be affected in cc-plugins:
 
-### cc-plugins Repository
+| File | Description |
+|------|-------------|
+| `plugins/ccbell/.claude-plugin/plugin.json` | :package: Plugin manifest (version bump) |
+| `plugins/ccbell/scripts/ccbell.sh` | :arrow_down: Download script (version sync) |
+| `plugins/ccbell/hooks/hooks.json` | :hook: Hook definitions (no change) |
+| `plugins/ccbell/commands/*.md` | :page_facing_up: Add `config.md` command doc |
+| `plugins/ccbell/sounds/` | :sound: Audio files (no change) |
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **plugin.json** | No change | Feature in binary |
-| **hooks/hooks.json** | No change | Uses existing hooks |
-| **commands/config.md** | Add | New command doc |
-| **scripts/ccbell.sh** | Version sync | Match ccbell release |
+### ccbell
 
-## References
+Files that may be affected in ccbell:
 
-- [Config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go)
-- [Config validation](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go)
-- [JSON marshaling](https://pkg.go.dev/encoding/json)
+| File | Description |
+|------|-------------|
+| `main.go` | :rocket: Main entry point (version bump) |
+| `config/config.go` | :wrench: Add Export(), Import(), Merge() methods |
+| `audio/player.go` | :speaker: Audio playback logic (no change) |
+| `hooks/*.go` | :hook: Hook implementations (no change) |
 
----
+## Implementation
 
-[Back to Feature Index](index.md)
+### cc-plugins
+
+Steps required in cc-plugins repository:
+
+```bash
+# 1. Update plugin.json version
+# 2. Update ccbell.sh if needed
+# 3. Add/update command documentation
+# 4. Add/update hooks configuration
+# 5. Add new sound files if applicable
+```
+
+### ccbell
+
+Steps required in ccbell repository:
+
+```bash
+# 1. Implement Export() method for config
+# 2. Implement Import() method with merge option
+# 3. Create internal/config/export.go
+# 4. Add config command with export/import options
+# 5. Update version in main.go
+# 6. Tag and release vX.X.X
+# 7. Sync version to cc-plugins
+```
+
+## External Dependencies
+
+| Dependency | Version | Purpose | Required |
+|------------|---------|---------|----------|
+| None | | | `[No]` |
+
+## Research Details
+
+### Claude Code Plugins
+
+Plugin manifest supports commands. Config export/import command can be added.
+
+### Claude Code Hooks
+
+No new hooks needed - uses existing event hooks.
+
+### Audio Playback
+
+Not affected by this feature.
+
+### Other Findings
+
+Export/Import features:
+- Export to file with optional secrets exclusion
+- Import from file or URL
+- Merge or replace on import
+
+## Research Sources
+
+| Source | Description |
+|--------|-------------|
+| [Config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) | :books: Config loading |
+| [Config validation](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) | :books: Validation |
+| [JSON marshaling](https://pkg.go.dev/encoding/json) | :books: JSON handling |

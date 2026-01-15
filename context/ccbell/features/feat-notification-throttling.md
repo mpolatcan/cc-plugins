@@ -1,106 +1,176 @@
-# Feature: Notification Throttling 🚦
+---
+name: Notification Throttling
+description: Prevent notification spam by limiting the total number of notifications within a configurable time window
+---
 
-## Summary
+# Notification Throttling
 
 Prevent notification spam by limiting the total number of notifications within a configurable time window.
 
+## Table of Contents
+
+1. [Summary](#summary)
+2. [Benefit](#benefit)
+3. [Priority & Complexity](#priority--complexity)
+4. [Feasibility](#feasibility)
+   - [Claude Code](#claude-code)
+   - [Audio Player](#audio-player)
+   - [External Dependencies](#external-dependencies)
+5. [Usage in ccbell Plugin](#usage-in-ccbell-plugin)
+6. [Repository Impact](#repository-impact)
+   - [cc-plugins](#cc-plugins)
+   - [ccbell](#ccbell)
+7. [Implementation](#implementation)
+   - [cc-plugins](#cc-plugins-1)
+   - [ccbell](#ccbell-1)
+8. [External Dependencies](#external-dependencies-1)
+9. [Research Details](#research-details)
+10. [Research Sources](#research-sources)
+
+## Summary
+
+Prevent notification spam by limiting the total number of notifications within a configurable time window. Reduces notification fatigue during busy work.
+
 ## Benefit
 
-- **Reduced notification fatigue**: Fewer but meaningful notifications
-- **Better focus during busy work**: Automatic quiet periods
-- **Prevents sound fatigue**: Users don't tire of repeated sounds
-- **Intelligent filtering**: System learns when to be quiet
+| Aspect | Description |
+|--------|-------------|
+| :bust_in_silhouette: User Impact | Fewer but meaningful notifications |
+| :memo: Use Cases | Busy work periods, focus time |
+| :dart: Value Proposition | Prevents sound fatigue, intelligent filtering |
 
 ## Priority & Complexity
 
-| Attribute | Value |
-|-----------|-------|
-| **Priority** | Medium |
-| **Complexity** | Low |
-| **Category** | Notification Control |
+| Aspect | Assessment |
+|--------|------------|
+| :rocket: Priority | `[Medium]` |
+| :construction: Complexity | `[Low]` |
+| :warning: Risk Level | `[Low]` |
 
-## Technical Feasibility
+## Feasibility
 
-### Configuration
+### Claude Code
 
-```json
-{
-  "throttling": {
-    "enabled": true,
-    "max_count": 5,
-    "window_minutes": 1,
-    "action": "silence"
-  }
-}
-```
+Can this be implemented using Claude Code's native features?
 
-### Implementation
+| Feature | Description |
+|---------|-------------|
+| :keyboard: Commands | New `throttle` command with status/reset |
+| :hook: Hooks | Uses existing hooks for event handling |
+| :toolbox: Tools | Read, Write, Bash tools for throttle operations |
 
-```go
-type ThrottleManager struct {
-    events       []time.Time
-    maxPerMinute int
-    burstLimit   int
-    mutex        sync.Mutex
-}
+### Audio Player
 
-func (t *ThrottleManager) Allow() bool {
-    t.mutex.Lock()
-    defer t.mutex.Unlock()
+How will audio playback be handled?
 
-    now := time.Now()
-    oneMinuteAgo := now.Add(-1 * time.Minute)
+| Aspect | Description |
+|--------|-------------|
+| :speaker: afplay | Not affected - playback skipped when throttled |
+| :computer: Platform Support | Cross-platform compatible |
+| :musical_note: Audio Formats | No audio format changes |
 
-    recent := 0
-    for _, eventTime := range t.events {
-        if eventTime.After(oneMinuteAgo) {
-            recent++
-        }
-    }
+### External Dependencies
 
-    if recent >= t.burstLimit || recent >= t.maxPerMinute {
-        return false
-    }
+Are external tools or libraries required?
 
-    t.events = append(t.events, now)
-    return true
-}
-```
+No external dependencies - uses Go standard library.
 
-### Commands
+## Usage in ccbell Plugin
 
-```bash
-/ccbell:throttle status      # Show current status
-/ccbell:throttle reset       # Reset all throttle windows
-```
+Describe how this feature integrates with the existing ccbell plugin:
+
+| Aspect | Description |
+|--------|-------------|
+| :hand: User Interaction | Users run `/ccbell:throttle` commands to view/reset |
+| :wrench: Configuration | Adds `throttling` section to config |
+| :gear: Default Behavior | Throttles notifications when limit exceeded |
 
 ## Repository Impact
 
-### ccbell Repository
+### cc-plugins
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **Config** | Add | `throttling` section |
-| **Core Logic** | Add | `ThrottleManager` with Allow() |
-| **New File** | Add | `internal/throttle/throttle.go` |
-| **Main Flow** | Modify | Check throttling before playing |
+Files that may be affected in cc-plugins:
 
-### cc-plugins Repository
+| File | Description |
+|------|-------------|
+| `plugins/ccbell/.claude-plugin/plugin.json` | :package: Plugin manifest (version bump) |
+| `plugins/ccbell/scripts/ccbell.sh` | :arrow_down: Download script (version sync) |
+| `plugins/ccbell/hooks/hooks.json` | :hook: Hook definitions (no change) |
+| `plugins/ccbell/commands/*.md` | :page_facing_up: Update configure.md with throttle section |
+| `plugins/ccbell/sounds/` | :sound: Audio files (no change) |
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **plugin.json** | No change | Feature in binary |
-| **hooks/hooks.json** | No change | Uses existing hooks |
-| **commands/configure.md** | Update | Add throttle section |
-| **commands/status.md** | Update | Add throttle status |
-| **scripts/ccbell.sh** | Version sync | Match ccbell release |
+### ccbell
 
-## References
+Files that may be affected in ccbell:
 
-- [State management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go)
-- [Cooldown logic](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go)
-- [Main flow](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go)
+| File | Description |
+|------|-------------|
+| `main.go` | :rocket: Main entry point (version bump) |
+| `config/config.go` | :wrench: Add `throttling` section |
+| `audio/player.go` | :speaker: Check throttling before playback |
+| `hooks/*.go` | :hook: Hook implementations (no change) |
 
----
+## Implementation
 
-[Back to Feature Index](index.md)
+### cc-plugins
+
+Steps required in cc-plugins repository:
+
+```bash
+# 1. Update plugin.json version
+# 2. Update ccbell.sh if needed
+# 3. Add/update command documentation
+# 4. Add/update hooks configuration
+# 5. Add new sound files if applicable
+```
+
+### ccbell
+
+Steps required in ccbell repository:
+
+```bash
+# 1. Add throttling section to config structure
+# 2. Create internal/throttle/throttle.go
+# 3. Implement ThrottleManager with Allow() method
+# 4. Add throttle command with status/reset options
+# 5. Modify main flow to check throttling before playing
+# 6. Update version in main.go
+# 7. Tag and release vX.X.X
+# 8. Sync version to cc-plugins
+```
+
+## External Dependencies
+
+| Dependency | Version | Purpose | Required |
+|------------|---------|---------|----------|
+| None | | | `[No]` |
+
+## Research Details
+
+### Claude Code Plugins
+
+Plugin manifest supports commands. New throttle command can be added.
+
+### Claude Code Hooks
+
+No new hooks needed - throttling check integrated into main flow.
+
+### Audio Playback
+
+Playback is skipped when throttling limit is exceeded.
+
+### Other Findings
+
+Throttling features:
+- Max count per time window
+- Burst limit for short periods
+- Action when limit exceeded (silence/warn)
+- Reset command to clear throttle windows
+
+## Research Sources
+
+| Source | Description |
+|--------|-------------|
+| [State management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) | :books: State management |
+| [Cooldown logic](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) | :books: Cooldown patterns |
+| [Main flow](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) | :books: Main flow |

@@ -1,109 +1,176 @@
-# Feature: Sound Validation 🔎
+---
+name: Sound Validation
+description: Check sound files and configuration for issues before use
+---
+
+# Sound Validation
+
+Check sound files and configuration for issues before use. Proactive issue detection to prevent workflow disruptions.
+
+## Table of Contents
+
+1. [Summary](#summary)
+2. [Benefit](#benefit)
+3. [Priority & Complexity](#priority--complexity)
+4. [Feasibility](#feasibility)
+   - [Claude Code](#claude-code)
+   - [Audio Player](#audio-player)
+   - [External Dependencies](#external-dependencies)
+5. [Usage in ccbell Plugin](#usage-in-ccbell-plugin)
+6. [Repository Impact](#repository-impact)
+   - [cc-plugins](#cc-plugins)
+   - [ccbell](#ccbell)
+7. [Implementation](#implementation)
+   - [cc-plugins](#cc-plugins-1)
+   - [ccbell](#ccbell-1)
+8. [External Dependencies](#external-dependencies-1)
+9. [Research Details](#research-details)
+10. [Research Sources](#research-sources)
 
 ## Summary
 
-Check sound files and configuration for issues before use.
+Check sound files and configuration for issues before use. Provides clear error messages pointing to exact issues.
 
 ## Benefit
 
-- **Proactive issue detection**: Find problems before they affect workflow
-- **Reduced debugging time**: Clear error messages point to exact issues
-- **Prevents silent failures**: Users know when sounds won't play
-- **Peace of mind**: Validation runs before notifications fire
+| Aspect | Description |
+|--------|-------------|
+| :bust_in_silhouette: User Impact | Find problems before they affect workflow |
+| :memo: Use Cases | Reduced debugging time, proactive detection |
+| :dart: Value Proposition | Prevents silent failures, peace of mind |
 
 ## Priority & Complexity
 
-| Attribute | Value |
-|-----------|-------|
-| **Priority** | Medium |
-| **Complexity** | Low |
-| **Category** | Audio |
+| Aspect | Assessment |
+|--------|------------|
+| :rocket: Priority | `[Medium]` |
+| :construction: Complexity | `[Low]` |
+| :warning: Risk Level | `[Low]` |
 
-## Technical Feasibility
+## Feasibility
 
-### Configuration
+### Claude Code
 
-No config changes required - CLI command based.
+Can this be implemented using Claude Code's native features?
 
-### Implementation
+| Feature | Description |
+|---------|-------------|
+| :keyboard: Commands | Enhanced `validate` command with sounds, config, specific sound options |
+| :hook: Hooks | Uses existing hooks for event handling |
+| :toolbox: Tools | Read, Write, Bash tools for validation |
 
-```go
-type ValidationResult struct {
-    Valid   bool           `json:"valid"`
-    Checks  []CheckResult  `json:"checks"`
-    Summary *Summary       `json:"summary"`
-}
+### Audio Player
 
-type CheckResult struct {
-    Check     string `json:"check"`
-    Status    string `json:"status"`
-    Message   string `json:"message"`
-    Sound     string `json:"sound,omitempty"`
-    Event     string `json:"event,omitempty"`
-}
+How will audio playback be handled?
 
-type Summary struct {
-    TotalChecks int `json:"total_checks"`
-    Passed      int `json:"passed"`
-    Warnings    int `json:"warnings"`
-    Errors      int `json:"errors"`
-}
+| Aspect | Description |
+|--------|-------------|
+| :speaker: afplay | Not affected - validation before playback |
+| :computer: Platform Support | Cross-platform compatible |
+| :musical_note: Audio Formats | Validates supported formats |
 
-func (v *Validator) Validate(path string) (ValidationResult, error) {
-    if _, err := os.Stat(path); os.IsNotExist(err) {
-        return ValidationResult{Valid: false, Error: "file not found", Path: path}, nil
-    }
+### External Dependencies
 
-    cmd := exec.Command("ffprobe", "-v", "error",
-        "-select_streams", "a:0",
-        "-show_entries", "stream=codec_name,duration",
-        "-of", "json", path)
+Are external tools or libraries required?
 
-    output, err := cmd.Output()
-    if err != nil {
-        return ValidationResult{Valid: false, Error: "cannot decode", Path: path}, nil
-    }
+Uses `ffprobe` for audio format validation (optional).
 
-    return ValidationResult{Valid: true, Path: path}, nil
-}
-```
+## Usage in ccbell Plugin
 
-### Commands
+Describe how this feature integrates with the existing ccbell plugin:
 
-```bash
-/ccbell:validate                 # Full validation
-/ccbell:validate sounds          # Validate sound files
-/ccbell:validate config          # Validate configuration
-/ccbell:validate bundled:stop    # Validate specific sound
-/ccbell:validate --json          # JSON output
-/ccbell:validate --fix           # Auto-fix issues
-```
+| Aspect | Description |
+|--------|-------------|
+| :hand: User Interaction | Users run `/ccbell:validate sounds` or `/ccbell:validate bundled:stop` |
+| :wrench: Configuration | No config changes - CLI command based |
+| :gear: Default Behavior | Validates all sounds and config on demand |
 
 ## Repository Impact
 
-### ccbell Repository
+### cc-plugins
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **Core Logic** | Add | Add `ValidateSound(path string) (bool, error)` function |
-| **New File** | Add | `internal/audio/validator.go` for sound validation |
-| **Commands** | Modify | Enhance `validate` command with `--sounds` flag |
+Files that may be affected in cc-plugins:
 
-### cc-plugins Repository
+| File | Description |
+|------|-------------|
+| `plugins/ccbell/.claude-plugin/plugin.json` | :package: Plugin manifest (version bump) |
+| `plugins/ccbell/scripts/ccbell.sh` | :arrow_down: Download script (version sync) |
+| `plugins/ccbell/hooks/hooks.json` | :hook: Hook definitions (no change) |
+| `plugins/ccbell/commands/*.md` | :page_facing_up: Update `validate.md` with sound validation |
+| `plugins/ccbell/sounds/` | :sound: Audio files (no change) |
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **plugin.json** | No change | Feature in binary |
-| **hooks/hooks.json** | No change | Uses existing hooks |
-| **commands/validate.md** | Update | Add sound validation section |
-| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+### ccbell
 
-## References
+Files that may be affected in ccbell:
 
-- [Player packages](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go)
-- [Sound resolution](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go)
-- [Config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go)
+| File | Description |
+|------|-------------|
+| `main.go` | :rocket: Main entry point (version bump) |
+| `config/config.go` | :wrench: Configuration handling (no change) |
+| `audio/player.go` | :speaker: Add ValidateSound() function |
+| `hooks/*.go` | :hook: Hook implementations (no change) |
 
----
+## Implementation
 
-[Back to Feature Index](index.md)
+### cc-plugins
+
+Steps required in cc-plugins repository:
+
+```bash
+# 1. Update plugin.json version
+# 2. Update ccbell.sh if needed
+# 3. Add/update command documentation
+# 4. Add/update hooks configuration
+# 5. Add new sound files if applicable
+```
+
+### ccbell
+
+Steps required in ccbell repository:
+
+```bash
+# 1. Create internal/audio/validator.go
+# 2. Implement ValidateSound(path string) function
+# 3. Implement ValidateConfig() function
+# 4. Add sounds, config, --json, --fix flags to validate command
+# 5. Update version in main.go
+# 6. Tag and release vX.X.X
+# 7. Sync version to cc-plugins
+```
+
+## External Dependencies
+
+| Dependency | Version | Purpose | Required |
+|------------|---------|---------|----------|
+| ffprobe | | Audio format validation | `[No]` |
+
+## Research Details
+
+### Claude Code Plugins
+
+Plugin manifest supports commands. Validation enhanced with sound checks.
+
+### Claude Code Hooks
+
+No new hooks needed - validation command uses existing patterns.
+
+### Audio Playback
+
+Validation runs before any playback occurs.
+
+### Other Findings
+
+Validation features:
+- File existence checks
+- Audio format validation with ffprobe
+- Config schema validation
+- Auto-fix option for common issues
+- JSON output for automation
+
+## Research Sources
+
+| Source | Description |
+|--------|-------------|
+| [Player packages](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Audio player |
+| [Sound resolution](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Path resolution |
+| [Config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) | :books: Config structure |

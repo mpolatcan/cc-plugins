@@ -1,117 +1,178 @@
-# Feature: Sound Packs 🎁
+---
+name: Sound Packs
+description: Allow users to browse, preview, and install sound packs that bundle sounds for all notification events
+---
 
-## Summary
+# Sound Packs
 
 Allow users to browse, preview, and install sound packs that bundle sounds for all notification events. Sound packs are distributed via GitHub releases.
 
+## Table of Contents
+
+1. [Summary](#summary)
+2. [Benefit](#benefit)
+3. [Priority & Complexity](#priority--complexity)
+4. [Feasibility](#feasibility)
+   - [Claude Code](#claude-code)
+   - [Audio Player](#audio-player)
+   - [External Dependencies](#external-dependencies)
+5. [Usage in ccbell Plugin](#usage-in-ccbell-plugin)
+6. [Repository Impact](#repository-impact)
+   - [cc-plugins](#cc-plugins)
+   - [ccbell](#ccbell)
+7. [Implementation](#implementation)
+   - [cc-plugins](#cc-plugins-1)
+   - [ccbell](#ccbell-1)
+8. [External Dependencies](#external-dependencies-1)
+9. [Research Details](#research-details)
+10. [Research Sources](#research-sources)
+
+## Summary
+
+Allow users to browse, preview, and install sound packs that bundle sounds for all notification events. Distributed via GitHub releases with one-click installation.
+
 ## Benefit
 
-- **One-click variety**: Install complete sound themes with a single command
-- **Community creativity**: Developers share their curated notification sounds
-- **Consistent experience**: All sounds in a pack are designed to work together
-- **Easy discovery**: Browse and preview packs without manual downloading
+| Aspect | Description |
+|--------|-------------|
+| :bust_in_silhouette: User Impact | Install complete sound themes with a single command |
+| :memo: Use Cases | Community creativity, consistent experience |
+| :dart: Value Proposition | One-click variety, easy discovery |
 
 ## Priority & Complexity
 
-| Attribute | Value |
-|-----------|-------|
-| **Priority** | High |
-| **Complexity** | Medium |
-| **Category** | Audio |
+| Aspect | Assessment |
+|--------|------------|
+| :rocket: Priority | `[High]` |
+| :construction: Complexity | `[Medium]` |
+| :warning: Risk Level | `[Medium]` |
 
-## Technical Feasibility
+## Feasibility
 
-### Configuration
+### Claude Code
 
-```json
-{
-  "profiles": {
-    "default": {
-      "pack": "minimal-chimes",
-      "overrides": {
-        "stop": "custom:/path/to/custom-stop.wav"
-      }
-    }
-  }
-}
-```
+Can this be implemented using Claude Code's native features?
 
-### Implementation
+| Feature | Description |
+|---------|-------------|
+| :keyboard: Commands | New `packs` command with browse/preview/install/use options |
+| :hook: Hooks | Uses existing hooks for event handling |
+| :toolbox: Tools | Read, Write, Bash, WebFetch tools for pack management |
 
-```go
-type PackManager struct {
-    packsDir string
-    indexURL string
-}
+### Audio Player
 
-type SoundPack struct {
-    Name        string            `json:"name"`
-    Description string            `json:"description"`
-    Author      string            `json:"author"`
-    Version     string            `json:"version"`
-    Sounds      map[string]string `json:"sounds"`
-}
+How will audio playback be handled?
 
-func (p *PackManager) Install(packName string) error {
-    resp, err := http.Get(p.indexURL)
-    var index PackIndex
-    json.NewDecoder(resp.Body).Decode(&index)
+| Aspect | Description |
+|--------|-------------|
+| :speaker: afplay | Extends ResolveSoundPath() to handle `pack:` scheme |
+| :computer: Platform Support | Cross-platform compatible |
+| :musical_note: Audio Formats | Supports bundled sound formats |
 
-    for _, pack := range index.Packs {
-        if pack.Name == packName {
-            return p.downloadAndExtract(pack.DownloadURL, packName)
-        }
-    }
-    return fmt.Errorf("pack not found: %s", packName)
-}
+### External Dependencies
 
-func (p *PackManager) List() ([]SoundPack, error) {
-    resp, err := http.Get(p.indexURL)
-    var index PackIndex
-    json.NewDecoder(resp.Body).Decode(&index)
-    return index.Packs, err
-}
-```
+Are external tools or libraries required?
 
-### Commands
+HTTP client for downloading packs from GitHub releases.
 
-```bash
-/ccbell:packs browse              # Browse available packs
-/ccbell:packs preview minimal     # Preview a pack
-/ccbell:packs install minimal     # Install a pack
-/ccbell:packs use minimal         # Activate a pack
-/ccbell:packs uninstall minimal   # Remove a pack
-/ccbell:packs list                # List installed packs
-```
+## Usage in ccbell Plugin
+
+Describe how this feature integrates with the existing ccbell plugin:
+
+| Aspect | Description |
+|--------|-------------|
+| :hand: User Interaction | Users run `/ccbell:packs browse`, `/ccbell:packs install minimal` |
+| :wrench: Configuration | Adds `packs` section and `pack:` sound scheme support |
+| :gear: Default Behavior | Browses pack index from GitHub releases |
 
 ## Repository Impact
 
-### ccbell Repository
+### cc-plugins
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **Config** | Add | Add `packs` section and `pack:` sound scheme support |
-| **Core Logic** | Add | Add `PackManager` with List/Install/Use/Uninstall methods |
-| **New File** | Add | `internal/pack/packs.go` for pack management |
-| **Player** | Modify | Extend `ResolveSoundPath()` to handle `pack:` scheme |
-| **Commands** | Add | New `packs` command |
+Files that may be affected in cc-plugins:
 
-### cc-plugins Repository
+| File | Description |
+|------|-------------|
+| `plugins/ccbell/.claude-plugin/plugin.json` | :package: Plugin manifest (version bump) |
+| `plugins/ccbell/scripts/ccbell.sh` | :arrow_down: Download script (version sync) |
+| `plugins/ccbell/hooks/hooks.json` | :hook: Hook definitions (no change) |
+| `plugins/ccbell/commands/*.md` | :page_facing_up: Add `packs.md` command doc |
+| `plugins/ccbell/sounds/` | :sound: Audio files (no change) |
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **plugin.json** | No change | Feature in binary |
-| **hooks/hooks.json** | No change | Uses existing hooks |
-| **commands/packs.md** | Add | New command documentation |
-| **commands/configure.md** | Update | Reference pack configuration |
-| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+### ccbell
 
-## References
+Files that may be affected in ccbell:
 
-- [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go)
-- [Sound path resolution](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go)
-- [Config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go)
+| File | Description |
+|------|-------------|
+| `main.go` | :rocket: Main entry point (version bump) |
+| `config/config.go` | :wrench: Add `packs` section |
+| `audio/player.go` | :speaker: Extend ResolveSoundPath() for pack scheme |
+| `hooks/*.go` | :hook: Hook implementations (no change) |
 
----
+## Implementation
 
-[Back to Feature Index](index.md)
+### cc-plugins
+
+Steps required in cc-plugins repository:
+
+```bash
+# 1. Update plugin.json version
+# 2. Update ccbell.sh if needed
+# 3. Add/update command documentation
+# 4. Add/update hooks configuration
+# 5. Add new sound files if applicable
+```
+
+### ccbell
+
+Steps required in ccbell repository:
+
+```bash
+# 1. Add packs section to config structure
+# 2. Create internal/pack/packs.go
+# 3. Implement PackManager with List/Install/Use/Uninstall methods
+# 4. Extend ResolveSoundPath() to handle pack: scheme
+# 5. Add packs command with browse/preview/install/use options
+# 6. Update version in main.go
+# 7. Tag and release vX.X.X
+# 8. Sync version to cc-plugins
+```
+
+## External Dependencies
+
+| Dependency | Version | Purpose | Required |
+|------------|---------|---------|----------|
+| None | HTTP client | Download packs from GitHub | `[No]` |
+
+## Research Details
+
+### Claude Code Plugins
+
+Plugin manifest supports commands. New packs command can be added.
+
+### Claude Code Hooks
+
+No new hooks needed - sound packs integrated into config.
+
+### Audio Playback
+
+Pack sounds resolved via `pack:` scheme in sound configuration.
+
+### Other Findings
+
+Sound pack features:
+- Pack index from GitHub releases
+- Browse available packs
+- Preview pack sounds
+- Install/uninstall packs
+- Use pack as active configuration
+- Per-event overrides supported
+
+## Research Sources
+
+| Source | Description |
+|--------|-------------|
+| [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Audio player |
+| [Sound path resolution](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Path resolution |
+| [Config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) | :books: Config structure |

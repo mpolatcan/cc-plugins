@@ -1,106 +1,175 @@
-# Feature: Minimal Mode 🎯
+---
+name: Minimal Mode
+description: Simplified configuration mode with fewer options for users who want simplicity
+---
 
-## Summary
+# Minimal Mode
 
 Simplified configuration mode with fewer options for users who want simplicity.
 
+## Table of Contents
+
+1. [Summary](#summary)
+2. [Benefit](#benefit)
+3. [Priority & Complexity](#priority--complexity)
+4. [Feasibility](#feasibility)
+   - [Claude Code](#claude-code)
+   - [Audio Player](#audio-player)
+   - [External Dependencies](#external-dependencies)
+5. [Usage in ccbell Plugin](#usage-in-ccbell-plugin)
+6. [Repository Impact](#repository-impact)
+   - [cc-plugins](#cc-plugins)
+   - [ccbell](#ccbell)
+7. [Implementation](#implementation)
+   - [cc-plugins](#cc-plugins-1)
+   - [ccbell](#ccbell-1)
+8. [External Dependencies](#external-dependencies-1)
+9. [Research Details](#research-details)
+10. [Research Sources](#research-sources)
+
+## Summary
+
+Simplified configuration mode with fewer options for users who want simplicity. Provides an interactive wizard for quick setup with opinionated defaults.
+
 ## Benefit
 
-- **Faster onboarding**: New users get value immediately
-- **Reduced decision fatigue**: No overwhelming array of options
-- **Opinionated defaults**: Sensible defaults for most use cases
-- **Accessible to non-technical users**: Lower technical barrier
+| Aspect | Description |
+|--------|-------------|
+| :bust_in_silhouette: User Impact | New users get value immediately |
+| :memo: Use Cases | Onboarding new team members, quick setup |
+| :dart: Value Proposition | Reduced decision fatigue, opinionated defaults |
 
 ## Priority & Complexity
 
-| Attribute | Value |
-|-----------|-------|
-| **Priority** | Medium |
-| **Complexity** | Low |
-| **Category** | Onboarding |
+| Aspect | Assessment |
+|--------|------------|
+| :rocket: Priority | `[Medium]` |
+| :construction: Complexity | `[Low]` |
+| :warning: Risk Level | `[Low]` |
 
-## Technical Feasibility
+## Feasibility
 
-### Configuration
+### Claude Code
 
-```json
-{
-  "mode": "minimal",
-  "minimal": {
-    "volume": 0.5,
-    "quiet_hours": "22:00-07:00"
-  }
-}
-```
+Can this be implemented using Claude Code's native features?
 
-### Interactive Setup
+| Feature | Description |
+|---------|-------------|
+| :keyboard: Commands | New `wizard` command for interactive setup |
+| :hook: Hooks | Uses existing hooks for event handling |
+| :toolbox: Tools | Read, Write, Bash, AskUserQuestion tools |
 
-```
-$ ccbell --wizard
+### Audio Player
 
-=== ccbell Setup ===
+How will audio playback be handled?
 
-1. Volume level (1-10) [5]: 6
-2. Quiet hours? [22:00-07:00]:
-3. All set!
-```
+| Aspect | Description |
+|--------|-------------|
+| :speaker: afplay | Not affected by this feature |
+| :computer: Platform Support | Cross-platform compatible |
+| :musical_note: Audio Formats | No audio format changes |
 
-### Implementation
+### External Dependencies
 
-```go
-func GetMinimalConfig() *Config {
-    return &Config{
-        Enabled: ptr(true),
-        Events: map[string]*Event{
-            "stop": {
-                Enabled: ptr(true),
-                Sound:   ptr("bundled:default"),
-                Cooldown: ptr(60),
-            },
-        },
-    }
-}
+Are external tools or libraries required?
 
-func (c *CCBell) RunWizard() {
-    // Interactive questions for volume, quiet hours, events
-}
-```
+No external dependencies - uses Go standard library.
 
-### Commands
+## Usage in ccbell Plugin
 
-```bash
-/ccbell:wizard                   # Interactive minimal setup
-/ccbell:wizard --volume 5        # Non-interactive
-/ccbell:wizard --full            # Exit to full config
-```
+Describe how this feature integrates with the existing ccbell plugin:
+
+| Aspect | Description |
+|--------|-------------|
+| :hand: User Interaction | Users run `/ccbell:wizard` for interactive setup |
+| :wrench: Configuration | Adds `mode` and `minimal` sections to config |
+| :gear: Default Behavior | Simplified defaults for minimal mode |
 
 ## Repository Impact
 
-### ccbell Repository
+### cc-plugins
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **Config** | Add | `mode`, `minimal` sections |
-| **Core Logic** | Add | `GetMinimalConfig()`, `RunWizard()` |
-| **Commands** | Add | `wizard` command |
-| **New File** | Add | `internal/config/minimal.go` |
+Files that may be affected in cc-plugins:
 
-### cc-plugins Repository
+| File | Description |
+|------|-------------|
+| `plugins/ccbell/.claude-plugin/plugin.json` | :package: Plugin manifest (version bump) |
+| `plugins/ccbell/scripts/ccbell.sh` | :arrow_down: Download script (version sync) |
+| `plugins/ccbell/hooks/hooks.json` | :hook: Hook definitions (no change) |
+| `plugins/ccbell/commands/*.md` | :page_facing_up: Add `wizard.md` command doc |
+| `plugins/ccbell/sounds/` | :sound: Audio files (no change) |
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **plugin.json** | No change | Feature in binary |
-| **hooks/hooks.json** | No change | Uses existing hooks |
-| **commands/wizard.md** | Add | New command doc |
-| **commands/configure.md** | Update | Reference wizard |
-| **scripts/ccbell.sh** | Version sync | Match ccbell release |
+### ccbell
 
-## References
+Files that may be affected in ccbell:
 
-- [Config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L81-L102)
-- [Default config](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L64-L77)
-- [Quiet hours](https://github.com/mpolatcan/ccbell/blob/main/internal/config/quiethours.go)
+| File | Description |
+|------|-------------|
+| `main.go` | :rocket: Main entry point (version bump) |
+| `config/config.go` | :wrench: Add `mode`, `minimal` sections |
+| `audio/player.go` | :speaker: Audio playback logic (no change) |
+| `hooks/*.go` | :hook: Hook implementations (no change) |
 
----
+## Implementation
 
-[Back to Feature Index](index.md)
+### cc-plugins
+
+Steps required in cc-plugins repository:
+
+```bash
+# 1. Update plugin.json version
+# 2. Update ccbell.sh if needed
+# 3. Add/update command documentation
+# 4. Add/update hooks configuration
+# 5. Add new sound files if applicable
+```
+
+### ccbell
+
+Steps required in ccbell repository:
+
+```bash
+# 1. Add mode and minimal sections to config structure
+# 2. Implement GetMinimalConfig() function
+# 3. Implement RunWizard() with interactive questions
+# 4. Create internal/config/minimal.go
+# 5. Update version in main.go
+# 6. Tag and release vX.X.X
+# 7. Sync version to cc-plugins
+```
+
+## External Dependencies
+
+| Dependency | Version | Purpose | Required |
+|------------|---------|---------|----------|
+| None | | | `[No]` |
+
+## Research Details
+
+### Claude Code Plugins
+
+Plugin manifest supports commands. New wizard command can be added.
+
+### Claude Code Hooks
+
+No new hooks needed - uses existing event hooks.
+
+### Audio Playback
+
+Not affected by this feature.
+
+### Other Findings
+
+Minimal mode features:
+- Interactive wizard with guided questions
+- Opinionated defaults (volume 0.5, quiet hours 22:00-07:00)
+- Simplified event configuration
+- Option to upgrade to full config later
+
+## Research Sources
+
+| Source | Description |
+|--------|-------------|
+| [Config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L81-L102) | :books: Config loading |
+| [Default config](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L64-L77) | :books: Default config |
+| [Quiet hours](https://github.com/mpolatcan/ccbell/blob/main/internal/config/quiethours.go) | :books: Quiet hours |

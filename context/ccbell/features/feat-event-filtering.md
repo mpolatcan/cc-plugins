@@ -1,100 +1,174 @@
-# Feature: Event Filtering 🔍
+---
+name: Event Filtering
+description: Only trigger notifications when specific conditions are met
+---
 
-## Summary
+# Event Filtering
 
 Only trigger notifications when specific conditions are met (e.g., "only notify on long responses" or "notify on errors").
 
+## Table of Contents
+
+1. [Summary](#summary)
+2. [Benefit](#benefit)
+3. [Priority & Complexity](#priority--complexity)
+4. [Feasibility](#feasibility)
+   - [Claude Code](#claude-code)
+   - [Audio Player](#audio-player)
+   - [External Dependencies](#external-dependencies)
+5. [Usage in ccbell Plugin](#usage-in-ccbell-plugin)
+6. [Repository Impact](#repository-impact)
+   - [cc-plugins](#cc-plugins)
+   - [ccbell](#ccbell)
+7. [Implementation](#implementation)
+   - [cc-plugins](#cc-plugins-1)
+   - [ccbell](#ccbell-1)
+8. [External Dependencies](#external-dependencies-1)
+9. [Research Details](#research-details)
+10. [Research Sources](#research-sources)
+
+## Summary
+
+Only trigger notifications when specific conditions are met. Allows token count, pattern matching, and duration filters for context-aware notifications.
+
 ## Benefit
 
-- **Reduced distraction**: Only important events trigger notifications
-- **Personalized workflow**: Tailor notifications to individual preferences
-- **Context-aware behavior**: Different rules for different work types
-- **Improved focus**: Less interruption means deeper concentration
+| Aspect | Description |
+|--------|-------------|
+| :bust_in_silhouette: User Impact | Reduced distraction - only important events trigger notifications |
+| :memo: Use Cases | Personalized workflow, context-aware behavior |
+| :dart: Value Proposition | Different rules for different work types |
 
 ## Priority & Complexity
 
-| Attribute | Value |
-|-----------|-------|
-| **Priority** | Medium |
-| **Complexity** | Low |
-| **Category** | Notification Control |
+| Aspect | Assessment |
+|--------|------------|
+| :rocket: Priority | `[Medium]` |
+| :construction: Complexity | `[Low]` |
+| :warning: Risk Level | `[Low]` |
 
-## Technical Feasibility
+## Feasibility
 
-### Filter Types
+### Claude Code
 
-| Filter | Description | Example |
-|--------|-------------|---------|
-| token_count | Min/max tokens | `{"min": 1000}` |
-| pattern | Regex match | `{"regex": "error|failed"}` |
-| duration | Min/max seconds | `{"min": 5}` |
+Can this be implemented using Claude Code's native features?
 
-### Implementation
+| Feature | Description |
+|---------|-------------|
+| :keyboard: Commands | No new commands - config-based filtering |
+| :hook: Hooks | Uses existing hooks for event handling |
+| :toolbox: Tools | Bash, Read tools for filter execution |
 
-```go
-type EventFilter struct {
-    TokenCount *TokenCountFilter `json:"token_count,omitempty"`
-    Pattern    *PatternFilter    `json:"pattern,omitempty"`
-    Duration   *DurationFilter   `json:"duration,omitempty"`
-}
+### Audio Player
 
-func (f *EventFilter) ShouldNotify(eventData EventData) bool {
-    if f.TokenCount != nil && eventData.TokenCount < f.TokenCount.Min {
-        return false
-    }
-    if f.Pattern != nil {
-        matched, _ := regexp.MatchString(f.Pattern.Regex, eventData.Message)
-        if !matched { return false }
-    }
-    return true
-}
-```
+How will audio playback be handled?
 
-### Commands
+| Aspect | Description |
+|--------|-------------|
+| :speaker: afplay | Not affected - playback skipped if filter fails |
+| :computer: Platform Support | Cross-platform compatible |
+| :musical_note: Audio Formats | No audio format changes |
 
-No new commands - config-based filtering.
+### External Dependencies
 
-## Configuration
+Are external tools or libraries required?
 
-```json
-{
-  "events": {
-    "stop": {
-      "filters": {
-        "token_count": { "min": 500 },
-        "pattern": { "regex": "error|failed", "invert": true }
-      }
-    }
-  }
-}
-```
+Uses Go's `regexp` package for pattern matching.
+
+## Usage in ccbell Plugin
+
+Describe how this feature integrates with the existing ccbell plugin:
+
+| Aspect | Description |
+|--------|-------------|
+| :hand: User Interaction | Users configure filters in config file |
+| :wrench: Configuration | Adds `filters` section to each event |
+| :gear: Default Behavior | Filters checked before notification triggers |
 
 ## Repository Impact
 
-### ccbell Repository
+### cc-plugins
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **Config** | Add | `filters` section to Event |
-| **Core Logic** | Add | `ShouldNotify()` function |
-| **New File** | Add | `internal/filter/filter.go` |
-| **Main Flow** | Modify | Check filters before playing |
+Files that may be affected in cc-plugins:
 
-### cc-plugins Repository
+| File | Description |
+|------|-------------|
+| `plugins/ccbell/.claude-plugin/plugin.json` | :package: Plugin manifest (version bump) |
+| `plugins/ccbell/scripts/ccbell.sh` | :arrow_down: Download script (version sync) |
+| `plugins/ccbell/hooks/hooks.json` | :hook: Hook definitions (no change) |
+| `plugins/ccbell/commands/*.md` | :page_facing_up: Update `configure.md` with filter docs |
+| `plugins/ccbell/sounds/` | :sound: Audio files (no change) |
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **plugin.json** | No change | Feature in binary |
-| **hooks/hooks.json** | No change | Uses existing hooks |
-| **commands/configure.md** | Update | Add filter section |
-| **scripts/ccbell.sh** | Version sync | Match ccbell release |
+### ccbell
 
-## References
+Files that may be affected in ccbell:
 
-- [Go regexp package](https://pkg.go.dev/regexp)
-- [Main flow](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go)
-- [ValidEvents](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L45-L51)
+| File | Description |
+|------|-------------|
+| `main.go` | :rocket: Main entry point (version bump) |
+| `config/config.go` | :wrench: Add `filters` section to Event |
+| `audio/player.go` | :speaker: Check filters before playback |
+| `hooks/*.go` | :hook: Hook implementations (no change) |
 
----
+## Implementation
 
-[Back to Feature Index](index.md)
+### cc-plugins
+
+Steps required in cc-plugins repository:
+
+```bash
+# 1. Update plugin.json version
+# 2. Update ccbell.sh if needed
+# 3. Add/update command documentation
+# 4. Add/update hooks configuration
+# 5. Add new sound files if applicable
+```
+
+### ccbell
+
+Steps required in ccbell repository:
+
+```bash
+# 1. Add filters section to Event config structure
+# 2. Create internal/filter/filter.go
+# 3. Implement ShouldNotify() function with token_count, pattern, duration filters
+# 4. Modify main flow to check filters before playing
+# 5. Update version in main.go
+# 6. Tag and release vX.X.X
+# 7. Sync version to cc-plugins
+```
+
+## External Dependencies
+
+| Dependency | Version | Purpose | Required |
+|------------|---------|---------|----------|
+| None | regexp | Pattern matching | `[No]` |
+
+## Research Details
+
+### Claude Code Plugins
+
+Plugin manifest supports hooks. Filter check can be integrated into main flow.
+
+### Claude Code Hooks
+
+No new hooks needed - filter check before existing hooks.
+
+### Audio Playback
+
+Playback is skipped when filter conditions are not met.
+
+### Other Findings
+
+Filter types supported:
+- token_count: Min/max tokens in response
+- pattern: Regex match on message content
+- duration: Min/max response duration
+
+## Research Sources
+
+| Source | Description |
+|--------|-------------|
+| [Go regexp package](https://pkg.go.dev/regexp) | :books: Pattern matching |
+| [Main flow](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) | :books: Main flow |
+| [ValidEvents](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L45-L51) | :books: Event structure |

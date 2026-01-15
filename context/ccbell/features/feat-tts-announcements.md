@@ -1,128 +1,180 @@
-# Feature: TTS Announcements 🗣️
+---
+name: TTS Announcements
+description: Play spoken announcements instead of or alongside audio files
+---
 
-## Summary
+# TTS Announcements
 
 Play spoken announcements instead of (or alongside) audio files. Announce events like "Claude finished" or "Permission needed" using TTS.
 
+## Table of Contents
+
+1. [Summary](#summary)
+2. [Benefit](#benefit)
+3. [Priority & Complexity](#priority--complexity)
+4. [Feasibility](#feasibility)
+   - [Claude Code](#claude-code)
+   - [Audio Player](#audio-player)
+   - [External Dependencies](#external-dependencies)
+5. [Usage in ccbell Plugin](#usage-in-ccbell-plugin)
+6. [Repository Impact](#repository-impact)
+   - [cc-plugins](#cc-plugins)
+   - [ccbell](#ccbell)
+7. [Implementation](#implementation)
+   - [cc-plugins](#cc-plugins-1)
+   - [ccbell](#ccbell-1)
+8. [External Dependencies](#external-dependencies-1)
+9. [Research Details](#research-details)
+10. [Research Sources](#research-sources)
+
+## Summary
+
+Play spoken announcements instead of (or alongside) audio files. Announce events like "Claude finished" or "Permission needed" using TTS for accessibility and hands-free awareness.
+
 ## Benefit
 
-- **Accessibility-first**: Voice announcements help users with hearing impairments
-- **Hands-free awareness**: Know what's happening without looking at the screen
-- **Rich context**: TTS can include timing, event details, and custom messages
-- **Personalized experience**: Custom voice clones for unique notification sounds
+| Aspect | Description |
+|--------|-------------|
+| :bust_in_silhouette: User Impact | Voice announcements help users with hearing impairments |
+| :memo: Use Cases | Hands-free awareness, rich context announcements |
+| :dart: Value Proposition | Personalized experience, accessibility-first |
 
 ## Priority & Complexity
 
-| Attribute | Value |
-|-----------|-------|
-| **Priority** | Nice to Have |
-| **Complexity** | High |
-| **Category** | Audio |
+| Aspect | Assessment |
+|--------|------------|
+| :rocket: Priority | `[Low]` |
+| :construction: Complexity | `[High]` |
+| :warning: Risk Level | `[High]` |
 
-## Technical Feasibility
+## Feasibility
 
-### Configuration
+### Claude Code
 
-```json
-{
-  "tts": {
-    "enabled": true,
-    "engine": "say",
-    "voice": "Samantha",
-    "phrases": {
-      "stop": "Claude finished",
-      "permission_prompt": "Permission needed",
-      "idle_prompt": "Claude is waiting",
-      "subagent": "Subagent task complete"
-    },
-    "cache_enabled": true,
-    "cache_size_mb": 100
-  }
-}
-```
+Can this be implemented using Claude Code's native features?
 
-### Implementation
+| Feature | Description |
+|---------|-------------|
+| :keyboard: Commands | New `tts` command with configure, voices, test options |
+| :hook: Hooks | Uses existing hooks for event handling |
+| :toolbox: Tools | Read, Write, Bash tools for TTS execution |
 
-```go
-type TTSManager struct {
-    engine   string
-    voice    string
-    cacheDir string
-}
+### Audio Player
 
-func (t *TTSManager) Speak(text string) error {
-    outputFile := t.getCachedPath(text)
+How will audio playback be handled?
 
-    if _, err := os.Stat(outputFile); err == nil {
-        player := audio.NewPlayer()
-        return player.Play(outputFile)
-    }
+| Aspect | Description |
+|--------|-------------|
+| :speaker: afplay | TTS output played through afplay or native TTS |
+| :computer: Platform Support | macOS `say`, Linux Piper/Kokoro |
+| :musical_note: Audio Formats | TTS generates audio on demand |
 
-    switch t.engine {
-    case "say":
-        return t.speakMacOS(text)
-    case "piper":
-        return t.speakPiper(text)
-    case "kokoro":
-        return t.speakKokoro(text)
-    }
+### External Dependencies
 
-    return fmt.Errorf("unknown TTS engine: %s", t.engine)
-}
+Are external tools or libraries required?
 
-func (t *TTSManager) speakMacOS(text string) error {
-    cmd := exec.Command("say", "-v", t.voice, text)
-    return cmd.Run()
-}
+TTS engines (say, piper, kokoro) required for non-macOS platforms.
 
-func (t *TTSManager) speakPiper(text string) error {
-    cmd := exec.Command("piper",
-        "--model", t.modelPath,
-        "--output_file", t.outputFile)
-    stdin, _ := cmd.StdinPipe()
-    stdin.WriteString(text)
-    stdin.Close()
-    return cmd.Run()
-}
-```
+## Usage in ccbell Plugin
 
-### Commands
+Describe how this feature integrates with the existing ccbell plugin:
 
-```bash
-/ccbell:tts configure             # Configure TTS settings
-/ccbell:tts voices                # List available voices
-/ccbell:tts test stop             # Test TTS for an event
-/ccbell:tts test all              # Test all TTS phrases
-```
+| Aspect | Description |
+|--------|-------------|
+| :hand: User Interaction | Users run `/ccbell:tts configure`, `/ccbell:tts voices`, `/ccbell:tts test stop` |
+| :wrench: Configuration | Adds `tts` section with engine, voice, phrases, cache options |
+| :gear: Default Behavior | Uses native TTS when available (macOS say) |
 
 ## Repository Impact
 
-### ccbell Repository
+### cc-plugins
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **Config** | Add | Add `tts` section with engine, voice, phrases, cache options |
-| **Core Logic** | Add | Add `TTSManager` with Speak() and Generate() methods |
-| **New File** | Add | `internal/tts/tts.go` for TTS engine abstraction |
-| **Main Flow** | Modify | Support TTS as alternative or alongside sounds |
-| **Commands** | Add | New `tts` command (configure, voices, phrases) |
+Files that may be affected in cc-plugins:
 
-### cc-plugins Repository
+| File | Description |
+|------|-------------|
+| `plugins/ccbell/.claude-plugin/plugin.json` | :package: Plugin manifest (version bump) |
+| `plugins/ccbell/scripts/ccbell.sh` | :arrow_down: Download script (version sync) |
+| `plugins/ccbell/hooks/hooks.json` | :hook: Hook definitions (no change) |
+| `plugins/ccbell/commands/*.md` | :page_facing_up: Add `tts.md` command doc |
+| `plugins/ccbell/sounds/` | :sound: Audio files (no change) |
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **plugin.json** | No change | Feature in binary |
-| **hooks/hooks.json** | No change | Uses existing hooks |
-| **commands/tts.md** | Add | New command documentation |
-| **commands/configure.md** | Update | Reference TTS options |
-| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+### ccbell
 
-## References
+Files that may be affected in ccbell:
 
-- [Piper TTS - GitHub](https://github.com/rhasspy/piper)
-- [Kokoro-82M - Hugging Face](https://huggingface.co/hexgrad/Kokoro-82M)
-- [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go)
+| File | Description |
+|------|-------------|
+| `main.go` | :rocket: Main entry point (version bump) |
+| `config/config.go` | :wrench: Add `tts` section |
+| `audio/player.go` | :speaker: TTS integration with audio playback |
+| `hooks/*.go` | :hook: Hook implementations (no change) |
 
----
+## Implementation
 
-[Back to Feature Index](index.md)
+### cc-plugins
+
+Steps required in cc-plugins repository:
+
+```bash
+# 1. Update plugin.json version
+# 2. Update ccbell.sh if needed
+# 3. Add/update command documentation
+# 4. Add/update hooks configuration
+# 5. Add new sound files if applicable
+```
+
+### ccbell
+
+Steps required in ccbell repository:
+
+```bash
+# 1. Add tts section to config structure
+# 2. Create internal/tts/tts.go
+# 3. Implement TTSManager with Speak() method
+# 4. Support multiple engines: say (macOS), piper, kokoro
+# 5. Add caching for generated speech
+# 6. Add tts command with configure/voices/test options
+# 7. Update version in main.go
+# 8. Tag and release vX.X.X
+# 9. Sync version to cc-plugins
+```
+
+## External Dependencies
+
+| Dependency | Version | Purpose | Required |
+|------------|---------|---------|----------|
+| say | macOS | Native TTS | `[Yes]` |
+| piper | Linux | TTS engine | `[Yes]` |
+| kokoro | Linux | TTS engine | `[Yes]` |
+
+## Research Details
+
+### Claude Code Plugins
+
+Plugin manifest supports commands. New tts command can be added.
+
+### Claude Code Hooks
+
+No new hooks needed - TTS integrated into main flow.
+
+### Audio Playback
+
+TTS output played through audio player or native command.
+
+### Other Findings
+
+TTS features:
+- Multiple engine support (say, piper, kokoro)
+- Configurable phrases per event
+- Voice selection per engine
+- Caching for performance
+- Works alongside or instead of sounds
+
+## Research Sources
+
+| Source | Description |
+|--------|-------------|
+| [Piper TTS - GitHub](https://github.com/rhasspy/piper) | :books: Piper TTS |
+| [Kokoro-82M - Hugging Face](https://huggingface.co/hexgrad/Kokoro-82M) | :books: Kokoro TTS |
+| [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Audio player |

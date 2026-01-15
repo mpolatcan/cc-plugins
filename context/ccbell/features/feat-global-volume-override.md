@@ -1,83 +1,172 @@
-# Feature: Global Volume Override 🔊
+---
+name: Global Volume Override
+description: Temporarily adjust notification volume without modifying the config file
+---
 
-## Summary
+# Global Volume Override
 
 Temporarily adjust notification volume without modifying the config file, using command-line flags.
 
+## Table of Contents
+
+1. [Summary](#summary)
+2. [Benefit](#benefit)
+3. [Priority & Complexity](#priority--complexity)
+4. [Feasibility](#feasibility)
+   - [Claude Code](#claude-code)
+   - [Audio Player](#audio-player)
+   - [External Dependencies](#external-dependencies)
+5. [Usage in ccbell Plugin](#usage-in-ccbell-plugin)
+6. [Repository Impact](#repository-impact)
+   - [cc-plugins](#cc-plugins)
+   - [ccbell](#ccbell)
+7. [Implementation](#implementation)
+   - [cc-plugins](#cc-plugins-1)
+   - [ccbell](#ccbell-1)
+8. [External Dependencies](#external-dependencies-1)
+9. [Research Details](#research-details)
+10. [Research Sources](#research-sources)
+
+## Summary
+
+Temporarily adjust notification volume without modifying the config file. Allows quick volume adjustments via CLI flags for testing or session-based control.
+
 ## Benefit
 
-- **No permanent commitment**: Test volume without modifying config
-- **Session-based control**: Different volumes per work session
-- **Faster iteration**: Quickly find right volume through trial
-- **Convenient one-liners**: Easy to use in scripts
+| Aspect | Description |
+|--------|-------------|
+| :bust_in_silhouette: User Impact | Test volume without modifying config |
+| :memo: Use Cases | Session-based control, faster iteration |
+| :dart: Value Proposition | No permanent commitment, convenient one-liners |
 
 ## Priority & Complexity
 
-| Attribute | Value |
-|-----------|-------|
-| **Priority** | Medium |
-| **Complexity** | Low |
-| **Category** | Audio |
+| Aspect | Assessment |
+|--------|------------|
+| :rocket: Priority | `[Medium]` |
+| :construction: Complexity | `[Low]` |
+| :warning: Risk Level | `[Low]` |
 
-## Technical Feasibility
+## Feasibility
 
-### Usage
+### Claude Code
 
-```bash
-ccbell stop --volume 0.8
-ccbell permission_prompt -v 0.3
-/ccbell:test stop --volume 0.8
-```
+Can this be implemented using Claude Code's native features?
 
-### Implementation
+| Feature | Description |
+|---------|-------------|
+| :keyboard: Commands | Uses existing test command with volume flag |
+| :hook: Hooks | Uses existing hooks for event handling |
+| :toolbox: Tools | Bash, Write, Read tools for volume control |
 
-```go
-func main() {
-    volumeOverride := flag.Float64("volume", 0.0, "Override volume (0.0-1.0)")
-    flag.Parse()
+### Audio Player
 
-    cfg := config.Load(homeDir)
-    eventType := os.Args[len(os.Args)-1]
-    eventCfg := cfg.GetEventConfig(eventType)
+How will audio playback be handled?
 
-    volume := *eventCfg.Volume
-    if *volumeOverride > 0 {
-        volume = *volumeOverride
-    }
+| Aspect | Description |
+|--------|-------------|
+| :speaker: afplay | Volume override passed to afplay command |
+| :computer: Platform Support | Cross-platform compatible |
+| :musical_note: Audio Formats | No audio format changes |
 
-    player := audio.NewPlayer()
-    player.Play(eventCfg.Sound, volume)
-}
-```
+### External Dependencies
 
-## Configuration
+Are external tools or libraries required?
 
-No config changes - CLI flag only.
+No external dependencies - uses Go standard library.
+
+## Usage in ccbell Plugin
+
+Describe how this feature integrates with the existing ccbell plugin:
+
+| Aspect | Description |
+|--------|-------------|
+| :hand: User Interaction | Users run `ccbell stop --volume 0.8` or `/ccbell:test stop --volume 0.8` |
+| :wrench: Configuration | No config changes - CLI flag only |
+| :gear: Default Behavior | Uses config volume unless override specified |
 
 ## Repository Impact
 
-### ccbell Repository
+### cc-plugins
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **Main Flow** | Add | `-v/--volume` flag |
-| **Player** | Modify | Accept volume override |
+Files that may be affected in cc-plugins:
 
-### cc-plugins Repository
+| File | Description |
+|------|-------------|
+| `plugins/ccbell/.claude-plugin/plugin.json` | :package: Plugin manifest (version bump) |
+| `plugins/ccbell/scripts/ccbell.sh` | :arrow_down: Download script (version sync) |
+| `plugins/ccbell/hooks/hooks.json` | :hook: Hook definitions (no change) |
+| `plugins/ccbell/commands/*.md` | :page_facing_up: Update `test.md` with volume flag docs |
+| `plugins/ccbell/sounds/` | :sound: Audio files (no change) |
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **plugin.json** | No change | Feature in binary |
-| **hooks/hooks.json** | No change | Uses existing hooks |
-| **commands/test.md** | Update | Add volume flag docs |
-| **scripts/ccbell.sh** | Version sync | Match ccbell release |
+### ccbell
 
-## References
+Files that may be affected in ccbell:
 
-- [Main.go](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go)
-- [Config volume](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L36)
-- [Player volume](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go#L49)
+| File | Description |
+|------|-------------|
+| `main.go` | :rocket: Main entry point (add `-v/--volume` flag) |
+| `config/config.go` | :wrench: Configuration handling (no change) |
+| `audio/player.go` | :speaker: Accept volume override in Play() |
+| `hooks/*.go` | :hook: Hook implementations (no change) |
 
----
+## Implementation
 
-[Back to Feature Index](index.md)
+### cc-plugins
+
+Steps required in cc-plugins repository:
+
+```bash
+# 1. Update plugin.json version
+# 2. Update ccbell.sh if needed
+# 3. Add/update command documentation
+# 4. Add/update hooks configuration
+# 5. Add new sound files if applicable
+```
+
+### ccbell
+
+Steps required in ccbell repository:
+
+```bash
+# 1. Add -v/--volume flag to main command
+# 2. Pass volume override to player.Play()
+# 3. Update version in main.go
+# 4. Tag and release vX.X.X
+# 5. Sync version to cc-plugins
+```
+
+## External Dependencies
+
+| Dependency | Version | Purpose | Required |
+|------------|---------|---------|----------|
+| None | | | `[No]` |
+
+## Research Details
+
+### Claude Code Plugins
+
+Plugin manifest supports commands. Volume flag can be added to test command.
+
+### Claude Code Hooks
+
+No new hooks needed - uses existing event hooks.
+
+### Audio Playback
+
+Volume override is passed to afplay with the `-volume` parameter.
+
+### Other Findings
+
+Volume flag behavior:
+- `-v 0.8` or `--volume 0.8` for specific volume
+- Overrides event-level and global volume settings
+- Only affects the current invocation
+
+## Research Sources
+
+| Source | Description |
+|--------|-------------|
+| [Main.go](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) | :books: Main entry point |
+| [Config volume](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L36) | :books: Volume configuration |
+| [Player volume](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go#L49) | :books: Volume handling |

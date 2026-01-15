@@ -1,133 +1,178 @@
-# Feature: Webhooks 🔗
+---
+name: Webhooks
+description: Send HTTP requests to configured URLs when events trigger for integration with Slack, IFTTT, Zapier
+---
 
-## Summary
+# Webhooks
 
 Send HTTP requests to configured URLs when events trigger. Enable integrations with Slack, IFTTT, Zapier, custom webhooks.
 
+## Table of Contents
+
+1. [Summary](#summary)
+2. [Benefit](#benefit)
+3. [Priority & Complexity](#priority--complexity)
+4. [Feasibility](#feasibility)
+   - [Claude Code](#claude-code)
+   - [Audio Player](#audio-player)
+   - [External Dependencies](#external-dependencies)
+5. [Usage in ccbell Plugin](#usage-in-ccbell-plugin)
+6. [Repository Impact](#repository-impact)
+   - [cc-plugins](#cc-plugins)
+   - [ccbell](#ccbell)
+7. [Implementation](#implementation)
+   - [cc-plugins](#cc-plugins-1)
+   - [ccbell](#ccbell-1)
+8. [External Dependencies](#external-dependencies-1)
+9. [Research Details](#research-details)
+10. [Research Sources](#research-sources)
+
+## Summary
+
+Send HTTP requests to configured URLs when events trigger. Enable integrations with Slack, IFTTT, Zapier, custom webhooks for team awareness and automation.
+
 ## Benefit
 
-- **Team awareness**: Notify entire channels when Claude completes tasks
-- **Automation triggers**: Start workflows based on Claude Code events
-- **Multi-device notifications**: Get alerts on phone via push services
-- **CI/CD integration**: Connect ccbell with existing notification pipelines
+| Aspect | Description |
+|--------|-------------|
+| :bust_in_silhouette: User Impact | Notify entire channels when Claude completes tasks |
+| :memo: Use Cases | Automation triggers, multi-device notifications |
+| :dart: Value Proposition | CI/CD integration, existing pipeline connections |
 
 ## Priority & Complexity
 
-| Attribute | Value |
-|-----------|-------|
-| **Priority** | High |
-| **Complexity** | Medium |
-| **Category** | Integration |
+| Aspect | Assessment |
+|--------|------------|
+| :rocket: Priority | `[High]` |
+| :construction: Complexity | `[Medium]` |
+| :warning: Risk Level | `[Medium]` |
 
-## Technical Feasibility
+## Feasibility
 
-### Configuration
+### Claude Code
 
-```json
-{
-  "webhooks": [
-    {
-      "name": "Slack",
-      "url": "https://hooks.slack.com/services/xxx/yyy/zzz",
-      "events": ["stop", "subagent"],
-      "method": "POST",
-      "headers": {
-        "X-Custom-Header": "value"
-      }
-    },
-    {
-      "name": "IFTTT",
-      "url": "https://maker.ifttt.com/trigger/ccbell_event/with/key/xxx",
-      "events": ["permission_prompt"],
-      "method": "POST"
-    }
-  ]
-}
-```
+Can this be implemented using Claude Code's native features?
 
-### Implementation
+| Feature | Description |
+|---------|-------------|
+| :keyboard: Commands | New `webhooks` command with list/add/test/remove options |
+| :hook: Hooks | Uses existing hooks for event handling |
+| :toolbox: Tools | Read, Write, Bash, WebFetch tools for HTTP requests |
 
-```go
-type Webhook struct {
-    Name    string            `json:"name"`
-    URL     string            `json:"url"`
-    Events  []string          `json:"events"`
-    Method  string            `json:"method"`
-    Headers map[string]string `json:"headers,omitempty"`
-}
+### Audio Player
 
-type WebhookPayload struct {
-    Event     string                 `json:"event"`
-    Timestamp time.Time              `json:"timestamp"`
-    Data      map[string]interface{} `json:"data,omitempty"`
-    CCBell    map[string]string      `json:"ccbell"`
-}
+How will audio playback be handled?
 
-func (w *WebhookManager) Send(webhook Webhook, event string, data map[string]interface{}) error {
-    payload := WebhookPayload{
-        Event:     event,
-        Timestamp: time.Now().UTC(),
-        Data:      data,
-        CCBell:    versionInfo(),
-    }
+| Aspect | Description |
+|--------|-------------|
+| :speaker: afplay | Not affected - webhooks sent alongside/independently |
+| :computer: Platform Support | Cross-platform compatible |
+| :musical_note: Audio Formats | No audio format changes |
 
-    body, _ := json.Marshal(payload)
-    req, _ := http.NewRequest(webhook.Method, webhook.URL, bytes.NewBuffer(body))
-    for k, v := range webhook.Headers {
-        req.Header.Set(k, v)
-    }
-    req.Header.Set("Content-Type", "application/json")
+### External Dependencies
 
-    client := &http.Client{Timeout: 10 * time.Second}
-    resp, err := client.Do(req)
+Are external tools or libraries required?
 
-    for i := 0; i < 3 && err != nil; i++ {
-        time.Sleep(time.Duration(i+1) * time.Second)
-        resp, err = client.Do(req)
-    }
+Uses Go's `net/http` package for HTTP requests.
 
-    return err
-}
-```
+## Usage in ccbell Plugin
 
-### Commands
+Describe how this feature integrates with the existing ccbell plugin:
 
-```bash
-/ccbell:webhooks list                       # List configured webhooks
-/ccbell:webhooks add "Slack" <url>          # Add a webhook
-/ccbell:webhooks test stop                  # Test webhook for an event
-/ccbell:webhooks remove Slack               # Remove a webhook
-```
+| Aspect | Description |
+|--------|-------------|
+| :hand: User Interaction | Users run `/ccbell:webhooks add "Slack" <url>`, `/ccbell:webhooks test stop` |
+| :wrench: Configuration | Adds `webhooks` array with name, url, events, method, headers |
+| :gear: Default Behavior | Sends webhook after/before playing sound |
 
 ## Repository Impact
 
-### ccbell Repository
+### cc-plugins
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **Config** | Add | Add `webhooks` array with name, url, events, method, headers |
-| **Core Logic** | Add | Add `WebhookManager` with Send() and Test() methods |
-| **New File** | Add | `internal/webhook/webhook.go` for HTTP webhook handling |
-| **Main Flow** | Modify | Send webhooks after/before playing sound |
-| **Commands** | Add | New `webhooks` command (list, add, test, remove) |
+Files that may be affected in cc-plugins:
 
-### cc-plugins Repository
+| File | Description |
+|------|-------------|
+| `plugins/ccbell/.claude-plugin/plugin.json` | :package: Plugin manifest (version bump) |
+| `plugins/ccbell/scripts/ccbell.sh` | :arrow_down: Download script (version sync) |
+| `plugins/ccbell/hooks/hooks.json` | :hook: Hook definitions (no change) |
+| `plugins/ccbell/commands/*.md` | :page_facing_up: Add `webhooks.md` command doc |
+| `plugins/ccbell/sounds/` | :sound: Audio files (no change) |
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **plugin.json** | No change | Feature in binary |
-| **hooks/hooks.json** | No change | Uses existing hooks |
-| **commands/webhooks.md** | Add | New command documentation |
-| **commands/configure.md** | Update | Reference webhook options |
-| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+### ccbell
 
-## References
+Files that may be affected in ccbell:
 
-- [Go net/http package](https://pkg.go.dev/net/http)
-- [Slack Webhooks](https://api.slack.com/messaging/webhooks)
-- [IFTTT Webhooks](https://ifttt.com/maker_webhooks)
-- [Main flow](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go)
+| File | Description |
+|------|-------------|
+| `main.go` | :rocket: Main entry point (version bump) |
+| `config/config.go` | :wrench: Add `webhooks` array |
+| `audio/player.go` | :speaker: Audio playback logic (no change) |
+| `hooks/*.go` | :hook: Hook implementations (no change) |
 
----
+## Implementation
 
-[Back to Feature Index](index.md)
+### cc-plugins
+
+Steps required in cc-plugins repository:
+
+```bash
+# 1. Update plugin.json version
+# 2. Update ccbell.sh if needed
+# 3. Add/update command documentation
+# 4. Add/update hooks configuration
+# 5. Add new sound files if applicable
+```
+
+### ccbell
+
+Steps required in ccbell repository:
+
+```bash
+# 1. Add webhooks array to config structure
+# 2. Create internal/webhook/webhook.go
+# 3. Implement WebhookManager with Send() and Test() methods
+# 4. Add retry logic (3 attempts with backoff)
+# 5. Add webhooks command with list/add/test/remove options
+# 6. Update version in main.go
+# 7. Tag and release vX.X.X
+# 8. Sync version to cc-plugins
+```
+
+## External Dependencies
+
+| Dependency | Version | Purpose | Required |
+|------------|---------|---------|----------|
+| None | net/http | HTTP client | `[No]` |
+
+## Research Details
+
+### Claude Code Plugins
+
+Plugin manifest supports commands. New webhooks command can be added.
+
+### Claude Code Hooks
+
+No new hooks needed - webhooks integrated into main flow.
+
+### Audio Playback
+
+Webhooks sent independently of audio playback.
+
+### Other Findings
+
+Webhook features:
+- Multiple webhook configurations
+- Event filtering per webhook
+- Custom headers support
+- Retry logic with exponential backoff
+- JSON payload with event data
+
+## Research Sources
+
+| Source | Description |
+|--------|-------------|
+| [Go net/http package](https://pkg.go.dev/net/http) | :books: HTTP client |
+| [Slack Webhooks](https://api.slack.com/messaging/webhooks) | :books: Slack integration |
+| [IFTTT Webhooks](https://ifttt.com/maker_webhooks) | :books: IFTTT integration |
+| [Main flow](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) | :books: Main flow |

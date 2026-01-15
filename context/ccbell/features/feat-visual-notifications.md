@@ -1,134 +1,177 @@
-# Feature: Visual Notifications 👁️
+---
+name: Visual Notifications
+description: Show visual notifications (macOS Notification Center, terminal bell) when Claude Code events trigger
+---
 
-## Summary
+# Visual Notifications
 
 Show visual notifications (macOS Notification Center, terminal bell) when Claude Code events trigger. Users who are deaf or hard of hearing, or work in noisy environments, benefit from visual alerts.
 
+## Table of Contents
+
+1. [Summary](#summary)
+2. [Benefit](#benefit)
+3. [Priority & Complexity](#priority--complexity)
+4. [Feasibility](#feasibility)
+   - [Claude Code](#claude-code)
+   - [Audio Player](#audio-player)
+   - [External Dependencies](#external-dependencies)
+5. [Usage in ccbell Plugin](#usage-in-ccbell-plugin)
+6. [Repository Impact](#repository-impact)
+   - [cc-plugins](#cc-plugins)
+   - [ccbell](#ccbell)
+7. [Implementation](#implementation)
+   - [cc-plugins](#cc-plugins-1)
+   - [ccbell](#ccbell-1)
+8. [External Dependencies](#external-dependencies-1)
+9. [Research Details](#research-details)
+10. [Research Sources](#research-sources)
+
+## Summary
+
+Show visual notifications (macOS Notification Center, terminal bell) when Claude Code events trigger. Supports accessibility and noise-restricted environments.
+
 ## Benefit
 
-- **Accessibility compliance**: Supports users with hearing differences
-- **Noise-restricted environments**: Works in libraries, meetings, shared spaces
-- **Multi-modal feedback**: See and hear notifications for better awareness
-- **Screen periphery awareness**: Notifications appear without interrupting workflow
+| Aspect | Description |
+|--------|-------------|
+| :bust_in_silhouette: User Impact | Supports users with hearing differences |
+| :memo: Use Cases | Libraries, meetings, shared spaces |
+| :dart: Value Proposition | Multi-modal feedback, screen periphery awareness |
 
 ## Priority & Complexity
 
-| Attribute | Value |
-|-----------|-------|
-| **Priority** | High |
-| **Complexity** | Low |
-| **Category** | Display |
+| Aspect | Assessment |
+|--------|------------|
+| :rocket: Priority | `[High]` |
+| :construction: Complexity | `[Low]` |
+| :warning: Risk Level | `[Low]` |
 
-## Technical Feasibility
+## Feasibility
 
-### Configuration
+### Claude Code
 
-```json
-{
-  "visual": {
-    "enabled": true,
-    "mode": "both",
-    "notifications": {
-      "stop": {
-        "enabled": true,
-        "message": "Claude finished",
-        "urgency": "low"
-      },
-      "permission_prompt": {
-        "enabled": true,
-        "message": "Permission needed",
-        "urgency": "critical"
-      },
-      "idle_prompt": {
-        "enabled": true,
-        "message": "Claude is waiting",
-        "urgency": "low"
-      },
-      "subagent": {
-        "enabled": true,
-        "message": "Subagent task complete",
-        "urgency": "normal"
-      }
-    }
-  }
-}
-```
+Can this be implemented using Claude Code's native features?
 
-### Implementation
+| Feature | Description |
+|---------|-------------|
+| :keyboard: Commands | New `visual` command with configure, test options |
+| :hook: Hooks | Uses existing hooks for event handling |
+| :toolbox: Tools | Read, Write, Bash tools for notification execution |
 
-```go
-type VisualNotifier interface {
-    Notify(title, message string, urgency Urgency) error
-    Supported() bool
-}
+### Audio Player
 
-type Urgency string
+How will audio playback be handled?
 
-const (
-    UrgencyLow      Urgency = "low"
-    UrgencyNormal   Urgency = "normal"
-    UrgencyCritical Urgency = "critical"
-)
+| Aspect | Description |
+|--------|-------------|
+| :speaker: afplay | Not affected - visual notifications alongside audio |
+| :computer: Platform Support | macOS AppleScript, Linux notify-send |
+| :musical_note: Audio Formats | No audio format changes |
 
-func (n *MacOSNotifier) Notify(title, message string, urgency Urgency) error {
-    script := fmt.Sprintf(`display notification "%s" with title "%s"`,
-        escapeAppleScript(message),
-        escapeAppleScript(title))
-    cmd := exec.Command("sh", "-c", script)
-    return cmd.Run()
-}
+### External Dependencies
 
-func (n *LinuxNotifier) Notify(title, message string, urgency Urgency) error {
-    args := []string{"-a", "ccbell", "-t", "3000"}
-    switch urgency {
-    case UrgencyLow:
-        args = append(args, "-u", "low")
-    case UrgencyCritical:
-        args = append(args, "-u", "critical")
-    }
-    args = append(args, title, message)
-    cmd := exec.Command("notify-send", args...)
-    return cmd.Run()
-}
-```
+Are external tools or libraries required?
 
-### Commands
+Uses system notification tools (`osascript`, `notify-send`).
 
-```bash
-/ccbell:configure visual              # Configure visual notifications
-/ccbell:test --visual stop            # Test visual notification
-/ccbell:status visual                 # Show visual notification status
-```
+## Usage in ccbell Plugin
+
+Describe how this feature integrates with the existing ccbell plugin:
+
+| Aspect | Description |
+|--------|-------------|
+| :hand: User Interaction | Users run `/ccbell:configure visual`, `/ccbell:test --visual stop` |
+| :wrench: Configuration | Adds `visual` section with mode (audio-only/visual-only/both) |
+| :gear: Default Behavior | Sends visual notification alongside audio |
 
 ## Repository Impact
 
-### ccbell Repository
+### cc-plugins
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **Config** | Add | Add `visual` section with mode (audio-only/visual-only/both) |
-| **Core Logic** | Add | Add `VisualNotifier` with Send() method |
-| **New File** | Add | `internal/visual/visual.go` for platform-specific notifications |
-| **Main Flow** | Modify | Call visual notifier alongside audio player |
-| **Commands** | Add | New `visual` command (configure, test) |
+Files that may be affected in cc-plugins:
 
-### cc-plugins Repository
+| File | Description |
+|------|-------------|
+| `plugins/ccbell/.claude-plugin/plugin.json` | :package: Plugin manifest (version bump) |
+| `plugins/ccbell/scripts/ccbell.sh` | :arrow_down: Download script (version sync) |
+| `plugins/ccbell/hooks/hooks.json` | :hook: Hook definitions (no change) |
+| `plugins/ccbell/commands/*.md` | :page_facing_up: Add `visual.md` command doc |
+| `plugins/ccbell/sounds/` | :sound: Audio files (no change) |
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **plugin.json** | No change | Feature in binary |
-| **hooks/hooks.json** | No change | Uses existing hooks |
-| **commands/visual.md** | Add | New command documentation |
-| **commands/configure.md** | Update | Reference visual options |
-| **commands/test.md** | Update | Add --visual flag |
-| **scripts/ccbell.sh** | Version sync | Match ccbell release tag |
+### ccbell
 
-## References
+Files that may be affected in ccbell:
 
-- [AppleScript Notification](https://apple.stackexchange.com/questions/57412/how-can-i-trigger-a-notification-from-the-apple-command-line)
-- [notify-send man page](https://man7.org/linux/man-pages/man1/notify-send.1.html)
-- [Current ccbell audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go)
+| File | Description |
+|------|-------------|
+| `main.go` | :rocket: Main entry point (version bump) |
+| `config/config.go` | :wrench: Add `visual` section |
+| `audio/player.go` | :speaker: Visual notifier alongside audio |
+| `hooks/*.go` | :hook: Hook implementations (no change) |
 
----
+## Implementation
 
-[Back to Feature Index](index.md)
+### cc-plugins
+
+Steps required in cc-plugins repository:
+
+```bash
+# 1. Update plugin.json version
+# 2. Update ccbell.sh if needed
+# 3. Add/update command documentation
+# 4. Add/update hooks configuration
+# 5. Add new sound files if applicable
+```
+
+### ccbell
+
+Steps required in ccbell repository:
+
+```bash
+# 1. Add visual section to config structure
+# 2. Create internal/visual/visual.go
+# 3. Implement VisualNotifier interface for each platform
+# 4. Add Send() method with urgency support
+# 5. Add visual command with configure/test options
+# 6. Update version in main.go
+# 7. Tag and release vX.X.X
+# 8. Sync version to cc-plugins
+```
+
+## External Dependencies
+
+| Dependency | Version | Purpose | Required |
+|------------|---------|---------|----------|
+| osascript | macOS | macOS Notification Center | `[Yes]` |
+| notify-send | Linux | Linux notifications | `[Yes]` |
+
+## Research Details
+
+### Claude Code Plugins
+
+Plugin manifest supports commands. New visual command can be added.
+
+### Claude Code Hooks
+
+No new hooks needed - visual notifications integrated into main flow.
+
+### Audio Playback
+
+Visual notifications work alongside or instead of audio.
+
+### Other Findings
+
+Visual notification features:
+- Platform-specific implementations (AppleScript, notify-send)
+- Urgency levels (low, normal, critical)
+- Customizable messages per event
+- Mode: audio-only/visual-only/both
+
+## Research Sources
+
+| Source | Description |
+|--------|-------------|
+| [AppleScript Notification](https://apple.stackexchange.com/questions/57412/how-can-i-trigger-a-notification-from-the-apple-command-line) | :books: AppleScript |
+| [notify-send man page](https://man7.org/linux/man-pages/man1/notify-send.1.html) | :books: notify-send |
+| [Current ccbell audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Audio player |

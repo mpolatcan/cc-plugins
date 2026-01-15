@@ -1,100 +1,175 @@
-# Feature: Notification Stacking 📚
+---
+name: Notification Stacking
+description: When multiple events fire quickly, queue them and play sequentially instead of overlapping
+---
 
-## Summary
+# Notification Stacking
 
 When multiple events fire quickly, queue them and play sequentially instead of overlapping.
 
+## Table of Contents
+
+1. [Summary](#summary)
+2. [Benefit](#benefit)
+3. [Priority & Complexity](#priority--complexity)
+4. [Feasibility](#feasibility)
+   - [Claude Code](#claude-code)
+   - [Audio Player](#audio-player)
+   - [External Dependencies](#external-dependencies)
+5. [Usage in ccbell Plugin](#usage-in-ccbell-plugin)
+6. [Repository Impact](#repository-impact)
+   - [cc-plugins](#cc-plugins)
+   - [ccbell](#ccbell)
+7. [Implementation](#implementation)
+   - [cc-plugins](#cc-plugins-1)
+   - [ccbell](#ccbell-1)
+8. [External Dependencies](#external-dependencies-1)
+9. [Research Details](#research-details)
+10. [Research Sources](#research-sources)
+
+## Summary
+
+When multiple events fire quickly, queue them and play sequentially instead of overlapping. Ensures clearer and distinguishable notifications.
+
 ## Benefit
 
-- **Clearer notifications**: Every sound is distinguishable
-- **Complete coverage**: No notifications get lost in chaos
-- **Less stressful audio**: Smooth notification flow
-- **Better for focus**: Ordered notifications are less jarring
+| Aspect | Description |
+|--------|-------------|
+| :bust_in_silhouette: User Impact | Every sound is distinguishable |
+| :memo: Use Cases | High-frequency event scenarios |
+| :dart: Value Proposition | Complete coverage, less stressful audio |
 
 ## Priority & Complexity
 
-| Attribute | Value |
-|-----------|-------|
-| **Priority** | Nice to Have |
-| **Complexity** | Medium |
-| **Category** | Notification Control |
+| Aspect | Assessment |
+|--------|------------|
+| :rocket: Priority | `[Low]` |
+| :construction: Complexity | `[Medium]` |
+| :warning: Risk Level | `[Medium]` |
 
-## Technical Feasibility
+## Feasibility
 
-### Configuration
+### Claude Code
 
-```json
-{
-  "stacking": {
-    "enabled": true,
-    "max_queue": 10,
-    "play_delay": "500ms",
-    "drop_policy": "oldest"
-  }
-}
-```
+Can this be implemented using Claude Code's native features?
 
-### Implementation
+| Feature | Description |
+|---------|-------------|
+| :keyboard: Commands | New `stacking` command with status/clear/test |
+| :hook: Hooks | Uses existing hooks for event handling |
+| :toolbox: Tools | Read, Write, Bash tools for queue operations |
 
-```go
-type QueueManager struct {
-    pending    []PendingNotification
-    mutex      sync.Mutex
-    maxPending int
-}
+### Audio Player
 
-type PendingNotification struct {
-    Event    string
-    Sound    string
-    Volume   float64
-    QueuedAt time.Time
-}
+How will audio playback be handled?
 
-func (q *QueueManager) Enqueue(n PendingNotification) {
-    q.mutex.Lock()
-    defer q.mutex.Unlock()
-    if len(q.pending) >= q.maxPending {
-        q.pending = q.pending[1:]
-    }
-    q.pending = append(q.pending, n)
-}
-```
+| Aspect | Description |
+|--------|-------------|
+| :speaker: afplay | Sequential playback from queue with delays |
+| :computer: Platform Support | Cross-platform compatible |
+| :musical_note: Audio Formats | No audio format changes |
 
-### Commands
+### External Dependencies
 
-```bash
-/ccbell:stacking status
-/ccbell:stacking clear
-/ccbell:stacking test
-```
+Are external tools or libraries required?
+
+No external dependencies - uses Go standard library.
+
+## Usage in ccbell Plugin
+
+Describe how this feature integrates with the existing ccbell plugin:
+
+| Aspect | Description |
+|--------|-------------|
+| :hand: User Interaction | Users run `/ccbell:stacking` commands to manage queue |
+| :wrench: Configuration | Adds `stacking` section to config |
+| :gear: Default Behavior | Events queued and played sequentially |
 
 ## Repository Impact
 
-### ccbell Repository
+### cc-plugins
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **Config** | Add | `stacking` section |
-| **Core Logic** | Add | `QueueManager` with Enqueue/Flush |
-| **New File** | Add | `internal/queue/stacking.go` |
-| **Commands** | Add | `stacking` command |
+Files that may be affected in cc-plugins:
 
-### cc-plugins Repository
+| File | Description |
+|------|-------------|
+| `plugins/ccbell/.claude-plugin/plugin.json` | :package: Plugin manifest (version bump) |
+| `plugins/ccbell/scripts/ccbell.sh` | :arrow_down: Download script (version sync) |
+| `plugins/ccbell/hooks/hooks.json` | :hook: Hook definitions (no change) |
+| `plugins/ccbell/commands/*.md` | :page_facing_up: Add `stacking.md` command doc |
+| `plugins/ccbell/sounds/` | :sound: Audio files (no change) |
 
-| Component | Impact | Details |
-|-----------|--------|---------|
-| **plugin.json** | No change | Feature in binary |
-| **hooks/hooks.json** | No change | Uses existing hooks |
-| **commands/stacking.md** | Add | New command doc |
-| **commands/configure.md** | Update | Add stacking section |
-| **scripts/ccbell.sh** | Version sync | Match ccbell release |
+### ccbell
 
-## References
+Files that may be affected in ccbell:
 
-- [Current main.go](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go)
-- [Audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go)
-- [State management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go)
+| File | Description |
+|------|-------------|
+| `main.go` | :rocket: Main entry point (version bump) |
+| `config/config.go` | :wrench: Add `stacking` section |
+| `audio/player.go` | :speaker: Queue integration for sequential playback |
+| `hooks/*.go` | :hook: Hook implementations (no change) |
 
----
+## Implementation
 
-[Back to Feature Index](index.md)
+### cc-plugins
+
+Steps required in cc-plugins repository:
+
+```bash
+# 1. Update plugin.json version
+# 2. Update ccbell.sh if needed
+# 3. Add/update command documentation
+# 4. Add/update hooks configuration
+# 5. Add new sound files if applicable
+```
+
+### ccbell
+
+Steps required in ccbell repository:
+
+```bash
+# 1. Add stacking section to config structure
+# 2. Create internal/queue/stacking.go
+# 3. Implement QueueManager with Enqueue/Flush methods
+# 4. Add stacking command with status/clear/test options
+# 5. Update version in main.go
+# 6. Tag and release vX.X.X
+# 7. Sync version to cc-plugins
+```
+
+## External Dependencies
+
+| Dependency | Version | Purpose | Required |
+|------------|---------|---------|----------|
+| None | | | `[No]` |
+
+## Research Details
+
+### Claude Code Plugins
+
+Plugin manifest supports commands. New stacking command can be added.
+
+### Claude Code Hooks
+
+No new hooks needed - queue management integrated into main flow.
+
+### Audio Playback
+
+Queue manager controls sequential playback with configurable delays.
+
+### Other Findings
+
+Stacking features:
+- Max queue size limit
+- Play delay between notifications
+- Drop policy (oldest/newest) when queue full
+- Status and clear commands
+
+## Research Sources
+
+| Source | Description |
+|--------|-------------|
+| [Current main.go](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) | :books: Main entry point |
+| [Audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Audio playback |
+| [State management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) | :books: State management |
