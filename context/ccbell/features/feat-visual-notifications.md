@@ -79,6 +79,15 @@ Are external tools or libraries required?
 | notify-send (libnotify) | Linux | Linux notifications | `[Yes]` |
 | beeep (Go library) | Cross-platform | Cross-platform notification library (macOS, Linux) | `[No]` |
 
+## Status
+
+| Status | Description |
+|--------|-------------|
+| ✅ | macOS supported |
+| ✅ | Linux supported |
+| ⚠️  | External dependencies required (osascript, notify-send) |
+| ✅ | Cross-platform compatible |
+
 ## Usage in ccbell Plugin
 
 Describe how this feature integrates with the existing ccbell plugin:

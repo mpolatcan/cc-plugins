@@ -139,6 +139,15 @@ Steps required in ccbell repository:
 |------------|---------|---------|----------|
 | None | | | `[No]` |
 
+## Status
+
+| Status | Description |
+|--------|-------------|
+| ✅ | macOS supported |
+| ✅ | Linux supported |
+| ✅ | No external dependencies (uses Go stdlib) |
+| ✅ | Cross-platform compatible |
+
 ## Research Details
 
 ### Claude Code Plugins

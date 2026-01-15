@@ -146,6 +146,15 @@ Steps required in ccbell repository:
 | `hyprctl` | Linux/Hyprland | Wayland compositor DND status | `[No]` |
 | `swaymsg` | Linux/Sway | i3-compatible DND status | `[No]` |
 
+## Status
+
+| Status | Description |
+|--------|-------------|
+| ✅ | macOS supported (defaults, dnd CLI) |
+| ✅ | Linux supported (gsettings, qdbus, hyprctl, swaymsg) |
+| ⚠️  | External dependencies required (defaults, gsettings, qdbus) |
+| ❌ | Windows not supported |
+
 ## Research Details
 
 ### Claude Code Plugins

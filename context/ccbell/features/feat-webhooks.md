@@ -75,6 +75,15 @@ Are external tools or libraries required?
 
 Uses Go's `net/http` package for HTTP requests.
 
+## Status
+
+| Status | Description |
+|--------|-------------|
+| ✅ | macOS supported |
+| ✅ | Linux supported |
+| ✅ | No external dependencies (uses Go stdlib) |
+| ✅ | Cross-platform compatible |
+
 ## Usage in ccbell Plugin
 
 Describe how this feature integrates with the existing ccbell plugin:

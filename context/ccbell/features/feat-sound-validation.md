@@ -141,6 +141,15 @@ Steps required in ccbell repository:
 | ffprobe | | Audio format validation (from FFmpeg) | `[No]` |
 | MediaInfo | | Alternative audio metadata extraction | `[No]` |
 
+## Status
+
+| Status | Description |
+|--------|-------------|
+| ✅ | macOS supported |
+| ✅ | Linux supported |
+| ⚠️  | Optional dependencies (ffprobe, MediaInfo) |
+| ✅ | Cross-platform compatible |
+
 ## Research Details
 
 ### Claude Code Plugins

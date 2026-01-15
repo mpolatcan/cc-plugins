@@ -75,6 +75,15 @@ Are external tools or libraries required?
 
 TTS engines (say, piper, kokoro) required for non-macOS platforms.
 
+## Status
+
+| Status | Description |
+|--------|-------------|
+| ✅ | macOS supported (native `say` command) |
+| ✅ | Linux supported (Piper, Kokoro, MeloTTS) |
+| ⚠️  | External dependencies required (TTS engines) |
+| ❌ | Windows not supported |
+
 ## Usage in ccbell Plugin
 
 Describe how this feature integrates with the existing ccbell plugin:

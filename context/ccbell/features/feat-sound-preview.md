@@ -139,6 +139,15 @@ Steps required in ccbell repository:
 |------------|---------|---------|----------|
 | None | | | `[No]` |
 
+## Status
+
+| Status | Description |
+|--------|-------------|
+| ✅ | macOS supported (afplay) |
+| ✅ | Linux supported (aplay, sox) |
+| ✅ | No external dependencies (uses system commands) |
+| ✅ | Cross-platform compatible |
+
 ## Research Details
 
 ### Claude Code Plugins
