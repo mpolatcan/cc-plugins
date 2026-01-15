@@ -195,6 +195,25 @@ ccbell test stop --dry-run --json > /tmp/dry-run.json
 jq '.event, .sound, .skip_reason' /tmp/dry-run.json
 ```
 
+#### GitHub Actions Integration
+```yaml
+- name: Test ccbell configuration
+  run: |
+    ccbell test stop --dry-run --json | tee dry-run.json
+    # Validate expected sound is selected
+    jq -e '.sound == "bundled:stop.aiff"' dry-run.json
+```
+
+#### Automated Config Testing
+```bash
+# Test all events in sequence
+for event in stop permission idle; do
+    echo "Testing $event..."
+    ccbell test $event --dry-run --json | \
+        jq "{event: .event, sound: .sound, status: .skip_reason}"
+done
+```
+
 ### Dry Run Use Cases
 
 - **Office/Library Testing**: Validate without disturbing others

@@ -177,6 +177,16 @@ Validation runs before any playback occurs.
   - Multiple output formats (text, JSON, XML)
 - **Best For**: When ffprobe is unavailable, detailed codec information
 
+#### 3. Second Opinion (Audiobook Validation)
+- **URL**: https://stevenjaycohen.com/code/second-opinion
+- **Purpose**: Audiobook file validation tool
+- **Features**:
+  - Checks audio file specifications
+  - Validates against audiobook standards
+  - Detailed audio analysis
+  - Cross-platform (Python-based)
+- **Best For**: High-quality audio validation, audiobook prep
+
 ### Validation Features
 
 - File existence and accessibility checks
@@ -192,6 +202,7 @@ Validation runs before any playback occurs.
 |--------|-------------|
 | [FFprobe Documentation](https://ffmpeg.org/ffprobe.html) | :books: FFprobe official documentation |
 | [MediaInfo](https://mediaarea.net/en/MediaInfo) | :books: Audio/video metadata extraction |
+| [Second Opinion](https://stevenjaycohen.com/code/second-opinion) | :books: Audiobook validation tool |
 | [FFprobe vs MediaInfo Comparison](https://probe.dev/resources/ffprobe-vs-mediainfo-comparison) | :books: Tool comparison guide |
 | [Player packages](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Audio player |
 | [Sound resolution](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Path resolution |

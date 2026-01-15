@@ -140,6 +140,7 @@ Steps required in ccbell repository:
 | Dependency | Version | Purpose | Required |
 |------------|---------|---------|----------|
 | `defaults` | macOS | Read DND status | `[Yes]` |
+| `dnd` | Homebrew | CLI tool for DND control (sindresorhus) | `[No]` |
 | `gsettings` | Linux/GNOME | Read DND status | `[Yes]` |
 | `qdbus` | Linux/KDE | Read DND status | `[Yes]` |
 | `hyprctl` | Linux/Hyprland | Wayland compositor DND status | `[No]` |
@@ -165,6 +166,30 @@ Playback is skipped when DND is active, but no audio changes needed.
 - **Command**: `defaults read com.apple.notificationcenterui doNotDisturb`
 - **Returns**: `1` (enabled) or `0` (disabled)
 - **Note**: Works on macOS 10.10+
+
+#### macOS CLI Tool (sindresorhus/do-not-disturb)
+- **GitHub**: https://github.com/sindresorhus/do-not-disturb
+- **Install**: `brew install --cask dnd`
+- **Features**:
+  - Toggle DND from command line
+  - Query DND status
+  - Schedule DND sessions
+  - Works with macOS Focus mode
+- **Example**:
+```bash
+# Check if DND is active
+dnd status
+
+# Enable DND
+dnd on
+
+# Disable DND
+dnd off
+
+# Toggle DND
+dnd toggle
+```
+- **Best For**: Scriptable DND control, automation
 
 #### GNOME Linux (X11/Wayland)
 - **Command**: `gsettings get org.gnome.desktop.notifications show-banners`
@@ -210,6 +235,7 @@ Platform DND detection methods:
 
 | Source | Description |
 |--------|-------------|
+| [sindresorhus/do-not-disturb](https://github.com/sindresorhus/do-not-disturb) | :books: macOS DND CLI tool |
 | [macOS DND via defaults](https://developer.apple.com/documentation/foundation/preferences) | :books: Apple preferences documentation |
 | [GNOME notifications](https://developer.gnome.org/notification-spec/) | :books: GNOME notification spec |
 | [Hyprland Wiki](https://wiki.hyprland.org/) | :books: Hyprland compositor documentation |
