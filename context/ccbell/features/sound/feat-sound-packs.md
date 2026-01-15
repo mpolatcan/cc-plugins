@@ -142,6 +142,126 @@ Steps required in ccbell repository:
 |------------|---------|---------|----------|
 | None | HTTP client | Download packs from GitHub | ❌ |
 
+### API Rate Limits
+
+Understanding rate limits is critical for sound pack and download features.
+
+#### GitHub API (for Sound Pack Distribution)
+
+| Request Type | Rate Limit | Notes |
+|--------------|------------|-------|
+| Unauthenticated | 60 requests/hour | IP-based, no token needed |
+| Authenticated (PAT) | 5,000 requests/hour | Personal Access Token |
+| GitHub Enterprise | 15,000 requests/hour | Enterprise Cloud orgs |
+
+**Current Implementation Status**: Uses unauthenticated requests for GitHub releases (60 req/hr is sufficient for pack browsing).
+
+#### Freesound API
+
+| Operation | Rate Limit | Daily Limit | Authentication |
+|-----------|------------|-------------|----------------|
+| General API | 60 requests/minute | 2,000/day | API key required |
+| Upload/Comment/Rate | 30 requests/minute | 500/day | API key + OAuth2 |
+| OAuth2 for download | Requires full OAuth flow | - | Per-user authorization |
+
+**API Key Registration**: https://freesound.org/apiv2/apply (free for non-commercial use)
+
+**Implementation Notes**:
+- All requests require `token` parameter or `Authorization: Token` header
+- Download requires OAuth2 (more complex than Pixabay)
+- 60 req/min is generous for typical usage
+
+#### Pixabay API
+
+| Authentication | Rate Limit | Notes |
+|----------------|------------|-------|
+| Without API key | 5 requests/second | Limited |
+| With API key | 100 requests/60 seconds | Recommended |
+| Caching required | 24 hours minimum | Must cache search results |
+
+**API Key Registration**: https://pixabay.com/api/docs/ (free, instant)
+
+**Implementation Notes**:
+- API key is free and instant to obtain
+- No API key needed for basic searches (limited rate)
+- Results must be cached for 24 hours per terms of service
+- Simpler integration than Freesound
+
+#### Rate Limit Comparison Summary
+
+| Provider | Sounds | Auth Required | Rate Limit | Daily Capacity |
+|----------|--------|---------------|------------|----------------|
+| GitHub Releases | Pack metadata | No | 60 req/hour | 1,440 requests |
+| Pixabay | 110,000+ | Optional | 100 req/minute | ~144,000 searches |
+| Freesound | 700,000+ | API Key required | 60 req/minute | ~86,400 searches |
+
+### Custom User Packs Feasibility
+
+Custom user packs would allow users to create and use their own sound packs without needing to create GitHub releases.
+
+#### Implementation Options
+
+##### Option 1: Local Pack Directory
+```
+~/.claude/ccbell/packs/
+├── my-custom-pack/
+│   ├── pack.json
+│   ├── stop.wav
+│   ├── permission.aiff
+│   └── ...
+```
+
+**Pros**:
+- No network required
+- Full user control
+- No authentication needed
+- Fast iteration
+
+**Cons**:
+- No discovery/browsing
+- Manual configuration
+
+##### Option 2: Local + Git Repository
+```
+~/.claude/ccbell/packs/  # Clone of user repos
+```
+
+**Pros**:
+- Version control
+- Community sharing via git
+- Pull updates easily
+
+**Cons**:
+- Requires git knowledge
+- More complex setup
+
+##### Option 3: GitHub Gist-Based Packs
+```
+# User creates Gist with pack.json + sounds
+# ccbell installs from Gist URL
+```
+
+**Pros**:
+- Easy sharing
+- GitHub-native
+- No dedicated repo needed
+
+**Cons**:
+- Requires GitHub account
+- Larger files may be problematic
+
+#### Recommendation
+
+**For ccbell v0.3.x**: Focus on GitHub releases (current implementation)
+
+**Future Enhancement**: Add local pack support for power users who want custom sounds without GitHub releases
+
+```bash
+/ccbell:packs create my-pack  # Scaffold a new pack
+/ccbell:packs add stop.wav    # Add sounds to pack
+/ccbell:packs local my-pack   # Use local pack
+```
+
 ## Status
 
 | Status | Description |
@@ -438,54 +558,58 @@ Download individual sounds directly from free sound providers (Freesound, Pixaba
 
 #### Provider API Support
 
-| Provider | API Required | Search | Download | Notes |
-|----------|--------------|--------|----------|-------|
-| **Freesound** | Yes | ✅ | ✅ | Requires API key, 700K+ sounds |
-| **Pixabay** | Yes | ✅ | ✅ | No API key for basic use, 110K+ sounds |
-| **Mixkit** | No | ❌ | ✅ | Direct download links |
-| **SoundBible** | No | ❌ | ✅ | Direct download, no API |
-| **Zapsplat** | No | ❌ | ✅ | Free tier available |
+| Provider | Auth Required | Rate Limit | Daily Limit | Sounds | Complexity |
+|----------|---------------|------------|-------------|--------|------------|
+| **Freesound** | API Key + OAuth2 | 60 req/min | 2,000 | 700K+ | High |
+| **Pixabay** | Optional | 100 req/min | ~144,000 | 110K+ | Low |
+| **Mixkit** | None | N/A | N/A | 1K+ | Scraping |
+| **SoundBible** | None | N/A | N/A | Thousands | Scraping |
 
 #### Provider Implementation
 
-##### Freesound API (Recommended - Most Sounds)
+##### Freesound API (Most Sounds - Complex Auth)
 
 - **API URL**: `https://freesound.org/apiv2`
-- **Authentication**: API key required (free registration)
-- **Rate Limit**: 5 requests/second
-- **Search Endpoint**: `GET /search/text/?query={query}&fields=id,name,previews`
-- **Download**: Requires OAuth2 for full download or pre-signed URLs
+- **Authentication**: API key required (free at https://freesound.org/apiv2/apply)
+- **Rate Limit**: 60 requests/minute (general), 30/minute (sensitive ops)
+- **Daily Limit**: 2,000 requests/day
+- **Download**: Requires OAuth2 flow (more complex than Pixabay)
 
 ```bash
 # Search sounds
 curl "https://freesound.org/apiv2/search/text/?q=notification&types=wav&token={API_KEY}"
 
-# Download sound (requires OAuth flow)
+# Download sound (requires OAuth2 - complex flow)
 curl -L -o sound.wav "https://freesound.org/apiv2/sounds/{sound_id}/download/"
 ```
 
-##### Pixabay API (Recommended - No Auth Required)
+**Complexity**: High (OAuth2 required for downloads)
+
+##### Pixabay API (Easiest Integration)
 
 - **API URL**: `https://pixabay.com/api/`
-- **Authentication**: Optional API key (higher rate limits)
-- **Rate Limit**: 50 requests/second (with key), 5/sec (without)
-- **Search**: `GET https://pixabay.com/api/?q={query}&category=sound-effects`
+- **Authentication**: Optional API key (free at https://pixabay.com/api/docs/)
+- **Rate Limit**: 100 requests/60 seconds (with key), 5/second (without)
+- **Caching**: 24 hours required per terms of service
+- **Search**: `GET https://pixabay.com/api/?q={query}&category=sound-effects&key={API_KEY}`
 
 ```bash
-# Search sounds (no API key needed)
-curl "https://pixabay.com/api/?q=notification+bell&category=sound-effects"
+# Search sounds (with API key - recommended)
+curl "https://pixabay.com/api/?q=notification+bell&category=sound-effects&key={API_KEY}"
 
-# Download (get from 'audio' field in response)
-curl -L -o sound.mp3 "$(curl -s 'https://pixabay.com/api/?q=bell&category=sound-effects' | jq -r '.hits[0].audio')"
+# Download (get from 'audio' or 'largeImageURL' field)
+curl -L -o sound.mp3 "$(curl -s 'https://pixabay.com/api/?q=bell&category=sound-effects&key={API_KEY}' | jq -r '.hits[0].audio')"
 ```
 
-##### Mixkit (Direct Download)
+**Complexity**: Low (API key optional, simple HTTP requests)
+
+##### Mixkit (No API)
 
 - **URL**: https://mixkit.co/free-sound-effects/
-- **No API**: Scraping required or manual download
-- **Best For**: Pre-curated packs
+- **No API**: HTML scraping required
+- **Best For**: Pre-curated packs (not recommended for automated downloads)
 
-##### SoundBible (Direct Download)
+##### SoundBible (No API)
 
 - **URL**: http://soundbible.com/
 - **No API**: HTML scraping required
@@ -567,34 +691,30 @@ curl -L -o sound.mp3 "$(curl -s 'https://pixabay.com/api/?q=bell&category=sound-
 
 | Source | Description |
 |--------|-------------|
-| [Freesound API](https://freesound.org/docs/api/) | :books: Freesound API v2 documentation |
-| [Pixabay API](https://pixabay.com/api/docs/) | :books: Pixabay API documentation |
+| [GitHub REST API Rate Limits](https://docs.github.com/en/rest/overview/rate-limits-for-the-rest-api) | :books: GitHub API rate limits (60 unauthenticated, 5,000 authenticated) |
+| [Freesound API](https://freesound.org/docs/api/) | :books: Freesound API v2 documentation (60 req/min, API key required) |
+| [Pixabay API](https://pixabay.com/api/docs/) | :books: Pixabay API documentation (100 req/60s with key) |
 | [Mixkit Sounds](https://mixkit.co/free-sound-effects/) | :books: Free sound effects |
 | [SoundBible](http://soundbible.com/) | :books: Free sound clips |
 | [Zapsplat](https://www.zapsplat.com/) | :books: Professional sound effects |
 | [Go HTTP Client](https://pkg.go.dev/net/http) | :books: HTTP requests |
 | [jq Manual](https://stedolan.github.io/jq/manual/) | :books: JSON processing |
 
-## Research Sources
+## Sound Source Research
+
+| Source | Sounds | License | API | Best For |
+|--------|--------|---------|-----|----------|
+| [Freesound](https://freesound.org/) | 700K+ | CC (various) | ✅ | Maximum variety |
+| [Pixabay](https://pixabay.com/sound-effects/) | 110K+ | Pixabay License | ✅ | Easiest integration |
+| [Mixkit](https://mixkit.co/free-sound-effects/) | 1K+ | Mixkit License | ❌ | Curated packs |
+| [SoundBible](https://soundbible.com/) | Thousands | CC/PD | ❌ | Quick downloads |
+| [akx/Notifications](https://github.com/akx/Notifications) | Pack | Flexible | ✅ | Ready-made packs |
+| [EdgeTX Sound Packs](https://github.com/EdgeTX/edgetx-sdcard-sounds) | Pack | CC0/CC-BY | ✅ | Structured releases |
+
+### Internal Documentation
 
 | Source | Description |
 |--------|-------------|
-| [Freesound](https://freesound.org/) | :books: 700,000+ Creative Commons licensed sounds database |
-| [Pixabay Audio](https://pixabay.com/sound-effects/) | :books: 110,000+ royalty-free sound effects |
-| [Mixkit Sounds](https://mixkit.co/free-sound-effects/) | :books: Free sound effects with Mixkit License |
-| [Notification Sounds](https://notificationsounds.com/) | :books: Mobile notification sounds and ringtones |
-| [Zedge](https://www.zedge.net/) | :books: Mobile ringtones and notification sounds |
-| [SoundBible](https://soundbible.com/) | :books: Free sound clips in WAV and MP3 |
-| [Free To Use Sounds](https://www.freetousesounds.com/) | :books: 15,000+ royalty-free sound recordings |
-| [Zapsplat Notification Bells](https://www.zapsplat.com/sound-effect-packs/notification-bells/) | :books: 62 professional notification bell sounds |
-| [Free Sounds Library](https://www.freesoundslibrary.com/) | :books: High-quality SFX with CC0 + CC-BY |
-| [Uppbeat Sound Effects](https://uppbeat.io/blog/sound-effects/best-sound-effect-packs) | :books: Curated free sound effect packs |
-| [Artlist Notifications](https://artlist.io/collection/notifications/11517) | :books: Professional notification SFX collection |
-| [Freesound API](https://freesound.org/docs/api/) | :books: Freesound API documentation |
-| [akx/Notifications - GitHub](https://github.com/akx/Notifications) | :books: Hand-crafted notification tones |
-| [EdgeTX Sound Packs - GitHub](https://github.com/EdgeTX/edgetx-sdcard-sounds) | :books: Structured sound pack releases |
-| [SONNISS GameAudioGDC](https://sonniss.com/gameaudiogdc/) | :books: Professional game audio archives |
-| [Top 12 Free Sound Effects Sites - SFX Engine](https://sfxengine.com/blog/free-sound-effects-download) | :books: Guide to free sound effects resources |
-| [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Audio player |
-| [Sound path resolution](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Path resolution |
-| [Config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) | :books: Config structure |
+| [Audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | Current audio playback implementation |
+| [Sound path resolution](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | Path resolution logic |
+| [Config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) | Configuration schema |
