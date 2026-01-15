@@ -230,7 +230,35 @@ Pack sounds resolved via `pack:` scheme in sound configuration.
 - **License**: CC0, CC-BY (properly licensed)
 - **Best For**: CC0-licensed game sound packs
 
-#### 9. SONNISS GameAudioGDC
+#### 9. Zapsplat (Professional Quality)
+- **URL**: https://www.zapsplat.com/sound-effect-packs/notification-bells/
+- **Sounds**: 62 free notification bell sound effects
+- **License**: Free for commercial use (with attribution)
+- **Categories**: UI alerts, bells, chimes
+- **Best For**: Professional-quality notification bells
+
+#### 10. Free Sounds Library
+- **URL**: https://www.freesoundslibrary.com/
+- **Sounds**: High-quality SFX library
+- **License**: CC0 + CC-BY (check individual files)
+- **Categories**: Notifications, chimes, alerts
+- **Best For**: Attribution-flexible sound selection
+
+#### 11. Uppbeat Sound Effects
+- **URL**: https://uppbeat.io/blog/sound-effects/best-sound-effect-packs
+- **Content**: Blog with curated free sound effect packs
+- **License**: Various (check individual packs)
+- **Categories**: Notification sounds, bells, UI sounds
+- **Best For**: Discovery of curated, themed packs
+
+#### 12. Artlist Notifications
+- **URL**: https://artlist.io/collection/notifications/11517
+- **Sounds**: Professional notification SFX collection
+- **License**: Commercial license included
+- **Categories**: Modern UI notifications, bells
+- **Best For**: Production-ready, polished notification sounds
+
+#### 13. SONNISS GameAudioGDC
 - **URL**: https://sonniss.com/gameaudiogdc/
 - **Content**: Professional game audio archives
 - **License**: Royalty-free, commercially usable
@@ -272,6 +300,10 @@ Pack sounds resolved via `pack:` scheme in sound configuration.
 | [Zedge](https://www.zedge.net/) | :books: Mobile ringtones and notification sounds |
 | [SoundBible](https://soundbible.com/) | :books: Free sound clips in WAV and MP3 |
 | [Free To Use Sounds](https://www.freetousesounds.com/) | :books: 15,000+ royalty-free sound recordings |
+| [Zapsplat Notification Bells](https://www.zapsplat.com/sound-effect-packs/notification-bells/) | :books: 62 professional notification bell sounds |
+| [Free Sounds Library](https://www.freesoundslibrary.com/) | :books: High-quality SFX with CC0 + CC-BY |
+| [Uppbeat Sound Effects](https://uppbeat.io/blog/sound-effects/best-sound-effect-packs) | :books: Curated free sound effect packs |
+| [Artlist Notifications](https://artlist.io/collection/notifications/11517) | :books: Professional notification SFX collection |
 | [Freesound API](https://freesound.org/docs/api/) | :books: Freesound API documentation |
 | [akx/Notifications - GitHub](https://github.com/akx/Notifications) | :books: Hand-crafted notification tones |
 | [EdgeTX Sound Packs - GitHub](https://github.com/EdgeTX/edgetx-sdcard-sounds) | :books: Structured sound pack releases |

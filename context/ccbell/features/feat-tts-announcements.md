@@ -234,14 +234,49 @@ TTS output played through audio player or native command.
   - Can generate expressive speech
 - **Considerations**: Higher resource requirements
 
+#### 8. Kyutai Pocket TTS (New - January 2026)
+- **URL**: https://kyutai.org/tts
+- **Parameters**: 100M (very lightweight)
+- **Platform**: CPU-based, real-time inference
+- **Key Features**:
+  - Released January 2026, cutting-edge model
+  - Lightweight enough for real-time CPU processing
+  - High-quality voice synthesis
+  - Open-source with permissive licensing
+- **Best For**: Modern deployments, CPU-constrained environments
+
+#### 9. MeloTTS (Lightweight - Recommended)
+- **URL**: https://github.com/myshell-ai/MeloTTS
+- **Parameters**: Lightweight, optimized for CPU
+- **Platform**: CPU inference, real-time capable
+- **Key Features**:
+  - High-quality multi-lingual TTS
+  - Supports English, Spanish, French, Chinese, Japanese, Korean
+  - Optimized for real-time inference on CPUs
+  - C++ implementation available (MeloTTS.cpp)
+  - Apache 2.0 license
+- **Install**: `pip install melo-tts`
+- **Best For**: Low-resource devices, production deployments
+
+#### 10. MeloTTS.cpp (C++ Implementation)
+- **URL**: https://github.com/apinge/MeloTTS.cpp
+- **Purpose**: Pure C++ implementation of MeloTTS
+- **Key Features**:
+  - No Python dependency
+  - Faster inference
+  - Easier embedding in Go applications via cgo
+  - Minimal memory footprint
+- **Best For**: Go integration, performance-critical applications
+
 ### TTS Features Summary
 
-- Multiple engine support (say, piper, kokoro, neutts-air, neutts-nano, orpheus)
+- Multiple engine support (say, piper, kokoro, neutts-air, neutts-nano, orpheus, melo-tts, kyutai)
 - Configurable phrases per event
 - Voice selection per engine
 - Caching for performance
 - Works alongside or instead of sounds
 - Voice cloning support (NeuTTS Air, Kokoro, Orpheus, XTTS-v2)
+- CPU-optimized options for resource-constrained environments
 
 ## Research Sources
 
@@ -255,6 +290,9 @@ TTS output played through audio player or native command.
 | [Piper TTS - GitHub](https://github.com/rhasspy/piper) | :books: Piper TTS - Fast local neural TTS |
 | [Orpheus TTS - GitHub](https://github.com/canopyai/Orpheus-TTS) | :books: Orpheus TTS - SOTA open-source TTS on Llama-3b |
 | [XTTS-v2 - Hugging Face](https://huggingface.co/coqui/XTTS-v2) | :books: XTTS-v2 - Coqui AI multilingual voice cloning |
+| [Kyutai Pocket TTS](https://kyutai.org/tts) | :books: Kyutai Pocket TTS - 100M parameter CPU-real-time TTS (Jan 2026) |
+| [MeloTTS - GitHub](https://github.com/myshell-ai/MeloTTS) | :books: MeloTTS - Multi-lingual lightweight CPU-optimized TTS |
+| [MeloTTS.cpp - GitHub](https://github.com/apinge/MeloTTS.cpp) | :books: Pure C++ implementation for Go integration |
 | [The Top Open-Source TTS Models - Modal](https://modal.com/blog/open-source-tts) | :books: Comparison of open-source TTS models |
 | [BentoML - Open Source TTS Models 2026](https://www.bentoml.com/blog/exploring-the-world-of-open-source-text-to-speech-models) | :books: Comprehensive TTS model comparison |
 | [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Audio player |

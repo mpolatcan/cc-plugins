@@ -343,6 +343,80 @@ Content-Type: application/json
   - Logging platforms
   - Home automation (Home Assistant, Node-RED)
 
+#### 11. Activepieces (Open-Source AI Automation)
+- **URL**: https://www.activepieces.com/
+- **Cost**: Free self-hosted, cloud tiers available
+- **Features**:
+  - Open-source workflow automation
+  - AI-powered automation capabilities
+  - Visual flow builder
+  - 100+ integrations
+  - TypeScript/Python code snippets
+- **Webhook Handling**:
+  - HTTP trigger support
+  - Conditional logic
+  - Data transformation
+- **Best For**: AI-focused automation, modern deployments
+
+#### 12. Windmill (Open-Source Alternative)
+- **URL**: https://www.windmill.dev/
+- **Cost**: Free self-hosted, cloud tiers available
+- **Features**:
+  - Open-source workflow automation
+  - Python/TypeScript/Go/Bash scripts
+  - Self-hosted with full control
+  - Scheduling and webhooks
+  - UI for script management
+- **Webhook Handling**:
+  - Receive webhooks as triggers
+  - Run custom scripts on webhook
+  - Multi-step workflows
+- **Best For**: Developer-focused automation, script-heavy workflows
+
+#### 13. Node-RED (Low-Code Flow-Based)
+- **URL**: https://nodered.org/
+- **Cost**: Completely free, open-source
+- **Features**:
+  - Flow-based visual programming
+  - Browser-based editor
+  - 4,000+ nodes available
+  - Lightweight runtime
+  - MQTT, HTTP, WebSocket support
+- **Webhook Handling**:
+  - HTTP In node for receiving webhooks
+  - Visual flow chaining
+  - Integration with any service
+- **Best For**: IoT integrations, visual debugging, low-code approach
+
+#### 14. Pipedream (Developer Automation)
+- **URL**: https://pipedream.com/
+- **Cost**: Free tier available, paid from $50/mo
+- **Features**:
+  - Connect 1,500+ apps
+  - Pre-built components
+  - No server management
+  - Real-time triggers
+  - Custom code support
+- **Webhook Handling**:
+  - Receive webhooks via HTTP source
+  - Connect to any app
+  - Data transformation
+- **Best For**: Quick integrations, no-infrastructure approach
+
+#### 15. Bit Flows (Self-Hosted WordPress)
+- **URL**: https://bit-flows.com/
+- **Cost**: Free self-hosted
+- **Features**:
+  - WordPress-based automation
+  - No separate server needed
+  - Visual workflow builder
+  - WordPress integration focus
+- **Webhook Handling**:
+  - Receive webhooks via WordPress
+  - Trigger WordPress actions
+  - Connect to external services
+- **Best For**: WordPress users, low-cost self-hosted
+
 ### Webhook Security Considerations
 
 | Aspect | Recommendation |
@@ -379,6 +453,8 @@ Content-Type: application/json
 - Payload transformation support
 - Rich media support (Slack, Discord, Telegram)
 - Multi-channel routing via n8n/IFTTT/Zapier
+- Self-hosted alternatives (Activepieces, Windmill, Node-RED)
+- Developer-focused options (Pipedream, custom endpoints)
 
 ## Research Sources
 
@@ -393,5 +469,10 @@ Content-Type: application/json
 | [Discord Webhooks](https://discord.com/developers/docs/resources/webhook) | :books: Discord webhook API docs |
 | [Microsoft Teams Graph API](https://learn.microsoft.com/en-us/graph/api/resources/webhooks) | :books: Teams Graph API webhooks |
 | [Make.com Webhooks](https://www.make.com/) | :books: Make automation platform |
+| [Activepieces](https://www.activepieces.com/) | :books: Open-source AI-powered automation |
+| [Windmill](https://www.windmill.dev/) | :books: Developer-focused script automation |
+| [Node-RED](https://nodered.org/) | :books: Low-code flow-based automation |
+| [Pipedream](https://pipedream.com/) | :books: Developer automation platform |
+| [Bit Flows](https://bit-flows.com/) | :books: WordPress-based self-hosted automation |
 | [Go net/http package](https://pkg.go.dev/net/http) | :books: HTTP client |
 | [Main flow](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) | :books: Main flow |
