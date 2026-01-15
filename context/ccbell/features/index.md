@@ -1,7 +1,7 @@
 # ccbell Feature Ideas - Claude Code Plugin
 
 **Last Updated:** 2026-01-15
-**Total Features:** 23
+**Total Features:** 24
 
 Feasible feature ideas for ccbell as a Claude Code plugin. All features are evaluated against Claude Code plugin constraints.
 
@@ -11,7 +11,7 @@ Feasible feature ideas for ccbell as a Claude Code plugin. All features are eval
 
 | Constraint | Impact |
 |------------|--------|
-| **Hook-based triggers** | Only `Stop`, `Notification`, `SubagentStop` events |
+| **Hook-based triggers** | `Stop`, `Notification`, `SubagentStop`, `SessionStart`, `SessionEnd`, `PreToolUse`, `PostToolUse`, `UserPromptSubmit` |
 | **Process execution** | Separate process per hook, ~30s timeout |
 | **Shell commands only** | Can execute `afplay`, `osascript`, `curl`, etc. |
 | **No background services** | Cannot run persistent daemons |
@@ -38,6 +38,7 @@ Feasible feature ideas for ccbell as a Claude Code plugin. All features are eval
 | **Sound Preview** 👂 | Hear sounds before selecting | 🟡 Medium | 🟢 Low | [feat-sound-preview.md](feat-sound-preview.md) | ✅ Compatible |
 | **Sound Randomization** 🎲 | Cycle through multiple sounds | 🟡 Medium | 🟢 Low | [feat-sound-randomization.md](feat-sound-randomization.md) | ✅ Compatible |
 | **DnD Integration** 🔕 | Respect system Do Not Disturb | 🟢 Low | 🟢 Low | [feat-dnd-integration.md](feat-dnd-integration.md) | ✅ Compatible |
+| **Extra Hook Sounds** 🎣 | Sounds for SessionStart, SessionEnd, PreToolUse, PostToolUse, UserPromptSubmit | 🟡 Medium | 🟢 Low | [feat-extra-hook-sounds.md](feat-extra-hook-sounds.md) | ✅ Compatible |
 | **Global Volume Override** 🔊 | CLI flag for volume | 🟢 Low | 🟢 Low | [feat-global-volume-override.md](feat-global-volume-override.md) | ✅ Compatible |
 | **Cooldown Status** ⏱️ | Show time until next notification | 🟢 Low | 🟢 Low | [feat-cooldown-status.md](feat-cooldown-status.md) | ✅ Compatible |
 | **Minimal Mode** 🎯 | Simplified configuration | 🟢 Low | 🟢 Low | [feat-minimal-mode.md](feat-minimal-mode.md) | ✅ Compatible |
@@ -99,6 +100,7 @@ Features that require more planning but deliver solid value.
 | **Sound Randomization** 🎲 | 🟢 Low | Simple randomization |
 | **Weekday/Weekend Schedules** 📅 | 🟢 Low | `date +%u` check |
 | **DnD Integration** 🔕 | 🟢 Low | Check `defaults read` (macOS) |
+| **Extra Hook Sounds** 🎣 | 🟢 Low | Add new hook mappings to hooks.json |
 
 ### Phase 3: Advanced (Low Priority or High Complexity)
 
