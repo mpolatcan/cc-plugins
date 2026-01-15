@@ -298,6 +298,282 @@ Pack sounds resolved via `pack:` scheme in sound configuration.
 - Per-event overrides supported within packs
 - Mix and match sounds from different packs
 
+---
+
+## Feature: Download Sounds from Providers
+
+Allow users to download individual sounds directly from free sound providers (Freesound, Pixabay, Mixkit) for use in ccbell notifications.
+
+### Table of Contents
+
+1. [Summary](#summary-1)
+2. [Benefit](#benefit-1)
+3. [Priority & Complexity](#priority--complexity-1)
+4. [Feasibility](#feasibility-1)
+   - [Claude Code](#claude-code-1)
+   - [Audio Player](#audio-player-1)
+   - [External Dependencies](#external-dependencies-1)
+5. [Usage in ccbell Plugin](#usage-in-ccbell-plugin-1)
+6. [Repository Impact](#repository-impact-1)
+   - [cc-plugins](#cc-plugins-1)
+   - [ccbell](#ccbell-1)
+7. [Implementation Plan](#implementation-plan-1)
+   - [cc-plugins](#cc-plugins-2)
+   - [ccbell](#ccbell-2)
+8. [External Dependencies](#external-dependencies-2)
+9. [Research Details](#research-details-1)
+10. [Research Sources](#research-sources-1)
+
+### Summary
+
+Download individual sounds directly from free sound providers (Freesound, Pixabay, Mixkit, etc.) for use in ccbell notifications. Enables direct access to vast sound libraries without manual download workflow.
+
+### Benefit
+
+| Aspect | Description |
+|--------|-------------|
+| :bust_in_silhouette: User Impact | Access 700,000+ sounds directly from ccbell |
+| :memo: Use Cases | Custom notification sounds, creative expression |
+| :dart: Value Proposition | No manual browsing/downloading needed |
+
+### Priority & Complexity
+
+| Aspect | Assessment |
+|--------|------------|
+| :rocket: Priority | 🟡 Medium |
+| :construction: Complexity | 🟡 Medium |
+| :warning: Risk Level | 🟡 Medium |
+
+### Feasibility
+
+#### Claude Code
+
+| Feature | Description |
+|---------|-------------|
+| :keyboard: Commands | New `download` command with provider/search/download options |
+| :hook: Hooks | Uses existing hooks for event handling |
+| :toolbox: Tools | Read, Write, Bash, WebFetch tools for HTTP requests |
+
+#### Audio Player
+
+| Aspect | Description |
+|--------|-------------|
+| :speaker: afplay | Downloaded sounds saved to user sounds directory |
+| :computer: Platform Support | Cross-platform compatible |
+| :musical_note: Audio Formats | AIFF, WAV, MP3 supported |
+
+#### External Dependencies
+
+| Dependency | Version | Purpose | Required |
+|------------|---------|---------|----------|
+| curl/wget | Any | Download sounds from providers | ✅ |
+
+### Usage in ccbell Plugin
+
+| Aspect | Description |
+|--------|-------------|
+| :hand: User Interaction | `/ccbell:download freesound "notification bell"`, `/ccbell:download pixabay --top` |
+| :wrench: Configuration | Adds `downloads` section to track downloaded sounds |
+| :gear: Default Behavior | Downloads to `~/.claude/ccbell/sounds/` |
+
+### Repository Impact
+
+#### cc-plugins
+
+| File | Description |
+|------|-------------|
+| `plugins/ccbell/.claude-plugin/plugin.json` | Plugin manifest (version bump) |
+| `plugins/ccbell/scripts/ccbell.sh` | Download script (version sync) |
+| `plugins/ccbell/hooks/hooks.json` | Hook definitions (no change) |
+| `plugins/ccbell/commands/*.md` | Add `download.md` command doc |
+
+#### ccbell
+
+| File | Description |
+|------|-------------|
+| `main.go` | Main entry point (version bump) |
+| `config/config.go` | Add `downloads` section |
+| `audio/downloader.go` | New - Download manager for sound providers |
+| `hooks/*.go` | Hook implementations (no change) |
+
+### Implementation Plan
+
+#### cc-plugins
+
+1. Update plugin.json version
+2. Update ccbell.sh if needed
+3. Add `download.md` command documentation
+
+#### ccbell
+
+1. Create `internal/download/downloader.go`
+2. Implement Provider interface for each sound source
+3. Add search functionality with query parameters
+4. Implement download with progress tracking
+5. Add `download` command with search/download/list options
+6. Update version in main.go
+7. Tag and release vX.X.X
+8. Sync version to cc-plugins
+
+### External Dependencies
+
+| Dependency | Version | Purpose | Required |
+|------------|---------|---------|----------|
+| curl/wget | Any | HTTP client for downloads | ✅ |
+| jq | Optional | Parse JSON API responses | ❌ |
+
+### Research Details
+
+#### Download Workflow
+
+```
+1. User searches: /ccbell:download freesound "door bell"
+2. ccbell queries Freesound API
+3. Results displayed with preview options
+4. User selects sound by number
+5. Sound downloaded to ~/.claude/ccbell/sounds/
+6. Sound available as custom:sound_name
+```
+
+#### Provider API Support
+
+| Provider | API Required | Search | Download | Notes |
+|----------|--------------|--------|----------|-------|
+| **Freesound** | Yes | ✅ | ✅ | Requires API key, 700K+ sounds |
+| **Pixabay** | Yes | ✅ | ✅ | No API key for basic use, 110K+ sounds |
+| **Mixkit** | No | ❌ | ✅ | Direct download links |
+| **SoundBible** | No | ❌ | ✅ | Direct download, no API |
+| **Zapsplat** | No | ❌ | ✅ | Free tier available |
+
+#### Provider Implementation
+
+##### Freesound API (Recommended - Most Sounds)
+
+- **API URL**: `https://freesound.org/apiv2`
+- **Authentication**: API key required (free registration)
+- **Rate Limit**: 5 requests/second
+- **Search Endpoint**: `GET /search/text/?query={query}&fields=id,name,previews`
+- **Download**: Requires OAuth2 for full download or pre-signed URLs
+
+```bash
+# Search sounds
+curl "https://freesound.org/apiv2/search/text/?q=notification&types=wav&token={API_KEY}"
+
+# Download sound (requires OAuth flow)
+curl -L -o sound.wav "https://freesound.org/apiv2/sounds/{sound_id}/download/"
+```
+
+##### Pixabay API (Recommended - No Auth Required)
+
+- **API URL**: `https://pixabay.com/api/`
+- **Authentication**: Optional API key (higher rate limits)
+- **Rate Limit**: 50 requests/second (with key), 5/sec (without)
+- **Search**: `GET https://pixabay.com/api/?q={query}&category=sound-effects`
+
+```bash
+# Search sounds (no API key needed)
+curl "https://pixabay.com/api/?q=notification+bell&category=sound-effects"
+
+# Download (get from 'audio' field in response)
+curl -L -o sound.mp3 "$(curl -s 'https://pixabay.com/api/?q=bell&category=sound-effects' | jq -r '.hits[0].audio')"
+```
+
+##### Mixkit (Direct Download)
+
+- **URL**: https://mixkit.co/free-sound-effects/
+- **No API**: Scraping required or manual download
+- **Best For**: Pre-curated packs
+
+##### SoundBible (Direct Download)
+
+- **URL**: http://soundbible.com/
+- **No API**: HTML scraping required
+- **Format**: WAV, MP3
+- **License**: Check individual files
+
+#### Download Manager Features
+
+- **Search across multiple providers** with unified results
+- **Preview sounds** before download (where supported)
+- **Progress indicator** for downloads
+- **License display** for each sound
+- **Organize by provider** in local sounds directory
+- **Cache search results** to avoid repeated API calls
+- **Retry failed downloads** with exponential backoff
+
+#### Sound Organization
+
+```
+~/.claude/ccbell/sounds/
+├── custom/              # User's downloaded sounds
+│   ├── freesound/
+│   │   ├── sound_12345.wav
+│   │   └── sound_67890.mp3
+│   ├── pixabay/
+│   │   └── bell_alarm_001.mp3
+│   └── soundbible/
+│       └── door_bell.wav
+└── bundled/             # Default sounds
+    ├── stop.aiff
+    ├── permission_prompt.aiff
+    └── ...
+```
+
+#### Command Interface
+
+```
+/ccbell:download                  # Interactive search mode
+/ccbell:download freesound "bell" # Search Freesound
+/ccbell:download pixabay "chime"  # Search Pixabay
+/ccbell:download list             # List downloaded sounds
+/ccbell:download remove sound_id  # Remove downloaded sound
+/ccbell:download clear            # Clear all downloaded sounds
+```
+
+#### Configuration
+
+```json
+{
+  "downloads": {
+    "defaultProvider": "pixabay",
+    "freesound": {
+      "apiKey": "${FREESOUND_API_KEY}",
+      "enabled": true
+    },
+    "pixabay": {
+      "apiKey": "${PIXABAY_API_KEY}",
+      "enabled": true
+    },
+    "saveDirectory": "~/.claude/ccbell/sounds/custom",
+    "maxConcurrentDownloads": 3
+  }
+}
+```
+
+### Download Features
+
+- **Multi-provider search** (Freesound, Pixabay)
+- **License filtering** (CC0, CC-BY, commercial-friendly)
+- **Format selection** (WAV, MP3, AIFF)
+- **Preview before download** (where supported)
+- **Progress tracking** with visual feedback
+- **Local sound library management** (list, remove, clear)
+- **Cache search results** for faster repeated searches
+- **Retry logic** with exponential backoff
+- **Environment variable** support for API keys
+
+### Research Sources
+
+| Source | Description |
+|--------|-------------|
+| [Freesound API](https://freesound.org/docs/api/) | :books: Freesound API v2 documentation |
+| [Pixabay API](https://pixabay.com/api/docs/) | :books: Pixabay API documentation |
+| [Mixkit Sounds](https://mixkit.co/free-sound-effects/) | :books: Free sound effects |
+| [SoundBible](http://soundbible.com/) | :books: Free sound clips |
+| [Zapsplat](https://www.zapsplat.com/) | :books: Professional sound effects |
+| [Go HTTP Client](https://pkg.go.dev/net/http) | :books: HTTP requests |
+| [jq Manual](https://stedolan.github.io/jq/manual/) | :books: JSON processing |
+
 ## Research Sources
 
 | Source | Description |

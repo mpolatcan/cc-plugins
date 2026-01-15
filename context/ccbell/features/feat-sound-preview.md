@@ -5,7 +5,7 @@ description: Preview mode during configuration that lets users hear sounds befor
 
 # Feature: Sound Preview
 
-Preview mode during configuration that lets users hear sounds before saving their selection.
+Preview sounds during configuration or testing, allowing users to hear sounds before committing to selection.
 
 ## Table of Contents
 
@@ -29,7 +29,12 @@ Preview mode during configuration that lets users hear sounds before saving thei
 
 ## Summary
 
-Preview mode during configuration that lets users hear sounds before saving their selection. Allows informed decisions with instant feedback.
+Preview mode enables users to hear sounds before committing to a selection. This feature has two integration points:
+
+1. **CLI Preview** - Enhanced `/ccbell:test` command with `--preview` and `--loop` flags for testing sounds
+2. **Configure Integration** - Inline sound preview during `/ccbell:configure` wizard flow
+
+Both capabilities use the same underlying preview mechanism, allowing users to make informed decisions about sound selections.
 
 ## Benefit
 
@@ -77,61 +82,85 @@ No external dependencies - uses Go standard library.
 
 ## Usage in ccbell Plugin
 
-Describe how this feature integrates with the existing ccbell plugin:
+### CLI Preview (Test Command)
 
 | Aspect | Description |
 |--------|-------------|
-| :hand: User Interaction | Users run `/ccbell:test stop --preview` or `/ccbell:test stop --preview --loop` |
+| :hand: User Interaction | `/ccbell:test stop --preview` or `/ccbell:test stop --preview --loop` |
 | :wrench: Configuration | No config changes - CLI flag based |
 | :gear: Default Behavior | Single playback unless --loop specified |
+
+### Configure Integration
+
+| Aspect | Description |
+|--------|-------------|
+| :hand: User Interaction | During `/ccbell:configure`, auto-play sound after selection |
+| :wrench: Configuration | Uses preview flags from test command |
+| :gear: Default Behavior | Optional preview - user can skip |
+
+### Workflow Examples
+
+```bash
+# CLI: Preview once
+/ccbell:test stop --preview
+
+# CLI: Preview in loop (for volume testing)
+/ccbell:test stop --preview --loop
+# Press Ctrl+C to stop
+
+# Configure: Inline preview during setup
+/ccbell:configure
+# 1. Select event: stop
+# 2. Select sound: bundled:stop
+# 3. [Auto-plays sound]
+# 4. Select volume: 0.5
+# 5. [Auto-plays at volume 0.5]
+```
 
 ## Repository Impact
 
 ### cc-plugins
 
-Files that may be affected in cc-plugins:
-
-| File | Description |
-|------|-------------|
-| `plugins/ccbell/.claude-plugin/plugin.json` | :package: Plugin manifest (version bump) |
-| `plugins/ccbell/scripts/ccbell.sh` | :arrow_down: Download script (version sync) |
-| `plugins/ccbell/hooks/hooks.json` | :hook: Hook definitions (no change) |
-| `plugins/ccbell/commands/*.md` | :page_facing_up: Update `test.md` with preview flags |
-| `plugins/ccbell/sounds/` | :sound: Audio files (no change) |
+| File | Description | Impact |
+|------|-------------|--------|
+| `plugins/ccbell/.claude-plugin/plugin.json` | Plugin manifest (version bump) | Required |
+| `plugins/ccbell/scripts/ccbell.sh` | Download script (version sync) | Required |
+| `plugins/ccbell/hooks/hooks.json` | Hook definitions (no change) | None |
+| `plugins/ccbell/commands/test.md` | Add preview/loop flags | Required |
+| `plugins/ccbell/commands/configure.md` | Add inline preview during config | Required |
+| `plugins/ccbell/sounds/` | Audio files (no change) | None |
 
 ### ccbell
 
-Files that may be affected in ccbell:
-
-| File | Description |
-|------|-------------|
-| `main.go` | :rocket: Main entry point (version bump) |
-| `config/config.go` | :wrench: Configuration handling (no change) |
-| `audio/player.go` | :speaker: Add preview mode with loop control |
-| `hooks/*.go` | :hook: Hook implementations (no change) |
+| File | Description | Impact |
+|------|-------------|--------|
+| `main.go` | Main entry point (version bump) | Required |
+| `config/config.go` | Configuration handling (no change) | None |
+| `audio/player.go` | Add preview mode with loop control | Required |
+| `hooks/*.go` | Hook implementations (no change) | None |
 
 ## Implementation Plan
 
+### ccbell (Binary)
+
+**Phase 1: Preview Core**
+1. Add `--preview` and `--loop` flags to test command
+2. Add preview mode to `Player.Play()` with loop control
+3. Support infinite loop for volume testing
+4. Update version in `main.go`
+5. Tag and release vX.X.X
+
 ### cc-plugins
 
-Steps required in cc-plugins repository:
+**Phase 1: CLI Preview**
+1. Update `test.md` with preview/loop flags documentation
+2. Update `plugin.json` version
+3. Update `ccbell.sh` version sync
 
-1. Update plugin.json version
-2. Update ccbell.sh if needed
-3. Add/update command documentation
-4. Add/update hooks configuration
-5. Add new sound files if applicable
-
-### ccbell
-
-Steps required in ccbell repository:
-
-1. Add --preview and --loop flags to test command
-2. Add preview mode to Player.Play() with loop control
-3. Support infinite loop for volume testing
-4. Update version in main.go
-5. Tag and release vX.X.X
-6. Sync version to cc-plugins
+**Phase 2: Configure Integration**
+1. Update `configure.md` with inline preview workflow
+2. After each sound/volume selection, call `ccbell.sh <event> --preview`
+3. Add "Replay" option for users who want to hear again
 
 ## External Dependencies
 
