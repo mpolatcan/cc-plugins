@@ -31,7 +31,7 @@ Feasible feature ideas for ccbell as a Claude Code plugin. All features are eval
 | **Quick Disable** ⏸️ | Temporary silence for 15min/1hr/4hr | Instant focus without config changes | [feat-quick-disable.md](feat-quick-disable.md) | ✅ Compatible |
 | **Weekday/Weekend Schedules** 📅 | Different quiet hours per day type | Work-life balance automation | [feat-weekday-weekend-schedules.md](feat-weekday-weekend-schedules.md) | ✅ Compatible |
 | **Sound Preview** 👂 | Hear sounds before selecting | Informed configuration choices | [feat-sound-preview.md](feat-sound-preview.md) | ✅ Compatible |
-| **TTS Announcements** 🗣️ | Spoken event notifications | Accessibility + rich context | [feat-tts-announcements.md](feat-tts-announcements.md) | ⚠️ macOS only (`say`) |
+| **TTS Announcements** 🗣️ | Spoken event notifications | Accessibility + rich context | [feat-tts-announcements.md](feat-tts-announcements.md) | ⚠️ External deps required |
 | **Sound Randomization** 🎲 | Cycle through multiple sounds | Reduced notification fatigue | [feat-sound-randomization.md](feat-sound-randomization.md) | ✅ Compatible |
 | **Export/Import Config** 📤 | Share configuration files | Team standardization + backup | [feat-export-import-config.md](feat-export-import-config.md) | ✅ Compatible |
 | **Notification Stacking** 📚 | Queue rapid events sequentially | Clearer, non-overlapping sounds | [feat-notification-stacking.md](feat-notification-stacking.md) | ✅ Compatible |
