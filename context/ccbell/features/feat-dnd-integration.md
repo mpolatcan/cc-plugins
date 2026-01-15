@@ -142,6 +142,8 @@ Steps required in ccbell repository:
 | `defaults` | macOS | Read DND status | `[Yes]` |
 | `gsettings` | Linux/GNOME | Read DND status | `[Yes]` |
 | `qdbus` | Linux/KDE | Read DND status | `[Yes]` |
+| `hyprctl` | Linux/Hyprland | Wayland compositor DND status | `[No]` |
+| `swaymsg` | Linux/Sway | i3-compatible DND status | `[No]` |
 
 ## Research Details
 
@@ -157,12 +159,52 @@ No new hooks needed - check DND before existing hooks fire.
 
 Playback is skipped when DND is active, but no audio changes needed.
 
+### Platform DND Detection Methods
+
+#### macOS
+- **Command**: `defaults read com.apple.notificationcenterui doNotDisturb`
+- **Returns**: `1` (enabled) or `0` (disabled)
+- **Note**: Works on macOS 10.10+
+
+#### GNOME Linux (X11/Wayland)
+- **Command**: `gsettings get org.gnome.desktop.notifications show-banners`
+- **Returns**: `true` (notifications enabled) or `false` (DND active)
+- **Note**: Requires GNOME Shell or compatible desktop
+
+#### KDE Plasma Linux (X11/Wayland)
+- **Command**: `qdbus org.kde.kded /modules/kded readConfig global "doNotDisturb"`
+- **Alternative**: Check `org.freedesktop.portal.Desktop` via D-Bus
+- **Note**: Works on KDE Plasma 5.20+
+
+#### Hyprland (Wayland Compositor)
+- **Command**: `hyprctl keyword decoration:no_border_for_lockscreen_only true`
+- **Detection**: Check for lockscreen state via `hyprctl monitors`
+- **Alternative**: Use `org.freedesktop.portal.Desktop` on systems with XDG Desktop Portal
+- **Install**: Part of Hyprland package
+- **Best For**: Modern Wayland setups with Hyprland compositor
+
+#### Sway (i3-compatible Wayland Compositor)
+- **Command**: `swaymsg -t get_outputs`
+- **Detection**: Check output states for "power saving mode" or similar
+- **Alternative**: Use `swayidle` for idle/DND state detection
+- **Install**: `swaymsg` comes with Sway installation
+- **Best For**: i3 users who migrated to Wayland
+
+#### Universal Wayland (XDG Desktop Portal)
+- **Interface**: `org.freedesktop.portal.Desktop`
+- **Method**: D-Bus call to check notification policy
+- **Install**: `xdg-desktop-portal` package
+- **Best For**: Cross-desktop compatibility on Wayland
+
 ### Other Findings
 
 Platform DND detection methods:
 - macOS: `defaults read com.apple.notificationcenterui doNotDisturb`
 - GNOME Linux: `gsettings get org.gnome.desktop.notifications show-banners`
 - KDE Linux: `qdbus org.kde.kded /modules/kded readConfig global`
+- Hyprland: `hyprctl` active window/lockscreen state
+- Sway: `swaymsg` for output and workspace state
+- Universal: D-Bus via `org.freedesktop.portal.Desktop`
 
 ## Research Sources
 
@@ -170,5 +212,10 @@ Platform DND detection methods:
 |--------|-------------|
 | [macOS DND via defaults](https://developer.apple.com/documentation/foundation/preferences) | :books: Apple preferences documentation |
 | [GNOME notifications](https://developer.gnome.org/notification-spec/) | :books: GNOME notification spec |
+| [Hyprland Wiki](https://wiki.hyprland.org/) | :books: Hyprland compositor documentation |
+| [Sway Wiki](https://wiki.swaywm.org/) | :books: Sway compositor documentation |
+| [Hyprland GitHub](https://github.com/hyprwm/Hyprland) | :books: Hyprland repository |
+| [Sway GitHub](https://github.com/swaywm/sway) | :books: Sway repository |
+| [XDG Desktop Portal](https://flatpak.github.io/xdg-desktop-portal/portal-docs.html) | :books: Cross-desktop API |
 | [Main flow](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) | :books: ccbell main flow |
 | [Platform detection](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go#L82-L91) | :books: Platform detection patterns |

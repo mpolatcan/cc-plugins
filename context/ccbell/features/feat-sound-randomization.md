@@ -155,18 +155,80 @@ No new hooks needed - uses existing event hooks.
 
 Random sound selected before passing to audio player.
 
-### Other Findings
+### Random Selection Algorithms
 
-Sound randomization features:
-- Multiple sounds per event
-- Optional weights for controlled probability
-- Backward compatibility with single sound
-- --random flag for testing
+#### Weighted Random Selection
+
+Go's `math/rand` package provides standard random number generation:
+
+```go
+import "math/rand"
+
+// Simple random selection
+func SelectRandom(sounds []string) string {
+    return sounds[rand.Intn(len(sounds))]
+}
+
+// Weighted random selection
+type WeightedSound struct {
+    Sound  string
+    Weight float64
+}
+
+func SelectWeighted(sounds []WeightedSound) string {
+    total := 0.0
+    for _, s := range sounds {
+        total += s.Weight
+    }
+    r := rand.Float64() * total
+    for _, s := range sounds {
+        if r < s.Weight {
+            return s.Sound
+        }
+        r -= s.Weight
+    }
+    return sounds[len(sounds)-1].Sound
+}
+```
+
+#### Cryptographically Secure Random (Optional)
+
+For security-sensitive applications:
+
+```go
+import "crypto/rand"
+
+// Cryptographically secure random selection
+func SelectSecure(sounds []string) string {
+    randBytes := make([]byte, 1)
+    crypto rand.Read(randBytes)
+    idx := int(randBytes[0]) % len(sounds)
+    return sounds[idx]
+}
+```
+
+### Randomization Features
+
+- Multiple sounds per event with equal probability
+- Optional weights for controlled probability distribution
+- Seed support for reproducible testing
+- Cryptographically secure option (if needed)
+- Backward compatibility with single sound configuration
+- --random flag for testing random selection
+
+### Best Practices
+
+- Provide UI preview of weighted distribution
+- Support "recently played" exclusion to prevent repetition
+- Allow seed configuration for consistent testing
+- Cache random selection for burst notifications
 
 ## Research Sources
 
 | Source | Description |
 |--------|-------------|
+| [Go math/rand](https://pkg.go.dev/math/rand) | :books: Standard random number generation |
+| [Go crypto/rand](https://pkg.go.dev/crypto/rand) | :books: Cryptographically secure random |
 | [Current config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) | :books: Config structure |
 | [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Audio player |
 | [Config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) | :books: Config loading |

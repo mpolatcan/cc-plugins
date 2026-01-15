@@ -152,6 +152,52 @@ No new hooks needed - uses existing event hooks.
 
 Volume override is passed to afplay with the `-volume` parameter.
 
+### Volume Control Options
+
+#### Platform-Native Volume Control
+
+**macOS afplay**
+- **Command**: `afplay -v <volume> <file>`
+- **Volume Range**: 0.0 to 1.0 (linear)
+- **Note**: Smooth volume adjustment
+
+**Linux (PulseAudio)**
+- **Command**: `amixer -D pulse sset Master <volume>%`
+- **Alternative**: `pactl set-sink-volume @DEFAULT_SINK@ <volume>`
+- **Volume Range**: 0% to 100%
+
+**Linux (ALSA)**
+- **Command**: `amixer sset Master <volume>%`
+- **Volume Range**: 0% to 100%
+
+#### Go Audio Libraries for Advanced Control
+
+**Oto (Recommended for Go)**
+- **URL**: https://github.com/ebitengine/oto
+- **Features**:
+  - Low-level cross-platform audio playback
+  - Real-time volume control
+  - Multiple audio streams
+  - Minimal latency
+- **Platforms**: Windows, macOS, Linux, Android, iOS
+- **Best For**: When native afplay isn't sufficient
+
+**Beep**
+- **URL**: https://github.com/gopxl/beep
+- **Features**:
+  - Rich library of compositors and effects
+  - Loop, pause/resume, volume control
+  - Mix multiple sounds
+  - Change playback speed
+- **Best For**: Advanced audio manipulation, sound effects
+
+### Volume Control Considerations
+
+- Linear vs logarithmic volume perception
+- Platform-specific volume ranges
+- Smooth transitions to avoid popping
+- Mute toggle functionality
+
 ### Other Findings
 
 Volume flag behavior:
@@ -163,6 +209,9 @@ Volume flag behavior:
 
 | Source | Description |
 |--------|-------------|
+| [Oto - Go Audio Library](https://github.com/ebitengine/oto) | :books: Cross-platform audio playback |
+| [Beep - Go Audio Library](https://github.com/gopxl/beep) | :books: Audio synthesis and effects |
 | [Main.go](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) | :books: Main entry point |
 | [Config volume](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L36) | :books: Volume configuration |
 | [Player volume](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go#L49) | :books: Volume handling |
+| [afplay man page](https://ss64.com/osx/afplay.html) | :books: macOS afplay documentation |

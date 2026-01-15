@@ -138,7 +138,8 @@ Steps required in ccbell repository:
 
 | Dependency | Version | Purpose | Required |
 |------------|---------|---------|----------|
-| ffprobe | | Audio format validation | `[No]` |
+| ffprobe | | Audio format validation (from FFmpeg) | `[No]` |
+| MediaInfo | | Alternative audio metadata extraction | `[No]` |
 
 ## Research Details
 
@@ -154,19 +155,44 @@ No new hooks needed - validation command uses existing patterns.
 
 Validation runs before any playback occurs.
 
-### Other Findings
+### Audio Validation Tool Options
 
-Validation features:
-- File existence checks
-- Audio format validation with ffprobe
-- Config schema validation
+#### 1. ffprobe (Recommended - Standard)
+- **URL**: https://ffmpeg.org/ffprobe.html
+- **Install**: `brew install ffmpeg` (macOS), `apt install ffmpeg` (Linux)
+- **Features**:
+  - Part of FFmpeg suite
+  - Extracts audio format, codec, duration, bitrate
+  - JSON/XML output support
+  - Wide format support
+- **Example**: `ffprobe -v quiet -print_format json -show_format -show_streams sound.aiff`
+
+#### 2. MediaInfo (Alternative - Rich Metadata)
+- **URL**: https://mediaarea.net/en/MediaInfo
+- **Install**: `brew install mediainfo` (macOS), `apt install mediainfo` (Linux)
+- **Features**:
+  - Superior container analysis
+  - Human-readable output
+  - Detailed audio metadata
+  - Multiple output formats (text, JSON, XML)
+- **Best For**: When ffprobe is unavailable, detailed codec information
+
+### Validation Features
+
+- File existence and accessibility checks
+- Audio format validation (AIFF, WAV, MP3, OGG, FLAC, AAC)
+- Config schema validation with JSON Schema
 - Auto-fix option for common issues
-- JSON output for automation
+- JSON output for automation integration
+- Duration and sample rate verification
 
 ## Research Sources
 
 | Source | Description |
 |--------|-------------|
+| [FFprobe Documentation](https://ffmpeg.org/ffprobe.html) | :books: FFprobe official documentation |
+| [MediaInfo](https://mediaarea.net/en/MediaInfo) | :books: Audio/video metadata extraction |
+| [FFprobe vs MediaInfo Comparison](https://probe.dev/resources/ffprobe-vs-mediainfo-comparison) | :books: Tool comparison guide |
 | [Player packages](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Audio player |
 | [Sound resolution](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Path resolution |
 | [Config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) | :books: Config structure |
