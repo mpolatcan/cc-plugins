@@ -66,14 +66,19 @@ How will audio playback be handled?
 | Aspect | Description |
 |--------|-------------|
 | :speaker: afplay | Not affected - visual notifications alongside audio |
-| :computer: Platform Support | macOS AppleScript, Linux notify-send |
+| :computer: Platform Support | macOS (osascript/terminal-notifier), Linux (notify-send), Windows (PowerShell) |
 | :musical_note: Audio Formats | No audio format changes |
 
 ### External Dependencies
 
 Are external tools or libraries required?
 
-Uses system notification tools (`osascript`, `notify-send`).
+| Dependency | Platform | Purpose | Required |
+|------------|----------|---------|----------|
+| osascript/terminal-notifier | macOS | macOS Notification Center | `[Yes]` |
+| notify-send (libnotify) | Linux | Linux notifications | `[Yes]` |
+| PowerShell/Windows API | Windows | Windows Toast Notifications | `[Yes]` |
+| beeep (Go library) | Cross-platform | Cross-platform notification library | `[No]` |
 
 ## Usage in ccbell Plugin
 
@@ -139,8 +144,12 @@ Steps required in ccbell repository:
 
 | Dependency | Version | Purpose | Required |
 |------------|---------|---------|----------|
-| osascript | macOS | macOS Notification Center | `[Yes]` |
-| notify-send | Linux | Linux notifications | `[Yes]` |
+| osascript | macOS | Native AppleScript display notification | `[Yes]` |
+| terminal-notifier | macOS | Advanced macOS notifications with actions | `[No]` |
+| notify-send | Linux | Linux desktop notifications (libnotify) | `[Yes]` |
+| dunstify | Linux | Enhanced notifications for Dunst | `[No]` |
+| PowerShell | Windows | Windows toast notifications | `[Yes]` |
+| beeep | Go | Cross-platform Go notification library | `[No]` |
 
 ## Research Details
 
@@ -156,18 +165,179 @@ No new hooks needed - visual notifications integrated into main flow.
 
 Visual notifications work alongside or instead of audio.
 
-### Other Findings
+### Visual Notification Tool Options Research
 
-Visual notification features:
-- Platform-specific implementations (AppleScript, notify-send)
-- Urgency levels (low, normal, critical)
-- Customizable messages per event
-- Mode: audio-only/visual-only/both
+#### macOS Notification Options
+
+**1. osascript (Native AppleScript)**
+- **Command**: `osascript -e 'display notification "message" with title "ccbell"'`
+- **Features**:
+  - Native to macOS, no external dependencies
+  - Supports title, subtitle, sound name
+  - Works on macOS 10.10+
+- **Limitations**: Basic styling, no action buttons
+
+**2. terminal-notifier (Recommended for Advanced Features)**
+- **URL**: https://github.com/julienXX/terminal-notifier
+- **Install**: `brew install terminal-notifier`
+- **Features**:
+  - Rich notifications with custom icons
+  - Sender application control
+  - Message ID for replacement
+  - Action buttons support
+- **Command**: `terminal-notifier -message "Claude finished" -title "ccbell"`
+
+#### Linux Notification Options
+
+**1. notify-send (libnotify) - Standard**
+- **Command**: `notify-send "title" "message"`
+- **Features**:
+  - Part of libnotify library
+  - Urgency levels: low, normal, critical
+  - Expire time control
+  - Category hints
+- **Urgency Levels**:
+  - `low`: Subtle notifications
+  - `normal`: Standard notifications
+  - `critical`: Persistent until dismissed
+
+**2. dunstify (Enhanced)**
+- **URL**: https://github.com/dunst-project/dunst
+- **Features**:
+  - Drop-in replacement for notify-send
+  - Supports all notify-send options
+  - Custom icons and app name
+  - Notification ID for updates
+  - Used with Dunst notification daemon
+
+**3. Notification Daemon Options**
+| Daemon | Description | Best For |
+|--------|-------------|----------|
+| **Dunst** | Lightweight, highly configurable | Tiling WMs, minimal setups |
+| **Mutter** | GNOME Shell default | GNOME users |
+| **Plasma** | KDE default | KDE users |
+| **xfce4-notifyd** | Xfce default | Xfce users |
+
+#### Windows Notification Options
+
+**1. PowerShell Toast Notifications**
+- **Command**: Using Windows App SDK or BurntToast
+- **Features**:
+  - Native Windows 10/11 toasts
+  - Adaptive templates with XML
+  - Buttons and inputs support
+  - Hero image support
+- **Example**: `Windows.UI.Notifications.Management`
+
+**2. ToastContentBuilder (Windows App SDK)**
+- **Features**:
+  - Toast notification builder
+  - Adaptive layout support
+  - Actions and inputs
+  - Progress bars
+
+**3. BurntToast (PowerShell Module)**
+- **Install**: `Install-Module -Name BurntToast`
+- **Features**:
+  - PowerShell-friendly toast notifications
+  - Custom branding
+  - Audio control
+
+#### Cross-Platform Go Libraries
+
+**1. beeep (Recommended)**
+- **URL**: https://github.com/gen2brain/beeep
+- **Install**: `go get -u github.com/gen2brain/beeep`
+- **Features**:
+  - Cross-platform (macOS, Linux, Windows)
+  - Simple API
+  - Beep function included
+  - No external dependencies on macOS/Linux
+- **Example**:
+```go
+beeep.Notify("ccbell", "Claude finished", "icon.png")
+```
+
+**2. go-toast**
+- **URL**: https://github.com/electricbubble/go-toast
+- **Features**:
+  - Cross-platform notifications
+  - App icon support
+  - Actions on Windows
+
+### Notification Styling Options
+
+#### Message Customization
+
+| Platform | Title | Message | Icon | Sound |
+|----------|-------|---------|------|-------|
+| macOS (osascript) | Yes | Yes | Yes (via terminal-notifier) | Yes |
+| Linux (notify-send) | Yes | Yes | Yes | No |
+| Windows (PowerShell) | Yes | Yes | Yes | Yes |
+| beeep | Yes | Yes | Yes | No |
+
+#### Urgency Levels (Linux)
+
+Per Desktop Notifications Specification:
+
+| Level | Behavior | Use Case |
+|-------|----------|----------|
+| **Low** | Short display, subtle | Background events |
+| **Normal** | Standard duration | Regular notifications |
+| **Critical** | Persistent until dismissed | Important alerts |
+
+#### Icons and Images
+
+| Platform | Support | Format |
+|----------|---------|--------|
+| macOS | Yes (PNG, ICNS) | `.icns`, `.png` |
+| Linux | Yes (PNG, SVG) | Via file path or theme icon |
+| Windows | Yes (PNG, JPG) | Adaptive toast templates |
+
+#### Terminal Bell Alternative
+
+For users in terminal-focused environments:
+
+| Feature | Description |
+|---------|-------------|
+| **ANSI BEL Character** | ASCII 07, `\a` - triggers terminal bell |
+| **Visual Bell** | Terminal setting to flash instead of beep |
+| **X11 Bell** | `xset b` or `xbell` command |
+
+ANSI escape codes for terminal:
+```bash
+# Bell character (Ctrl+G)
+echo -e "\a"
+
+# Visual bell (if supported)
+echo -e "\033[?5h\033[?5l"
+```
+
+### Visual Notification Features Summary
+
+- **Mode Selection**: audio-only, visual-only, or both
+- **Per-Event Customization**: Different messages per event type
+- **Urgency Control**: Adjust notification persistence based on event importance
+- **Icon Support**: Custom icons for different event types
+- **Platform Detection**: Auto-detect available notification system
+- **Fallback**: Graceful degradation when notifications unavailable
+- **Terminal Bell**: Alternative for terminal-only environments
 
 ## Research Sources
 
 | Source | Description |
 |--------|-------------|
-| [AppleScript Notification](https://apple.stackexchange.com/questions/57412/how-can-i-trigger-a-notification-from-the-apple-command-line) | :books: AppleScript |
-| [notify-send man page](https://man7.org/linux/man-pages/man1/notify-send.1.html) | :books: notify-send |
+| [terminal-notifier - GitHub](https://github.com/julienXX/terminal-notifier) | :books: macOS command-line notification tool |
+| [notify-send man page](https://man7.org/linux/man-pages/man1/notify-send.1.html) | :books: Linux notify-send documentation |
+| [Desktop Notifications Specification](https://specifications.freedesktop.org/notification/1.2/urgency-levels.html) | :books: Urgency levels specification |
+| [Dunst - GitHub](https://github.com/dunst-project/dunst) | :books: Lightweight notification daemon |
+| [Dunst - ArchWiki](https://wiki.archlinux.org/title/Dunst) | :books: Dunst configuration guide |
+| [beeep - Go Packages](https://pkg.go.dev/github.com/gen2brain/beeep) | :books: Cross-platform Go notification library |
+| [go-toast - GitHub](https://github.com/electricbubble/go-toast) | :books: Go cross-platform notifications |
+| [Windows Toast Notifications - Microsoft Learn](https://learn.microsoft.com/en-us/windows/apps/develop/notifications/app-notifications/toast-schema) | :books: Windows toast XML schema |
+| [BurntToast - PowerShell](https://github.com/Windos/BurntToast) | :books: PowerShell toast notifications module |
+| [ANSI Escape Codes - GitHub Gist](https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797) | :books: ANSI escape codes reference |
+| [Terminal Notifications from Scripts](https://swissmacuser.ch/native-macos-notifications-from-terminal-scripts/) | :books: macOS terminal notifications guide |
+| [Linux Desktop Notifications](https://opensource.com/article/22/1/linux-desktop-notifications) | :books: Linux notifications tutorial |
+| [A Comprehensive Guide to Notification Design](https://www.toptal.com/designers/ux/notification-design) | :books: Notification UX design guide |
 | [Current ccbell audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Audio player |
