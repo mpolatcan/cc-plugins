@@ -3,7 +3,7 @@ name: Notification Logging
 description: Maintain a detailed log of all notification events for debugging and analysis
 ---
 
-# Notification Logging
+# Feature: Notification Logging
 
 Maintain a detailed log of all notification events for debugging and analysis.
 

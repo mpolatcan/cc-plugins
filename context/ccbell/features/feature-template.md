@@ -3,7 +3,7 @@ name: FEATURE_NAME
 description: Brief description of the feature
 ---
 
-# Feature Name
+# Feature: Feature Name
 
 Brief one-line description of the feature.
 

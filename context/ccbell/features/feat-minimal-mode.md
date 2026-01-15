@@ -3,7 +3,7 @@ name: Minimal Mode
 description: Simplified configuration mode with fewer options for users who want simplicity
 ---
 
-# Minimal Mode
+# Feature: Minimal Mode
 
 Simplified configuration mode with fewer options for users who want simplicity.
 

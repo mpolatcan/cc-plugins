@@ -3,7 +3,7 @@ name: Export/Import Config
 description: Export current ccbell configuration to a portable JSON file and import from files or URLs
 ---
 
-# Export/Import Config
+# Feature: Export/Import Config
 
 Export current ccbell configuration to a portable JSON file. Import configurations from files or URLs.
 

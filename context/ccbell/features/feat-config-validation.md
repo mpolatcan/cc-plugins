@@ -3,7 +3,7 @@ name: Config Validation
 description: Check config file for JSON syntax errors and schema issues before applying changes
 ---
 
-# Config Validation
+# Feature: Config Validation
 
 Check config file for JSON syntax errors and schema issues before applying changes.
 

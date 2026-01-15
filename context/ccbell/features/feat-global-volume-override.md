@@ -3,7 +3,7 @@ name: Global Volume Override
 description: Temporarily adjust notification volume without modifying the config file
 ---
 
-# Global Volume Override
+# Feature: Global Volume Override
 
 Temporarily adjust notification volume without modifying the config file, using command-line flags.
 

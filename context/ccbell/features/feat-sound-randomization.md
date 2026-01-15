@@ -3,7 +3,7 @@ name: Sound Randomization
 description: Allow users to define multiple sounds that are randomly selected when an event triggers
 ---
 
-# Sound Randomization
+# Feature: Sound Randomization
 
 Instead of a single sound per event, allow users to define multiple sounds that are randomly selected when an event triggers. This adds variety and helps users recognize different events.
 

@@ -3,7 +3,7 @@ name: Sound Validation
 description: Check sound files and configuration for issues before use
 ---
 
-# Sound Validation
+# Feature: Sound Validation
 
 Check sound files and configuration for issues before use. Proactive issue detection to prevent workflow disruptions.
 

@@ -3,7 +3,7 @@ name: Dry Run Mode
 description: Run ccbell in dry run mode to validate configuration and logic without playing sounds
 ---
 
-# Dry Run Mode
+# Feature: Dry Run Mode
 
 Run ccbell in dry run mode to validate configuration and logic without playing sounds. Useful for debugging and testing.
 

@@ -3,7 +3,7 @@ name: Event Filtering
 description: Only trigger notifications when specific conditions are met
 ---
 
-# Event Filtering
+# Feature: Event Filtering
 
 Only trigger notifications when specific conditions are met (e.g., "only notify on long responses" or "notify on errors").
 

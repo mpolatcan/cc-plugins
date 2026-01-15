@@ -3,7 +3,7 @@ name: Event Aliases
 description: Define custom event names that map to existing events for flexibility
 ---
 
-# Event Aliases
+# Feature: Event Aliases
 
 Define custom event names that map to existing events for flexibility.
 

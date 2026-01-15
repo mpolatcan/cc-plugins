@@ -3,7 +3,7 @@ name: Config Migration
 description: Automatically update old config formats to newer versions while preserving settings
 ---
 
-# Config Migration
+# Feature: Config Migration
 
 Automatically update old config formats to newer versions while preserving settings.
 

@@ -3,7 +3,7 @@ name: Per-Workspace Configuration
 description: Allow ccbell to read project-specific config from .claude-ccbell.json in the workspace root
 ---
 
-# Per-Workspace Configuration
+# Feature: Per-Workspace Configuration
 
 Allow ccbell to read project-specific config from `.claude-ccbell.json` in the workspace root. Enables context-aware notifications.
 

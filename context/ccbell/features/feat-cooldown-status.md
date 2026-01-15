@@ -3,7 +3,7 @@ name: Cooldown Status Display
 description: Display how much time remains before each event can trigger again
 ---
 
-# Cooldown Status Display
+# Feature: Cooldown Status Display
 
 Display how much time remains before each event can trigger again.
 

@@ -3,7 +3,7 @@ name: Weekday/Weekend Schedules
 description: Override default quiet hours with weekend-specific schedules
 ---
 
-# Weekday/Weekend Schedules
+# Feature: Weekday/Weekend Schedules
 
 Override default quiet hours with weekend-specific schedules. Respects different schedules for weekdays vs. weekends.
 

@@ -3,7 +3,7 @@ name: Notification Throttling
 description: Prevent notification spam by limiting the total number of notifications within a configurable time window
 ---
 
-# Notification Throttling
+# Feature: Notification Throttling
 
 Prevent notification spam by limiting the total number of notifications within a configurable time window.
 

@@ -3,7 +3,7 @@ name: TTS Announcements
 description: Play spoken announcements instead of or alongside audio files
 ---
 
-# TTS Announcements
+# Feature: TTS Announcements
 
 Play spoken announcements instead of (or alongside) audio files. Announce events like "Claude finished" or "Permission needed" using TTS.
 

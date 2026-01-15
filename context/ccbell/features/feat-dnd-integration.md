@@ -3,7 +3,7 @@ name: Do Not Disturb Integration
 description: Automatically suppress ccbell notifications when the system Do Not Disturb mode is enabled
 ---
 
-# Do Not Disturb Integration
+# Feature: Do Not Disturb Integration
 
 Automatically suppress ccbell notifications when the system Do Not Disturb mode is enabled.
 

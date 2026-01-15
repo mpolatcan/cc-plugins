@@ -3,7 +3,7 @@ name: Visual Notifications
 description: Show visual notifications (macOS Notification Center, terminal bell) when Claude Code events trigger
 ---
 
-# Visual Notifications
+# Feature: Visual Notifications
 
 Show visual notifications (macOS Notification Center, terminal bell) when Claude Code events trigger. Users who are deaf or hard of hearing, or work in noisy environments, benefit from visual alerts.
 
