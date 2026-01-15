@@ -5,7 +5,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_DIR="$(dirname "$SCRIPT_DIR")"
 BINARY="$PLUGIN_DIR/bin/ccbell"
-readonly VERSION="0.2.30"
+readonly VERSION="0.3.0"
 readonly REPO="mpolatcan/ccbell"
 
 # Check if download tool exists

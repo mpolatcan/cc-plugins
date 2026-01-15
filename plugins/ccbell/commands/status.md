@@ -25,6 +25,7 @@ If config exists, parse and display:
 **Global Status:** Enabled/Disabled
 **Config Location:** ~/.claude/ccbell.config.json
 **Active Profile:** default
+**Active Pack:** none
 **Debug Mode:** Off
 
 ### Quiet Hours
@@ -46,12 +47,17 @@ Not configured / 22:00 - 07:00 (currently active/inactive)
 - loud
 - silent
 
+### Sound Packs Installed
+- minimal (v1.0.0)
+- classic (v1.0.0)
+
 ### Quick Commands
 
 - `/ccbell:enable` - Enable all notifications
 - `/ccbell:disable` - Disable all notifications
 - `/ccbell:configure` - Change sound settings
 - `/ccbell:profile` - Switch profiles
+- `/ccbell:packs` - Browse and install sound packs
 - `/ccbell:test` - Test sounds
 - `/ccbell:validate` - Run diagnostics
 ```
@@ -73,7 +79,32 @@ if [ -n "$quiet_start" ] && [ -n "$quiet_end" ]; then
 fi
 ```
 
-### 4. Show Debug Log (if debug enabled)
+### 4. Show Installed Sound Packs
+
+List installed sound packs and show active pack:
+
+```bash
+# Check active pack
+ACTIVE_PACK=$(jq -r '.activePack // "none"' "$CONFIG_FILE")
+echo "Active Pack: $ACTIVE_PACK"
+
+# List installed packs
+PACKS_DIR="$HOME/.claude/ccbell/packs"
+if [ -d "$PACKS_DIR" ]; then
+    echo "Installed Packs:"
+    for pack_dir in "$PACKS_DIR"/*; do
+        if [ -d "$pack_dir" ] && [ -f "$pack_dir/pack.json" ]; then
+            pack_name=$(basename "$pack_dir")
+            pack_version=$(jq -r '.version // "unknown"' "$pack_dir/pack.json" 2>/dev/null)
+            echo "  - $pack_name (v$pack_version)"
+        fi
+    done
+else
+    echo "No sound packs installed"
+fi
+```
+
+### 5. Show Debug Log (if debug enabled)
 
 If debug mode is on, show last few log entries:
 
@@ -84,7 +115,7 @@ if [ -f "$HOME/.claude/ccbell.log" ]; then
 fi
 ```
 
-### 5. If No Config
+### 6. If No Config
 
 If no config file exists:
 

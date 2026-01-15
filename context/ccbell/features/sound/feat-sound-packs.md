@@ -32,6 +32,12 @@ Allow users to browse, preview, and install sound packs that bundle sounds for a
 
 Allow users to browse, preview, and install sound packs that bundle sounds for all notification events. Distributed via GitHub releases with one-click installation.
 
+**How it works:**
+- **Curation**: Claude Code curates sounds based on themes (e.g., `!curate retro`)
+- **Distribution**: Packs published as GitHub releases with `pack.json` + sounds/*.aiff
+- **Storage**: `pack.json` in git (small), sounds in release assets (binary)
+- **Installation**: Users run `/ccbell:packs install minimal` - no API keys needed
+
 ## Benefit
 
 | Aspect | Description |
@@ -141,6 +147,126 @@ Steps required in ccbell repository:
 | Dependency | Version | Purpose | Required |
 |------------|---------|---------|----------|
 | None | HTTP client | Download packs from GitHub | ❌ |
+
+### API Rate Limits
+
+Understanding rate limits is critical for sound pack and download features.
+
+#### GitHub API (for Sound Pack Distribution)
+
+| Request Type | Rate Limit | Notes |
+|--------------|------------|-------|
+| Unauthenticated | 60 requests/hour | IP-based, no token needed |
+| Authenticated (PAT) | 5,000 requests/hour | Personal Access Token |
+| GitHub Enterprise | 15,000 requests/hour | Enterprise Cloud orgs |
+
+**Current Implementation Status**: Uses unauthenticated requests for GitHub releases (60 req/hr is sufficient for pack browsing).
+
+#### Freesound API
+
+| Operation | Rate Limit | Daily Limit | Authentication |
+|-----------|------------|-------------|----------------|
+| General API | 60 requests/minute | 2,000/day | API key required |
+| Upload/Comment/Rate | 30 requests/minute | 500/day | API key + OAuth2 |
+| OAuth2 for download | Requires full OAuth flow | - | Per-user authorization |
+
+**API Key Registration**: https://freesound.org/apiv2/apply (free for non-commercial use)
+
+**Implementation Notes**:
+- All requests require `token` parameter or `Authorization: Token` header
+- Download requires OAuth2 (more complex than Pixabay)
+- 60 req/min is generous for typical usage
+
+#### Pixabay API
+
+| Authentication | Rate Limit | Notes |
+|----------------|------------|-------|
+| Without API key | 5 requests/second | Limited |
+| With API key | 100 requests/60 seconds | Recommended |
+| Caching required | 24 hours minimum | Must cache search results |
+
+**API Key Registration**: https://pixabay.com/api/docs/ (free, instant)
+
+**Implementation Notes**:
+- API key is free and instant to obtain
+- No API key needed for basic searches (limited rate)
+- Results must be cached for 24 hours per terms of service
+- Simpler integration than Freesound
+
+#### Rate Limit Comparison Summary
+
+| Provider | Sounds | Auth Required | Rate Limit | Daily Capacity |
+|----------|--------|---------------|------------|----------------|
+| GitHub Releases | Pack metadata | No | 60 req/hour | 1,440 requests |
+| Pixabay | 110,000+ | Optional | 100 req/minute | ~144,000 searches |
+| Freesound | 700,000+ | API Key required | 60 req/minute | ~86,400 searches |
+
+### Custom User Packs Feasibility
+
+Custom user packs would allow users to create and use their own sound packs without needing to create GitHub releases.
+
+#### Implementation Options
+
+##### Option 1: Local Pack Directory
+```
+~/.claude/ccbell/packs/
+├── my-custom-pack/
+│   ├── pack.json
+│   ├── stop.wav
+│   ├── permission.aiff
+│   └── ...
+```
+
+**Pros**:
+- No network required
+- Full user control
+- No authentication needed
+- Fast iteration
+
+**Cons**:
+- No discovery/browsing
+- Manual configuration
+
+##### Option 2: Local + Git Repository
+```
+~/.claude/ccbell/packs/  # Clone of user repos
+```
+
+**Pros**:
+- Version control
+- Community sharing via git
+- Pull updates easily
+
+**Cons**:
+- Requires git knowledge
+- More complex setup
+
+##### Option 3: GitHub Gist-Based Packs
+```
+# User creates Gist with pack.json + sounds
+# ccbell installs from Gist URL
+```
+
+**Pros**:
+- Easy sharing
+- GitHub-native
+- No dedicated repo needed
+
+**Cons**:
+- Requires GitHub account
+- Larger files may be problematic
+
+#### Recommendation
+
+**For ccbell v0.3.x**: Focus on GitHub releases (current implementation)
+
+**Future Enhancement**: Add local pack support for power users who want custom sounds without GitHub releases
+
+```bash
+/ccbell:packs create my-pack  # Scaffold a new pack
+/ccbell:packs add stop.wav    # Add sounds to pack
+/ccbell:packs local my-pack   # Use local pack
+```
 
 ## Status
 
@@ -301,300 +427,227 @@ Pack sounds resolved via `pack:` scheme in sound configuration.
 
 ---
 
-## Feature: Download Sounds from Providers
+## Feature: Auto-Generated Sound Packs via CI Pipeline
 
-Allow users to download individual sounds directly from free sound providers (Freesound, Pixabay, Mixkit) for use in ccbell notifications.
+Instead of integrating download functionality into ccbell binary, create a CI pipeline in `ccbell-sound-packs` repository that:
+1. Queries sound providers (Freesound, Pixabay) periodically
+2. Downloads and curates sounds
+3. Creates sound packs
+4. Publishes as GitHub releases
+
+**Users install via:** `/ccbell:packs install minimal` (no API keys needed)
 
 ### Table of Contents
 
 1. [Summary](#summary-1)
 2. [Benefit](#benefit-1)
 3. [Priority & Complexity](#priority--complexity-1)
-4. [Feasibility](#feasibility-1)
-   - [Claude Code](#claude-code-1)
-   - [Audio Player](#audio-player-1)
-   - [External Dependencies](#external-dependencies-1)
-5. [Usage in ccbell Plugin](#usage-in-ccbell-plugin-1)
+4. [Architecture](#architecture)
+5. [CI Pipeline Design](#ci-pipeline-design)
 6. [Repository Impact](#repository-impact-1)
-   - [cc-plugins](#cc-plugins-1)
-   - [ccbell](#ccbell-1)
 7. [Implementation Plan](#implementation-plan-1)
-   - [cc-plugins](#cc-plugins-2)
-   - [ccbell](#ccbell-2)
-8. [External Dependencies](#external-dependencies-2)
-9. [Research Details](#research-details-1)
-10. [Research Sources](#research-sources-1)
+8. [Research Sources](#research-sources-1)
 
 ### Summary
 
-Download individual sounds directly from free sound providers (Freesound, Pixabay, Mixkit, etc.) for use in ccbell notifications. Enables direct access to vast sound libraries without manual download workflow.
+Create a CI/CD pipeline in a separate `ccbell-sound-packs` repository that:
+- Periodically queries free sound providers (Freesound, Pixabay)
+- Downloads and curates high-quality notification sounds
+- Packages them into sound packs
+- Publishes automatically as GitHub releases
+
+**User Experience:** Users install pre-built packs via `/ccbell:packs install` - no API keys, no complexity.
 
 ### Benefit
 
 | Aspect | Description |
 |--------|-------------|
-| :bust_in_silhouette: User Impact | Access 700,000+ sounds directly from ccbell |
-| :memo: Use Cases | Custom notification sounds, creative expression |
-| :dart: Value Proposition | No manual browsing/downloading needed |
+| :bust_in_silhouette: User Impact | Access curated sounds without API keys or OAuth |
+| :memo: Use Cases | Automatic updates, community curation |
+| :dart: Value Proposition | Zero-config sound variety |
 
 ### Priority & Complexity
 
 | Aspect | Assessment |
 |--------|------------|
-| :rocket: Priority | 🟡 Medium |
+| :rocket: Priority | 🔴 High |
 | :construction: Complexity | 🟡 Medium |
-| :warning: Risk Level | 🟡 Medium |
+| :warning: Risk Level | 🟢 Low |
 
-### Feasibility
+### Architecture
 
-#### Claude Code
+```
+┌─────────────────────────┐     ┌──────────────────────────┐     ┌─────────────────────┐
+│   ccbell-sound-packs    │     │   Theme Curation         │ │   GitHub Releases   │
+│     Repository          │────▶│   (Claude Code + GitHub) │────▶│   (Pack Downloads)  │
+│                         │     │                          │ │                     │
+│ ├── packs/              │     │ ├── !curate retro        │ │   ├── retro-v1      │
+│ │   ├── minimal/        │     │ ├── Theme input UI       │ │   ├── minimal-v1    │
+│ │   │   └── pack.json   │     │ ├── Search Pixabay       │ │   └── ...           │
+│ │   ├── retro/          │     │ ├── Create pack.json     │ │                     │
+│ │   └── ...             │     │ └── Release assets       │ │                     │
+│ └── .github/workflows/  │     │                          │ └─────────────────────┘
+│       └── theme-        │                              │
+│           curation.yml  │                              │
+└─────────────────────────┘                                    │
+         │                                                    │
+         │ /ccbell:packs install retro                       │
+         ▼                                                    │
+┌─────────────────────┐                                       │
+│   ccbell Plugin     │◀──────────────────────────────────────┘
+│                     │     Uses existing pack mechanism
+│ └── packs command   │     No API keys needed!
+└─────────────────────┘
+```
 
-| Feature | Description |
+### CI Pipeline Design
+
+#### Workflow Triggers
+
+| Trigger | Description |
 |---------|-------------|
-| :keyboard: Commands | New `download` command with provider/search/download options |
-| :hook: Hooks | Uses existing hooks for event handling |
-| :toolbox: Tools | Read, Write, Bash, WebFetch tools for HTTP requests |
+| Issue Comment | Comment `!curate retro` to trigger theme curation |
+| Manual | GitHub Actions UI with theme input |
+| Scheduled | Optional: weekly/monthly curation runs |
 
-#### Audio Player
+#### Claude Code Theme Curation
 
-| Aspect | Description |
-|--------|-------------|
-| :speaker: afplay | Downloaded sounds saved to user sounds directory |
-| :computer: Platform Support | Cross-platform compatible |
-| :musical_note: Audio Formats | AIFF, WAV, MP3 supported |
+The pipeline uses **Claude Code GitHub Action** to intelligently curate sounds based on themes:
 
-#### External Dependencies
+**Trigger via Issue Comment:**
+```markdown
+!curate retro
+```
 
-| Dependency | Version | Purpose | Required |
-|------------|---------|---------|----------|
-| curl/wget | Any | Download sounds from providers | ✅ |
+Claude Code will:
+1. Parse theme from comment
+2. Search Pixabay for theme-matching sounds
+3. Download and convert to AIFF format
+4. Create `pack.json` with full metadata
+5. Create GitHub Release with sounds
+6. Commit only `pack.json` to git (sounds stay in release assets)
+7. Comment with result
 
-### Usage in ccbell Plugin
+**Trigger via GitHub Actions UI:**
+1. Go to Actions → "Theme Curation with Claude"
+2. Click "Run workflow"
+3. Enter theme: "retro", "futuristic", "lofi", "nature", etc.
+4. Claude Code does the rest!
 
-| Aspect | Description |
-|--------|-------------|
-| :hand: User Interaction | `/ccbell:download freesound "notification bell"`, `/ccbell:download pixabay --top` |
-| :wrench: Configuration | Adds `downloads` section to track downloaded sounds |
-| :gear: Default Behavior | Downloads to `~/.claude/ccbell/sounds/` |
+#### Storage Architecture
+
+```
+Git Repository (pack metadata only)
+├── packs/
+│   ├── retro/pack.json        # Committed to git
+│   ├── minimal/pack.json
+│   └── ...
+└── .github/workflows/
+
+GitHub Releases (binary assets)
+├── retro-v1.0.0.zip           # Contains pack.json + sounds/*.aiff
+├── minimal-v1.0.0.zip
+└── ...
+```
+
+**Why this approach?**
+
+| Aspect | Solution |
+|--------|----------|
+| Repo size | Stays small (no binary bloat) |
+| Version control | pack.json changes tracked in git |
+| Fast clone | Users don't download all sounds |
+| ccbell reads | From release assets |
+
+#### Provider Integration
+
+| Provider | Auth | Rate Limit | Notes |
+|----------|------|------------|-------|
+| **Pixabay** | API Key (env) | 100 req/min | Primary source, no OAuth |
+| **Freesound** | API Key (env) | 60 req/min | Future enhancement |
+
+**Required Repository Secrets:**
+```bash
+ANTHROPIC_API_KEY=     # For Claude Code GitHub Action
+PIXABAY_API_KEY=       # For sound searches
+GH_TOKEN=              # For creating releases and committing
+```
 
 ### Repository Impact
 
-#### cc-plugins
+#### ccbell-sound-packs Repository
+
+| File | Description | Status |
+|------|-------------|--------|
+| `packs/*/pack.json` | Pack metadata (in git) | ✅ Implemented |
+| `.github/workflows/theme-curation.yml` | Claude Code theme curation | ✅ Implemented |
+| `.github/workflows/curate.yml` | Curation pipeline (optional) | ✅ Exists |
+| `scripts/sound-pack-curator.sh` | Shell script for manual curation | ✅ Exists |
+| `README.md` | Documentation | ✅ Updated |
+
+#### ccbell (No Changes)
 
 | File | Description |
 |------|-------------|
-| `plugins/ccbell/.claude-plugin/plugin.json` | Plugin manifest (version bump) |
-| `plugins/ccbell/scripts/ccbell.sh` | Download script (version sync) |
-| `plugins/ccbell/hooks/hooks.json` | Hook definitions (no change) |
-| `plugins/ccbell/commands/*.md` | Add `download.md` command doc |
+| - | Uses existing pack mechanism |
+| - | No new code needed |
 
-#### ccbell
+#### cc-plugins (No Changes)
 
 | File | Description |
 |------|-------------|
-| `main.go` | Main entry point (version bump) |
-| `config/config.go` | Add `downloads` section |
-| `audio/downloader.go` | New - Download manager for sound providers |
-| `hooks/*.go` | Hook implementations (no change) |
+| - | Uses existing pack command |
 
 ### Implementation Plan
 
-#### cc-plugins
+#### Phase 1: CI Pipeline Setup ✅ Complete
 
-1. Update plugin.json version
-2. Update ccbell.sh if needed
-3. Add `download.md` command documentation
+1. ✅ Set up `ccbell-sound-packs` repository
+2. ✅ Add `theme-curation.yml` workflow with Claude Code integration
+3. ✅ Configure required secrets (ANTHROPIC_API_KEY, PIXABAY_API_KEY, GH_TOKEN)
+4. ✅ Create initial `minimal` pack with pack.json
 
-#### ccbell
+#### Phase 2: Claude Code Integration ✅ Complete
 
-1. Create `internal/download/downloader.go`
-2. Implement Provider interface for each sound source
-3. Add search functionality with query parameters
-4. Implement download with progress tracking
-5. Add `download` command with search/download/list options
-6. Update version in main.go
-7. Tag and release vX.X.X
-8. Sync version to cc-plugins
+1. ✅ Theme-based sound curation via `!curate theme` comments
+2. ✅ GitHub Actions UI trigger for on-demand curation
+3. ✅ Automatic pack.json creation with full metadata
+4. ✅ Release asset creation with sounds/*.aiff
 
-### External Dependencies
+#### Phase 3: Storage Optimization ✅ Complete
 
-| Dependency | Version | Purpose | Required |
-|------------|---------|---------|----------|
-| curl/wget | Any | HTTP client for downloads | ✅ |
-| jq | Optional | Parse JSON API responses | ❌ |
+1. ✅ Store only pack.json in git (metadata)
+2. ✅ Store sounds in release assets (binary)
+3. ✅ Keep repository small and fast to clone
 
-### Research Details
+#### Phase 4: Community Contributions (Future)
 
-#### Download Workflow
-
-```
-1. User searches: /ccbell:download freesound "door bell"
-2. ccbell queries Freesound API
-3. Results displayed with preview options
-4. User selects sound by number
-5. Sound downloaded to ~/.claude/ccbell/sounds/
-6. Sound available as custom:sound_name
-```
-
-#### Provider API Support
-
-| Provider | API Required | Search | Download | Notes |
-|----------|--------------|--------|----------|-------|
-| **Freesound** | Yes | ✅ | ✅ | Requires API key, 700K+ sounds |
-| **Pixabay** | Yes | ✅ | ✅ | No API key for basic use, 110K+ sounds |
-| **Mixkit** | No | ❌ | ✅ | Direct download links |
-| **SoundBible** | No | ❌ | ✅ | Direct download, no API |
-| **Zapsplat** | No | ❌ | ✅ | Free tier available |
-
-#### Provider Implementation
-
-##### Freesound API (Recommended - Most Sounds)
-
-- **API URL**: `https://freesound.org/apiv2`
-- **Authentication**: API key required (free registration)
-- **Rate Limit**: 5 requests/second
-- **Search Endpoint**: `GET /search/text/?query={query}&fields=id,name,previews`
-- **Download**: Requires OAuth2 for full download or pre-signed URLs
-
-```bash
-# Search sounds
-curl "https://freesound.org/apiv2/search/text/?q=notification&types=wav&token={API_KEY}"
-
-# Download sound (requires OAuth flow)
-curl -L -o sound.wav "https://freesound.org/apiv2/sounds/{sound_id}/download/"
-```
-
-##### Pixabay API (Recommended - No Auth Required)
-
-- **API URL**: `https://pixabay.com/api/`
-- **Authentication**: Optional API key (higher rate limits)
-- **Rate Limit**: 50 requests/second (with key), 5/sec (without)
-- **Search**: `GET https://pixabay.com/api/?q={query}&category=sound-effects`
-
-```bash
-# Search sounds (no API key needed)
-curl "https://pixabay.com/api/?q=notification+bell&category=sound-effects"
-
-# Download (get from 'audio' field in response)
-curl -L -o sound.mp3 "$(curl -s 'https://pixabay.com/api/?q=bell&category=sound-effects' | jq -r '.hits[0].audio')"
-```
-
-##### Mixkit (Direct Download)
-
-- **URL**: https://mixkit.co/free-sound-effects/
-- **No API**: Scraping required or manual download
-- **Best For**: Pre-curated packs
-
-##### SoundBible (Direct Download)
-
-- **URL**: http://soundbible.com/
-- **No API**: HTML scraping required
-- **Format**: WAV, MP3
-- **License**: Check individual files
-
-#### Download Manager Features
-
-- **Search across multiple providers** with unified results
-- **Preview sounds** before download (where supported)
-- **Progress indicator** for downloads
-- **License display** for each sound
-- **Organize by provider** in local sounds directory
-- **Cache search results** to avoid repeated API calls
-- **Retry failed downloads** with exponential backoff
-
-#### Sound Organization
-
-```
-~/.claude/ccbell/sounds/
-├── custom/              # User's downloaded sounds
-│   ├── freesound/
-│   │   ├── sound_12345.wav
-│   │   └── sound_67890.mp3
-│   ├── pixabay/
-│   │   └── bell_alarm_001.mp3
-│   └── soundbible/
-│       └── door_bell.wav
-└── bundled/             # Default sounds
-    ├── stop.aiff
-    ├── permission_prompt.aiff
-    └── ...
-```
-
-#### Command Interface
-
-```
-/ccbell:download                  # Interactive search mode
-/ccbell:download freesound "bell" # Search Freesound
-/ccbell:download pixabay "chime"  # Search Pixabay
-/ccbell:download list             # List downloaded sounds
-/ccbell:download remove sound_id  # Remove downloaded sound
-/ccbell:download clear            # Clear all downloaded sounds
-```
-
-#### Configuration
-
-```json
-{
-  "downloads": {
-    "defaultProvider": "pixabay",
-    "freesound": {
-      "apiKey": "${FREESOUND_API_KEY}",
-      "enabled": true
-    },
-    "pixabay": {
-      "apiKey": "${PIXABAY_API_KEY}",
-      "enabled": true
-    },
-    "saveDirectory": "~/.claude/ccbell/sounds/custom",
-    "maxConcurrentDownloads": 3
-  }
-}
-```
-
-### Download Features
-
-- **Multi-provider search** (Freesound, Pixabay)
-- **License filtering** (CC0, CC-BY, commercial-friendly)
-- **Format selection** (WAV, MP3, AIFF)
-- **Preview before download** (where supported)
-- **Progress tracking** with visual feedback
-- **Local sound library management** (list, remove, clear)
-- **Cache search results** for faster repeated searches
-- **Retry logic** with exponential backoff
-- **Environment variable** support for API keys
+1. Accept PRs for new packs
+2. Add local pack support for user-created sounds
+3. Document pack creation guide
 
 ### Research Sources
 
 | Source | Description |
 |--------|-------------|
-| [Freesound API](https://freesound.org/docs/api/) | :books: Freesound API v2 documentation |
-| [Pixabay API](https://pixabay.com/api/docs/) | :books: Pixabay API documentation |
-| [Mixkit Sounds](https://mixkit.co/free-sound-effects/) | :books: Free sound effects |
-| [SoundBible](http://soundbible.com/) | :books: Free sound clips |
-| [Zapsplat](https://www.zapsplat.com/) | :books: Professional sound effects |
-| [Go HTTP Client](https://pkg.go.dev/net/http) | :books: HTTP requests |
-| [jq Manual](https://stedolan.github.io/jq/manual/) | :books: JSON processing |
+| [GitHub REST API Rate Limits](https://docs.github.com/en/rest/overview/rate-limits-for-the-rest-api) | GitHub API rate limits (60 unauthenticated, 5,000 authenticated) |
+| [Freesound API](https://freesound.org/docs/api/) | Freesound API v2 documentation (60 req/min, API key required) |
+| [Pixabay API](https://pixabay.com/api/docs/) | Pixabay API documentation (100 req/60s with key) |
+| [GitHub Actions](https://docs.github.com/en/actions) | CI/CD automation |
 
-## Research Sources
+## Sound Source Research
+
+| Source | Sounds | License | API | Best For |
+|--------|--------|---------|-----|----------|
+| [Freesound](https://freesound.org/) | 700K+ | CC (various) | Yes | Maximum variety |
+| [Pixabay](https://pixabay.com/sound-effects/) | 110K+ | Pixabay License | Yes | Easiest integration |
+| [Mixkit](https://mixkit.co/free-sound-effects/) | 1K+ | Mixkit License | No | Curated packs |
+| [akx/Notifications](https://github.com/akx/Notifications) | Pack | Flexible | Yes | Ready-made packs |
+
+### Internal Documentation
 
 | Source | Description |
 |--------|-------------|
-| [Freesound](https://freesound.org/) | :books: 700,000+ Creative Commons licensed sounds database |
-| [Pixabay Audio](https://pixabay.com/sound-effects/) | :books: 110,000+ royalty-free sound effects |
-| [Mixkit Sounds](https://mixkit.co/free-sound-effects/) | :books: Free sound effects with Mixkit License |
-| [Notification Sounds](https://notificationsounds.com/) | :books: Mobile notification sounds and ringtones |
-| [Zedge](https://www.zedge.net/) | :books: Mobile ringtones and notification sounds |
-| [SoundBible](https://soundbible.com/) | :books: Free sound clips in WAV and MP3 |
-| [Free To Use Sounds](https://www.freetousesounds.com/) | :books: 15,000+ royalty-free sound recordings |
-| [Zapsplat Notification Bells](https://www.zapsplat.com/sound-effect-packs/notification-bells/) | :books: 62 professional notification bell sounds |
-| [Free Sounds Library](https://www.freesoundslibrary.com/) | :books: High-quality SFX with CC0 + CC-BY |
-| [Uppbeat Sound Effects](https://uppbeat.io/blog/sound-effects/best-sound-effect-packs) | :books: Curated free sound effect packs |
-| [Artlist Notifications](https://artlist.io/collection/notifications/11517) | :books: Professional notification SFX collection |
-| [Freesound API](https://freesound.org/docs/api/) | :books: Freesound API documentation |
-| [akx/Notifications - GitHub](https://github.com/akx/Notifications) | :books: Hand-crafted notification tones |
-| [EdgeTX Sound Packs - GitHub](https://github.com/EdgeTX/edgetx-sdcard-sounds) | :books: Structured sound pack releases |
-| [SONNISS GameAudioGDC](https://sonniss.com/gameaudiogdc/) | :books: Professional game audio archives |
-| [Top 12 Free Sound Effects Sites - SFX Engine](https://sfxengine.com/blog/free-sound-effects-download) | :books: Guide to free sound effects resources |
-| [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Audio player |
-| [Sound path resolution](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Path resolution |
-| [Config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) | :books: Config structure |
+| [Audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | Current audio playback implementation |
+| [Sound path resolution](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | Path resolution logic |
+| [Config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) | Configuration schema |
