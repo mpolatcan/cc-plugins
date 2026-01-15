@@ -141,8 +141,10 @@ Steps required in ccbell repository:
 | Dependency | Version | Purpose | Required |
 |------------|---------|---------|----------|
 | say | macOS | Native TTS | `[Yes]` |
-| piper | Linux | TTS engine | `[Yes]` |
-| kokoro | Linux | TTS engine | `[Yes]` |
+| piper | Linux | Fast, local neural TTS | `[Yes]` |
+| kokoro | Linux | 82M parameter lightweight TTS | `[Yes]` |
+| neutts-air | Cross-platform | 748M parameter on-device TTS with voice cloning | `[No]` |
+| neutts-nano | Cross-platform | Lightweight on-device TTS | `[No]` |
 
 ## Research Details
 
@@ -158,19 +160,101 @@ No new hooks needed - TTS integrated into main flow.
 
 TTS output played through audio player or native command.
 
-### Other Findings
+### TTS Engine Options Research
 
-TTS features:
-- Multiple engine support (say, piper, kokoro)
+#### 1. NeuTTS Air (Recommended - New)
+- **Parameters**: 748M (0.5B LLM backbone with Qwen2 architecture)
+- **Platform**: CPU-based, runs on phones, laptops, Raspberry Pi
+- **Key Features**:
+  - World's first super-realistic on-device TTS speech language model
+  - Instant voice cloning with 3-10 seconds of reference audio
+  - Real-time performance
+  - Built-in security (fully offline)
+  - No cloud/API keys required
+- **Performance**: Optimized for speed and low power usage
+- **License**: Open-source (Apache 2.0)
+- **Benchmark Devices**: Galaxy A25 5G, AMD Ryzen 9HX 370, iMac M4 16GB, NVIDIA RTX 4090
+- **GitHub**: https://github.com/neuphonic/neutts-air
+
+#### 2. NeuTTS Nano
+- **Purpose**: Lightweight alternative to NeuTTS Air
+- **Use Case**: Resource-constrained devices
+- **Platform**: CPU-based, optimized for mobile/embedded
+- **Features**: Similar voice cloning capabilities at smaller model size
+
+#### 3. Kokoro-82M (Recommended - Lightweight)
+- **Parameters**: 82M (very lightweight)
+- **Quality**: Comparable to larger models despite small size
+- **Platform**: CPU inference
+- **Key Features**:
+  - High-quality, natural-sounding speech
+  - Fast inference
+  - Apache 2.0 license (free for commercial use)
+  - Excellent voice expressiveness
+- **Performance**: 44% win rate on TTS Arena V2
+- **Hugging Face**: https://huggingface.co/hexgrad/Kokoro-82M
+- **Web Interface**: Kokoro Web for browser usage
+
+#### 4. Piper TTS
+- **Parameters**: Varies by model (typically 40-500M)
+- **Platform**: Optimized for Raspberry Pi, CPU inference
+- **Key Features**:
+  - Fast, local neural TTS
+  - Multiple high-quality voices available
+  - Easy installation via pip (`pip install piper-tts`)
+  - Cross-platform (Windows, Linux, macOS)
+- **GitHub**: https://github.com/rhasspy/piper
+- **Best For**: Low-resource environments, Raspberry Pi部署
+
+#### 5. Orpheus TTS
+- **Parameters**: 3B (Llama-3b backbone)
+- **Quality**: State-of-the-art open-source TTS
+- **Key Features**:
+  - Human-sounding speech quality
+  - Multi-lingual support
+  - Robust voice cloning
+  - Apache License 2.0
+- **Use Case**: High-quality local TTS when resources allow
+- **GitHub**: https://github.com/canopyai/Orpheus-TTS
+
+#### 6. XTTS-v2 (Coqui AI)
+- **Parameters**: ~500M
+- **Key Features**:
+  - Voice cloning with 6-second audio clip
+  - Multi-language support (17+ languages)
+  - High-quality voice synthesis
+- **Considerations**: Requires Python <3.12, larger model size
+- **GitHub**: https://github.com/coqui-ai/TTS
+
+#### 7. Bark (Suno AI)
+- **Parameters**: Multiple variants available
+- **Key Features**:
+  - Multi-speaker support
+  - Voice cloning capabilities
+  - Can generate expressive speech
+- **Considerations**: Higher resource requirements
+
+### TTS Features Summary
+
+- Multiple engine support (say, piper, kokoro, neutts-air, neutts-nano, orpheus)
 - Configurable phrases per event
 - Voice selection per engine
 - Caching for performance
 - Works alongside or instead of sounds
+- Voice cloning support (NeuTTS Air, Kokoro, Orpheus, XTTS-v2)
 
 ## Research Sources
 
 | Source | Description |
 |--------|-------------|
-| [Piper TTS - GitHub](https://github.com/rhasspy/piper) | :books: Piper TTS |
-| [Kokoro-82M - Hugging Face](https://huggingface.co/hexgrad/Kokoro-82M) | :books: Kokoro TTS |
+| [NeuTTS Air - GitHub](https://github.com/neuphonic/neutts-air) | :books: NeuTTS Air - 748M parameter on-device TTS with voice cloning |
+| [NeuTTS Air - Hugging Face](https://huggingface.co/neuphonic/neutts-air) | :books: NeuTTS Air model page with benchmarks |
+| [NeuTTS Air - Official Site](https://www.neutts.org/) | :books: NeuTTS Air official documentation |
+| [Kokoro-82M - Hugging Face](https://huggingface.co/hexgrad/Kokoro-82M) | :books: Kokoro TTS - 82M lightweight open-source TTS |
+| [Kokoro TTS - Official](https://kokorottsai.com/) | :books: Kokoro TTS official site |
+| [Piper TTS - GitHub](https://github.com/rhasspy/piper) | :books: Piper TTS - Fast local neural TTS |
+| [Orpheus TTS - GitHub](https://github.com/canopyai/Orpheus-TTS) | :books: Orpheus TTS - SOTA open-source TTS on Llama-3b |
+| [XTTS-v2 - Hugging Face](https://huggingface.co/coqui/XTTS-v2) | :books: XTTS-v2 - Coqui AI multilingual voice cloning |
+| [The Top Open-Source TTS Models - Modal](https://modal.com/blog/open-source-tts) | :books: Comparison of open-source TTS models |
+| [BentoML - Open Source TTS Models 2026](https://www.bentoml.com/blog/exploring-the-world-of-open-source-text-to-speech-models) | :books: Comprehensive TTS model comparison |
 | [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Audio player |
