@@ -1,7 +1,7 @@
 ---
 name: ccbell:packs
 description: Browse, preview, and install sound packs for ccbell notifications
-argument-hint: "[browse|install|use|uninstall|list] [pack_id]"
+argument-hint: "[browse|preview|install|use|uninstall|list] [pack_id]"
 allowed-tools: ["Read", "Write", "Bash", "WebFetch", "AskUserQuestion"]
 ---
 
@@ -12,10 +12,11 @@ Browse, preview, and install sound packs that bundle sounds for all notification
 ## Quick Start
 
 ```bash
-/ccbell:packs browse    # Browse available sound packs
-/ccbell:packs list      # List installed sound packs
+/ccbell:packs browse        # Browse available sound packs
+/ccbell:packs preview minimal  # Preview pack sounds before installing
+/ccbell:packs list          # List installed sound packs
 /ccbell:packs install minimal  # Install a sound pack
-/ccbell:packs use minimal      # Apply pack sounds to events
+/ccbell:packs use minimal      # Apply pack sounds to events (auto-updates config)
 ```
 
 ## Commands
