@@ -43,9 +43,9 @@ Temporarily adjust notification volume without modifying the config file. Allows
 
 | Aspect | Assessment |
 |--------|------------|
-| :rocket: Priority | `[Medium]` |
-| :construction: Complexity | `[Low]` |
-| :warning: Risk Level | `[Low]` |
+| :rocket: Priority | `🟡` |
+| :construction: Complexity | `🟢` |
+| :warning: Risk Level | `🟢` |
 
 ## Feasibility
 
@@ -136,7 +136,7 @@ Steps required in ccbell repository:
 
 | Dependency | Version | Purpose | Required |
 |------------|---------|---------|----------|
-| None | | | `[No]` |
+| None | | | `➖` |
 
 ## Status
 

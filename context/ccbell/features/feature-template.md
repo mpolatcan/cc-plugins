@@ -45,9 +45,9 @@ Why should this feature be implemented?
 
 | Aspect | Assessment |
 |--------|------------|
-| :rocket: Priority | `[High]` / `[Medium]` / `[Low]` |
-| :construction: Complexity | `[High]` / `[Medium]` / `[Low]` |
-| :warning: Risk Level | `[Low]` / `[Medium]` / `[High]` |
+| :rocket: Priority | `🔴` / `🟡` / `🟢` |
+| :construction: Complexity | `🔴` / `🟡` / `🟢` |
+| :warning: Risk Level | `🟢` / `🟡` / `🔴` |
 
 ## Feasibility
 
@@ -138,8 +138,8 @@ Steps required in ccbell repository:
 
 | Dependency | Version | Purpose | Required |
 |------------|---------|---------|----------|
-| `` | | | `[Yes]` / `[No]` |
-| `` | | | `[Yes]` / `[No]` |
+| `` | | | `✅` / `➖` |
+| `` | | | `✅` / `➖` |
 
 ## Research Details
 

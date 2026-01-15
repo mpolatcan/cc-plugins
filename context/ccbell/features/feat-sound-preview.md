@@ -43,9 +43,9 @@ Preview mode during configuration that lets users hear sounds before saving thei
 
 | Aspect | Assessment |
 |--------|------------|
-| :rocket: Priority | `[Medium]` |
-| :construction: Complexity | `[Low]` |
-| :warning: Risk Level | `[Low]` |
+| :rocket: Priority | `🟡` |
+| :construction: Complexity | `🟢` |
+| :warning: Risk Level | `🟢` |
 
 ## Feasibility
 
@@ -137,7 +137,7 @@ Steps required in ccbell repository:
 
 | Dependency | Version | Purpose | Required |
 |------------|---------|---------|----------|
-| None | | | `[No]` |
+| None | | | `➖` |
 
 ## Status
 

@@ -43,9 +43,9 @@ When multiple events fire quickly, queue them and play sequentially instead of o
 
 | Aspect | Assessment |
 |--------|------------|
-| :rocket: Priority | `[Low]` |
-| :construction: Complexity | `[Medium]` |
-| :warning: Risk Level | `[Medium]` |
+| :rocket: Priority | `🟢` |
+| :construction: Complexity | `🟡` |
+| :warning: Risk Level | `🟡` |
 
 ## Feasibility
 
@@ -138,7 +138,7 @@ Steps required in ccbell repository:
 
 | Dependency | Version | Purpose | Required |
 |------------|---------|---------|----------|
-| None | | | `[No]` |
+| None | | | `➖` |
 
 ## Status
 

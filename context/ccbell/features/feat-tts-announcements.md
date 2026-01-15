@@ -43,9 +43,9 @@ Play spoken announcements instead of (or alongside) audio files. Announce events
 
 | Aspect | Assessment |
 |--------|------------|
-| :rocket: Priority | `[Low]` |
-| :construction: Complexity | `[High]` |
-| :warning: Risk Level | `[High]` |
+| :rocket: Priority | `🟢` |
+| :construction: Complexity | `🔴` |
+| :warning: Risk Level | `🔴` |
 
 ## Feasibility
 
@@ -149,11 +149,11 @@ Steps required in ccbell repository:
 
 | Dependency | Version | Purpose | Required |
 |------------|---------|---------|----------|
-| say | macOS | Native TTS | `[Yes]` |
-| piper | Linux | Fast, local neural TTS | `[Yes]` |
-| kokoro | Linux | 82M parameter lightweight TTS | `[Yes]` |
-| neutts-air | Cross-platform | 748M parameter on-device TTS with voice cloning | `[No]` |
-| neutts-nano | Cross-platform | Lightweight on-device TTS | `[No]` |
+| say | macOS | Native TTS | ✅ |
+| piper | Linux | Fast, local neural TTS | ✅ |
+| kokoro | Linux | 82M parameter lightweight TTS | ✅ |
+| neutts-air | Cross-platform | 748M parameter on-device TTS with voice cloning | ➖ |
+| neutts-nano | Cross-platform | Lightweight on-device TTS | ➖ |
 
 ## Research Details
 

@@ -43,9 +43,9 @@ Allow users to browse, preview, and install sound packs that bundle sounds for a
 
 | Aspect | Assessment |
 |--------|------------|
-| :rocket: Priority | `[High]` |
-| :construction: Complexity | `[Medium]` |
-| :warning: Risk Level | `[Medium]` |
+| :rocket: Priority | `🔴` |
+| :construction: Complexity | `🟡` |
+| :warning: Risk Level | `🟡` |
 
 ## Feasibility
 
@@ -139,7 +139,7 @@ Steps required in ccbell repository:
 
 | Dependency | Version | Purpose | Required |
 |------------|---------|---------|----------|
-| None | HTTP client | Download packs from GitHub | `[No]` |
+| None | HTTP client | Download packs from GitHub | `➖` |
 
 ## Status
 

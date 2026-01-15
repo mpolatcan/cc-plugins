@@ -43,9 +43,9 @@ Only trigger notifications when specific conditions are met. Allows token count,
 
 | Aspect | Assessment |
 |--------|------------|
-| :rocket: Priority | `[Medium]` |
-| :construction: Complexity | `[Low]` |
-| :warning: Risk Level | `[Low]` |
+| :rocket: Priority | `🟡` |
+| :construction: Complexity | `🟢` |
+| :warning: Risk Level | `🟢` |
 
 ## Feasibility
 
@@ -138,7 +138,7 @@ Steps required in ccbell repository:
 
 | Dependency | Version | Purpose | Required |
 |------------|---------|---------|----------|
-| None | regexp | Pattern matching | `[No]` |
+| None | regexp | Pattern matching | `➖` |
 
 ## Status
 

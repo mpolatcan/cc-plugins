@@ -43,9 +43,9 @@ Show visual notifications (macOS Notification Center, terminal bell) when Claude
 
 | Aspect | Assessment |
 |--------|------------|
-| :rocket: Priority | `[High]` |
-| :construction: Complexity | `[Low]` |
-| :warning: Risk Level | `[Low]` |
+| :rocket: Priority | `🔴` |
+| :construction: Complexity | `🟢` |
+| :warning: Risk Level | `🟢` |
 
 ## Feasibility
 
@@ -75,9 +75,9 @@ Are external tools or libraries required?
 
 | Dependency | Platform | Purpose | Required |
 |------------|----------|---------|----------|
-| osascript/terminal-notifier | macOS | macOS Notification Center | `[Yes]` |
-| notify-send (libnotify) | Linux | Linux notifications | `[Yes]` |
-| beeep (Go library) | Cross-platform | Cross-platform notification library (macOS, Linux) | `[No]` |
+| osascript/terminal-notifier | macOS | macOS Notification Center | ✅ |
+| notify-send (libnotify) | Linux | Linux notifications | ✅ |
+| beeep (Go library) | Cross-platform | Cross-platform notification library (macOS, Linux) | ➖ |
 
 ## Status
 
@@ -152,12 +152,12 @@ Steps required in ccbell repository:
 
 | Dependency | Version | Purpose | Required |
 |------------|---------|---------|----------|
-| osascript | macOS | Native AppleScript display notification | `[Yes]` |
-| terminal-notifier | macOS | Advanced macOS notifications with actions | `[No]` |
-| notify-send | Linux | Linux desktop notifications (libnotify) | `[Yes]` |
-| dunstify | Linux | Enhanced notifications for Dunst | `[No]` |
-| beeep | Go | Cross-platform Go notification library (macOS, Linux) | `[No]` |
-| gorush | 1.10.0+ | Push notification server (APNs, FCM) | `[No]` |
+| osascript | macOS | Native AppleScript display notification | `✅` |
+| terminal-notifier | macOS | Advanced macOS notifications with actions | `➖` |
+| notify-send | Linux | Linux desktop notifications (libnotify) | `✅` |
+| dunstify | Linux | Enhanced notifications for Dunst | `➖` |
+| beeep | Go | Cross-platform Go notification library (macOS, Linux) | `➖` |
+| gorush | 1.10.0+ | Push notification server (APNs, FCM) | `➖` |
 
 ## Research Details
 

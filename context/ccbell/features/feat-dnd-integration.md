@@ -43,9 +43,9 @@ Automatically suppress ccbell notifications when the system Do Not Disturb mode 
 
 | Aspect | Assessment |
 |--------|------------|
-| :rocket: Priority | `[High]` |
-| :construction: Complexity | `[Low]` |
-| :warning: Risk Level | `[Low]` |
+| :rocket: Priority | `🔴` |
+| :construction: Complexity | `🟢` |
+| :warning: Risk Level | `🟢` |
 
 ## Feasibility
 
@@ -139,12 +139,12 @@ Steps required in ccbell repository:
 
 | Dependency | Version | Purpose | Required |
 |------------|---------|---------|----------|
-| `defaults` | macOS | Read DND status | `[Yes]` |
-| `dnd` | Homebrew | CLI tool for DND control (sindresorhus) | `[No]` |
-| `gsettings` | Linux/GNOME | Read DND status | `[Yes]` |
-| `qdbus` | Linux/KDE | Read DND status | `[Yes]` |
-| `hyprctl` | Linux/Hyprland | Wayland compositor DND status | `[No]` |
-| `swaymsg` | Linux/Sway | i3-compatible DND status | `[No]` |
+| `defaults` | macOS | Read DND status | ✅ |
+| `dnd` | Homebrew | CLI tool for DND control (sindresorhus) | ➖ |
+| `gsettings` | Linux/GNOME | Read DND status | ✅ |
+| `qdbus` | Linux/KDE | Read DND status | ✅ |
+| `hyprctl` | Linux/Hyprland | Wayland compositor DND status | ➖ |
+| `swaymsg` | Linux/Sway | i3-compatible DND status | ➖ |
 
 ## Status
 

@@ -43,9 +43,9 @@ Check sound files and configuration for issues before use. Provides clear error 
 
 | Aspect | Assessment |
 |--------|------------|
-| :rocket: Priority | `[Medium]` |
-| :construction: Complexity | `[Low]` |
-| :warning: Risk Level | `[Low]` |
+| :rocket: Priority | `🟡` |
+| :construction: Complexity | `🟢` |
+| :warning: Risk Level | `🟢` |
 
 ## Feasibility
 
@@ -138,8 +138,8 @@ Steps required in ccbell repository:
 
 | Dependency | Version | Purpose | Required |
 |------------|---------|---------|----------|
-| ffprobe | | Audio format validation (from FFmpeg) | `[No]` |
-| MediaInfo | | Alternative audio metadata extraction | `[No]` |
+| ffprobe | | Audio format validation (from FFmpeg) | `➖` |
+| MediaInfo | | Alternative audio metadata extraction | `➖` |
 
 ## Status
 

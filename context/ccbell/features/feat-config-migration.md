@@ -43,9 +43,9 @@ Automatically update old config formats to newer versions while preserving setti
 
 | Aspect | Assessment |
 |--------|------------|
-| :rocket: Priority | `[Low]` |
-| :construction: Complexity | `[Medium]` |
-| :warning: Risk Level | `[Medium]` |
+| :rocket: Priority | `🟢` |
+| :construction: Complexity | `🟡` |
+| :warning: Risk Level | `🟡` |
 
 ## Feasibility
 
@@ -139,7 +139,7 @@ Steps required in ccbell repository:
 
 | Dependency | Version | Purpose | Required |
 |------------|---------|---------|----------|
-| None | | | `[No]` |
+| None | | | `➖` |
 
 ## Status
 
