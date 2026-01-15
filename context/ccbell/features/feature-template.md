@@ -1,7 +1,7 @@
 ---
 name: FEATURE_NAME
 description: Brief description of the feature
-category: sound | notification | config | core
+category: sound | notification | config
 ---
 
 # Feature: Feature Name

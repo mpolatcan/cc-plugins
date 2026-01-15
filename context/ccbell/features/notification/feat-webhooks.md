@@ -1,7 +1,7 @@
 ---
 name: Webhooks
 description: Send HTTP requests to configured URLs when events trigger for integration with Slack, IFTTT, Zapier
-category: core
+category: notification
 ---
 
 # Feature: Webhooks

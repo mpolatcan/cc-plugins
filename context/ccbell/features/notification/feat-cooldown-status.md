@@ -1,7 +1,7 @@
 ---
 name: Cooldown Status Display
 description: Display how much time remains before each event can trigger again
-category: core
+category: notification
 ---
 
 # Feature: Cooldown Status Display
