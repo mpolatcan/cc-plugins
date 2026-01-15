@@ -235,6 +235,23 @@ func ValidateReferences(config Config) error {
   - Custom error messages
 - **Best For**: Complex validation logic
 
+#### kaptinlin/jsonschema (High-Performance)
+- **URL**: https://github.com/kaptinlin/jsonschema
+- **Features**:
+  - High-performance JSON Schema validation
+  - Direct struct validation
+  - Smart unmarshaling with defaults
+  - Separated validation workflow
+- **Best For**: Schema-first validation approach
+
+#### omissis/go-jsonschema (Code Generation)
+- **URL**: https://github.com/omissis/go-jsonschema
+- **Features**:
+  - Generates Go types from JSON Schema
+  - Validates during unmarshaling
+  - Type-safe validation
+- **Best For**: Type-safe validation with schema-driven development
+
 #### custom Validation
 - Use Go's native capabilities
 - No external dependency required
@@ -256,6 +273,8 @@ func ValidateReferences(config Config) error {
 |--------|-------------|
 | [go-playground/validator](https://github.com/go-playground/validator) | :books: Go struct validation library |
 | [ozzo-validation](https://github.com/goozp/ozzo-validation) | :books: Code-based validation |
+| [kaptinlin/jsonschema](https://github.com/kaptinlin/jsonschema) | :books: High-performance JSON Schema validator |
+| [omissis/go-jsonschema](https://github.com/omissis/go-jsonschema) | :books: Go code generation from JSON Schema |
 | [Go JSON Package](https://pkg.go.dev/encoding/json) | :books: JSON encoding/decoding |
 | [Config validation](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L127-L175) | :books: Current validation implementation |
 | [ValidEvents](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L45-L51) | :books: Event validation |

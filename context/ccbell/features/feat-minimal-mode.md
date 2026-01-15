@@ -174,6 +174,26 @@ Not affected by this feature.
   - Input validation
 - **Best For**: Lightweight interactive prompts
 
+#### urfave/cli (Modern CLI Framework)
+- **URL**: https://cli.urfave.org/
+- **Features**:
+  - Declarative, simple, fast CLI building
+  - Command hierarchies
+  - Flag parsing
+  - Auto-generated help
+- **Install**: `go get github.com/urfave/cli/v3`
+- **Best For**: Production CLI applications (2025+)
+
+#### Cobra (Battle-Tested CLI)
+- **URL**: https://cobra.dev/
+- **Features**:
+  - Most widely used Go CLI framework
+  - Commands, flags, auto-help
+  - Persistent flags
+  - Bash/zsh completion
+- **Install**: `go get github.com/spf13/cobra`
+- **Best For**: Complex CLI applications with subcommands
+
 #### Go Prompts Pattern
 - Use `AskUserQuestion` for Claude Code integration
 - Use standard input/output for terminal-based wizards
@@ -220,6 +240,8 @@ Not affected by this feature.
 |--------|-------------|
 | [Survey - Go Interactive Prompts](https://github.com/AlecAivazis/survey) | :books: Interactive CLI prompts library |
 | [Chewitt - Simple Prompts](https://github.com/AlecAivazis/chewitt) | :books: Lightweight prompts |
+| [urfave/cli](https://cli.urfave.org/) | :books: Modern CLI framework (2025) |
+| [Cobra CLI Framework](https://cobra.dev/) | :books: Battle-tested CLI framework |
 | [Config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L81-L102) | :books: Config loading |
 | [Default config](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L64-L77) | :books: Default config |
 | [Quiet hours](https://github.com/mpolatcan/ccbell/blob/main/internal/config/quiethours.go) | :books: Quiet hours |

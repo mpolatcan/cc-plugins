@@ -230,6 +230,42 @@ func (p *PriorityQueue) Push(item PriorityItem) {
 - Status and clear commands
 - Persist queue across restarts (optional)
 
+### Queue Implementation Libraries
+
+#### golang-queue (Production-Ready)
+- **URL**: https://github.com/golang-queue
+- **Features**:
+  - Ring buffer backend
+  - Multiple Producer, Single Consumer (MPSC)
+  - Simple API for queue operations
+  - Low overhead
+- **Best For**: Production notification queuing
+
+#### lockfree (High Performance)
+- **URL**: https://github.com/bruceshao/lockfree
+- **Features**:
+  - Lock-free ring buffer
+  - Zero-allocation design
+  - ~39M ops/s performance
+  - Pre-allocated memory
+- **Best For**: High-throughput scenarios
+
+#### go-datastructures/queue
+- **URL**: https://pkg.go.dev/github.com/Workiva/go-datastructures/queue
+- **Features**:
+  - Unbounded queue growth
+  - Thread-safe operations
+  - Priority queue support
+- **Best For**: Complex queue requirements
+
+#### Workiva/go-datastructures (Legacy)
+- **URL**: https://github.com/Workiva/go-datastructures
+- **Features**:
+  - MPSC queue implementation
+  - Bounded and unbounded variants
+  - Well-tested production code
+- **Best For**: Enterprise applications
+
 ### Queue Management Best Practices
 
 - Use non-blocking enqueue to prevent delays
@@ -244,6 +280,9 @@ func (p *PriorityQueue) Push(item PriorityItem) {
 | [Go channels](https://pkg.go.dev/channel) | :books: Channel-based concurrency |
 | [Go container/ring](https://pkg.go.dev/container/ring) | :books: Ring buffer implementation |
 | [Go container/heap](https://pkg.go.dev/container/heap) | :books: Priority queue |
+| [golang-queue](https://github.com/golang-queue) | :books: Production queue with ring buffer |
+| [lockfree](https://github.com/bruceshao/lockfree) | :books: High-performance lock-free queue |
+| [go-datastructures](https://github.com/Workiva/go-datastructures) | :books: Enterprise queue implementation |
 | [Current main.go](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) | :books: Main entry point |
 | [Audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Audio playback |
 | [State management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) | :books: State management |
