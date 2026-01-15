@@ -153,13 +153,63 @@ No new hooks needed - uses existing event hooks.
 
 In dry-run mode, playback is skipped and what would have happened is printed.
 
-### Other Findings
+### Dry Run Output Patterns
 
-Dry run output should include:
-- Event type
-- Sound file path
-- Volume level
-- Skip reasons (cooldown, quiet hours, etc.)
+#### Structured Output (Recommended)
+```go
+type DryRunResult struct {
+    Event      string    `json:"event"`
+    Sound      string    `json:"sound"`
+    Volume     float64   `json:"volume"`
+    Profile    string    `json:"profile,omitempty"`
+    SkipReason string    `json:"skip_reason,omitempty"`
+    Timestamp  time.Time `json:"timestamp"`
+}
+
+func PrintDryRun(result DryRunResult, format string) {
+    switch format {
+    case "json":
+        printJSON(result)
+    case "text":
+        printText(result)
+    case "verbose":
+        printVerbose(result)
+    }
+}
+```
+
+#### Verbose Output
+```
+[DRY-RUN] Event: stop
+[DRY-RUN] Sound: bundled:stop.aiff
+[DRY-RUN] Volume: 0.75
+[DRY-RUN] Profile: default
+[DRY-RUN] Would play: afplay --volume 0.75 /path/to/sounds/stop.aiff
+[DRY-RUN] Status: SKIPPED (cooldown active: 23s remaining)
+```
+
+#### CI/CD Integration
+```bash
+# Exit code 0 = success, 1 = error
+ccbell test stop --dry-run --json > /tmp/dry-run.json
+jq '.event, .sound, .skip_reason' /tmp/dry-run.json
+```
+
+### Dry Run Use Cases
+
+- **Office/Library Testing**: Validate without disturbing others
+- **CI/CD Pipelines**: Automated config testing
+- **Debugging**: Isolate config issues from audio issues
+- **Documentation**: Generate example outputs
+
+### Dry Run Features
+
+- Event type and sound path display
+- Volume level output
+- Skip reasons (cooldown, quiet hours, DND)
+- Structured output (JSON, text, verbose)
+- Command that would be executed
+- Exit code for automation
 
 ## Research Sources
 
@@ -168,3 +218,4 @@ Dry run output should include:
 | [Main.go](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) | :books: Main entry point |
 | [Config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L81-L102) | :books: Config loading |
 | [State management](https://github.com/mpolatcan/ccbell/blob/main/internal/state/state.go) | :books: State management |
+| [Go flag package](https://pkg.go.dev/flag) | :books: CLI flag parsing |

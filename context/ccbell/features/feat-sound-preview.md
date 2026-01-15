@@ -153,12 +153,76 @@ No new hooks needed - preview mode uses existing playback.
 
 Preview mode adds loop control for volume testing scenarios.
 
-### Other Findings
+### Preview Mode Implementation
 
-Preview features:
-- --preview flag for single playback
-- --loop flag for infinite loop (volume testing)
+#### Loop Control Options
+
+**afplay (macOS)**
+- No native loop option
+- Use `-t 0` for infinite duration with external loop control
+- Alternative: run afplay in background, kill on signal
+
+```bash
+# Manual loop control
+while true; do
+    afplay sound.aiff
+    sleep 0.5  # Pause between plays
+done
+```
+
+**aplay (Linux/ALSA)**
+- `-l` flag for loop count (0 = infinite)
+- `aplay -l 0 sound.wav`
+
+**sox (Cross-platform)**
+- `play sound.wav repeat -1` for infinite loop
+- `play sound.wav repeat 3` for 3 plays
+
+#### Volume Testing Pattern
+
+```go
+func PreviewWithVolume(sound string, volume float64, loop bool) {
+    cmd := exec.Command("afplay", "-v", fmt.Sprintf("%f", volume), sound)
+    if loop {
+        // Run in goroutine with interrupt handling
+        go func() {
+            for {
+                cmd.Run()
+            }
+        }()
+        // Wait for interrupt
+        signalChan := make(chan os.Signal, 1)
+        signal.Notify(signalChan, os.Interrupt)
+        <-signalChan
+        cmd.Process.Kill()
+    } else {
+        cmd.Run()
+    }
+}
+```
+
+### Preview Features
+
+- `--preview` flag for single playback
+- `--loop` flag for infinite loop (volume testing)
 - Works with all sound sources (bundled, custom, pack)
+- Volume control during preview
+- Keyboard interrupt to stop loop
+- Progress indicator for long sounds
+- Compare mode for A/B testing
+
+### A/B Testing Workflow
+
+1. Preview sound A with `--preview`
+2. Adjust volume if needed
+3. Preview sound B with `--preview`
+4. Compare and decide
+
+```bash
+# A/B comparison
+/ccbell:test stop --preview --volume 0.5
+/ccbell:test notification --preview --volume 0.5
+```
 
 ## Research Sources
 
@@ -166,4 +230,6 @@ Preview features:
 |--------|-------------|
 | [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Audio player |
 | [Player implementation](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Implementation |
-| [ffplay loop option](https://ffmpeg.org/ffplay.html) | :books: Loop options |
+| [afplay man page](https://ss64.com/osx/afplay.html) | :books: macOS audio playback |
+| [SoX play](http://sox.sourceforge.net/sox.html) | :books: Cross-platform audio tool |
+| [Go exec package](https://pkg.go.dev/os/exec) | :books: Command execution |
