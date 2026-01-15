@@ -43,9 +43,9 @@ Instead of a single sound per event, allow users to define multiple sounds that 
 
 | Aspect | Assessment |
 |--------|------------|
-| :rocket: Priority | `🟢` |
-| :construction: Complexity | `🟢` |
-| :warning: Risk Level | `🟢` |
+| :rocket: Priority | 🟢 Low | |
+| :construction: Complexity | 🟢 Low | |
+| :warning: Risk Level | 🟢 Low | |
 
 ## Feasibility
 
@@ -139,7 +139,7 @@ Steps required in ccbell repository:
 
 | Dependency | Version | Purpose | Required |
 |------------|---------|---------|----------|
-| None | | | `➖` |
+| None | | | ❌ |
 
 ## Status
 

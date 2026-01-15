@@ -43,9 +43,9 @@ Automatically suppress ccbell notifications when the system Do Not Disturb mode 
 
 | Aspect | Assessment |
 |--------|------------|
-| :rocket: Priority | `🔴` |
-| :construction: Complexity | `🟢` |
-| :warning: Risk Level | `🟢` |
+| :rocket: Priority | 🔴 High | |
+| :construction: Complexity | 🟢 Low | |
+| :warning: Risk Level | 🟢 Low | |
 
 ## Feasibility
 

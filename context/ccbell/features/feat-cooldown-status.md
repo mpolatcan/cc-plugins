@@ -43,9 +43,9 @@ Display how much time remains before each event can trigger again. Helps users u
 
 | Aspect | Assessment |
 |--------|------------|
-| :rocket: Priority | `🟢` |
-| :construction: Complexity | `🟢` |
-| :warning: Risk Level | `🟢` |
+| :rocket: Priority | 🟢 Low | |
+| :construction: Complexity | 🟢 Low | |
+| :warning: Risk Level | 🟢 Low | |
 
 ## Feasibility
 
@@ -137,7 +137,7 @@ Steps required in ccbell repository:
 
 | Dependency | Version | Purpose | Required |
 |------------|---------|---------|----------|
-| None | | | `➖` |
+| None | | | ❌ |
 
 ## Status
 

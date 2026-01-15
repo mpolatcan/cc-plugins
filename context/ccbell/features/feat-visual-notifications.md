@@ -43,9 +43,9 @@ Show visual notifications (macOS Notification Center, terminal bell) when Claude
 
 | Aspect | Assessment |
 |--------|------------|
-| :rocket: Priority | `🔴` |
-| :construction: Complexity | `🟢` |
-| :warning: Risk Level | `🟢` |
+| :rocket: Priority | 🔴 High | |
+| :construction: Complexity | 🟢 Low | |
+| :warning: Risk Level | 🟢 Low | |
 
 ## Feasibility
 
@@ -153,11 +153,11 @@ Steps required in ccbell repository:
 | Dependency | Version | Purpose | Required |
 |------------|---------|---------|----------|
 | osascript | macOS | Native AppleScript display notification | `✅` |
-| terminal-notifier | macOS | Advanced macOS notifications with actions | `➖` |
+| terminal-notifier | macOS | Advanced macOS notifications with actions | ❌ |
 | notify-send | Linux | Linux desktop notifications (libnotify) | `✅` |
-| dunstify | Linux | Enhanced notifications for Dunst | `➖` |
-| beeep | Go | Cross-platform Go notification library (macOS, Linux) | `➖` |
-| gorush | 1.10.0+ | Push notification server (APNs, FCM) | `➖` |
+| dunstify | Linux | Enhanced notifications for Dunst | ❌ |
+| beeep | Go | Cross-platform Go notification library (macOS, Linux) | ❌ |
+| gorush | 1.10.0+ | Push notification server (APNs, FCM) | ❌ |
 
 ## Research Details
 

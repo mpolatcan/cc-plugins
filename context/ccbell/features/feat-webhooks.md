@@ -43,9 +43,9 @@ Send HTTP requests to configured URLs when events trigger. Enable integrations w
 
 | Aspect | Assessment |
 |--------|------------|
-| :rocket: Priority | `🔴` |
-| :construction: Complexity | `🟡` |
-| :warning: Risk Level | `🟡` |
+| :rocket: Priority | 🔴 High | |
+| :construction: Complexity | 🟡 Medium | |
+| :warning: Risk Level | 🟡 Medium | |
 
 ## Feasibility
 
@@ -148,7 +148,7 @@ Steps required in ccbell repository:
 
 | Dependency | Version | Purpose | Required |
 |------------|---------|---------|----------|
-| None | net/http | HTTP client | `➖` |
+| None | net/http | HTTP client | ❌ |
 
 ## Research Details
 

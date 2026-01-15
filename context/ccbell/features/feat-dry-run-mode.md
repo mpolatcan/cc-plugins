@@ -43,9 +43,9 @@ Run ccbell in dry run mode to validate configuration and logic without playing s
 
 | Aspect | Assessment |
 |--------|------------|
-| :rocket: Priority | `🔴` |
-| :construction: Complexity | `🟢` |
-| :warning: Risk Level | `🟢` |
+| :rocket: Priority | 🔴 High | |
+| :construction: Complexity | 🟢 Low | |
+| :warning: Risk Level | 🟢 Low | |
 
 ## Feasibility
 
@@ -137,7 +137,7 @@ Steps required in ccbell repository:
 
 | Dependency | Version | Purpose | Required |
 |------------|---------|---------|----------|
-| None | | | `➖` |
+| None | | | ❌ |
 
 ## Status
 

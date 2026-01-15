@@ -43,9 +43,9 @@ Simplified configuration mode with fewer options for users who want simplicity. 
 
 | Aspect | Assessment |
 |--------|------------|
-| :rocket: Priority | `🟡` |
-| :construction: Complexity | `🟢` |
-| :warning: Risk Level | `🟢` |
+| :rocket: Priority | 🟡 Medium | |
+| :construction: Complexity | 🟢 Low | |
+| :warning: Risk Level | 🟢 Low | |
 
 ## Feasibility
 
@@ -138,7 +138,7 @@ Steps required in ccbell repository:
 
 | Dependency | Version | Purpose | Required |
 |------------|---------|---------|----------|
-| None | | | `➖` |
+| None | | | ❌ |
 
 ## Status
 

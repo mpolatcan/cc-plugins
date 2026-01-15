@@ -43,9 +43,9 @@ Play spoken announcements instead of (or alongside) audio files. Announce events
 
 | Aspect | Assessment |
 |--------|------------|
-| :rocket: Priority | `🟢` |
-| :construction: Complexity | `🔴` |
-| :warning: Risk Level | `🔴` |
+| :rocket: Priority | 🟢 Low | |
+| :construction: Complexity | 🔴 High | |
+| :warning: Risk Level | 🔴 High | |
 
 ## Feasibility
 
