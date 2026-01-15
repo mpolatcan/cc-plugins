@@ -268,15 +268,68 @@ TTS output played through audio player or native command.
   - Minimal memory footprint
 - **Best For**: Go integration, performance-critical applications
 
+#### 11. ChatTTS (Dialogue-Optimized)
+- **URL**: https://github.com/2noise/ChatTTS
+- **Purpose**: TTS designed for dialogue scenarios (LLM assistants)
+- **Key Features**:
+  - Optimized for conversational AI
+  - Natural prosody and emotion
+  - Supports笑声 (laughter) tokens
+  - Chinese and English support
+- **BentoML Integration**: https://github.com/bentoml/BentoChatTTS
+- **Best For**: LLM assistant applications, conversational interfaces
+
+#### 12. Larynx (Offline TTS)
+- **URL**: https://github.com/rhasspy/larynx
+- **Purpose**: Offline, open-source TTS library
+- **Key Features**:
+  - Optimized for low-power devices
+  - Multiple voice models
+  - Can use Piper models
+- **Best For**: Embedded systems, offline-first applications
+
+#### 13. OpenAI TTS-compatible APIs
+For cloud or API-based TTS with local fallback:
+
+| Provider | Quality | Cost | Latency |
+|----------|---------|------|---------|
+| OpenAI TTS | Excellent | Pay-per-use | Low |
+| ElevenLabs | Excellent | Subscription | Low |
+| Speechmatics | Excellent | Enterprise | Low |
+
+### BentoML Deployment for TTS
+
+**BentoML** simplifies packaging and serving TTS models:
+
+```python
+# bentoml service for Piper TTS
+import bentoml
+from bentoml.io import AudioIO
+
+runner = bentoml.piper.get("piper:latest").to_runner()
+svc = bentoml.Service("piper-tts", runners=[runner])
+
+@svc.api(input=AudioIO(), output=AudioIO())
+def synthesize(text):
+    return runner.generate.sync(text)
+```
+
+**Benefits**:
+- One-command model serving
+- Auto-generated APIs
+- Scaling and batching
+- Multiple model support
+
 ### TTS Features Summary
 
-- Multiple engine support (say, piper, kokoro, neutts-air, neutts-nano, orpheus, melo-tts, kyutai)
+- Multiple engine support (say, piper, kokoro, neutts-air, neutts-nano, orpheus, melo-tts, kyutai, chat-tts, larynx)
 - Configurable phrases per event
 - Voice selection per engine
 - Caching for performance
 - Works alongside or instead of sounds
 - Voice cloning support (NeuTTS Air, Kokoro, Orpheus, XTTS-v2)
 - CPU-optimized options for resource-constrained environments
+- BentoML deployment for production serving
 
 ## Research Sources
 
@@ -293,6 +346,9 @@ TTS output played through audio player or native command.
 | [Kyutai Pocket TTS](https://kyutai.org/tts) | :books: Kyutai Pocket TTS - 100M parameter CPU-real-time TTS (Jan 2026) |
 | [MeloTTS - GitHub](https://github.com/myshell-ai/MeloTTS) | :books: MeloTTS - Multi-lingual lightweight CPU-optimized TTS |
 | [MeloTTS.cpp - GitHub](https://github.com/apinge/MeloTTS.cpp) | :books: Pure C++ implementation for Go integration |
+| [ChatTTS - GitHub](https://github.com/2noise/ChatTTS) | :books: ChatTTS - Dialogue-optimized TTS for LLM assistants |
+| [BentoChatTTS - BentoML](https://github.com/bentoml/BentoChatTTS) | :books: BentoChatTTS - ChatTTS deployment with BentoML |
+| [Larynx - GitHub](https://github.com/rhasspy/larynx) | :books: Larynx - Offline TTS library |
 | [The Top Open-Source TTS Models - Modal](https://modal.com/blog/open-source-tts) | :books: Comparison of open-source TTS models |
 | [BentoML - Open Source TTS Models 2026](https://www.bentoml.com/blog/exploring-the-world-of-open-source-text-to-speech-models) | :books: Comprehensive TTS model comparison |
 | [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Audio player |

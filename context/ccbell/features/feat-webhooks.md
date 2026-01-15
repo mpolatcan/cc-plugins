@@ -417,6 +417,34 @@ Content-Type: application/json
   - Connect to external services
 - **Best For**: WordPress users, low-cost self-hosted
 
+#### 16. Shakudo (Data Workflow Platform)
+- **URL**: https://www.shakudo.io/
+- **Cost**: Cloud and self-hosted options
+- **Features**:
+  - AI workflow automation
+  - n8n integration partnership
+  - Data pipeline orchestration
+  - Multiple framework support
+- **Webhook Handling**:
+  - HTTP endpoints for triggers
+  - Connect to n8n workflows
+  - Data transformation pipelines
+- **Best For**: Data teams, AI/ML workflows, enterprise automation
+
+#### 17. Lindy (AI Agent Platform)
+- **URL**: https://www.lindy.ai/
+- **Cost**: Free tier, paid plans available
+- **Features**:
+  - AI-powered workflow automation
+  - 20+ AI agents for different tasks
+  - Customizable workflows
+  - Email, calendar, and task management
+- **Webhook Handling**:
+  - Receive webhooks as triggers
+  - AI-powered response handling
+  - Multi-channel notifications
+- **Best For**: AI-assisted automation, productivity workflows
+
 ### Webhook Security Considerations
 
 | Aspect | Recommendation |
@@ -453,8 +481,9 @@ Content-Type: application/json
 - Payload transformation support
 - Rich media support (Slack, Discord, Telegram)
 - Multi-channel routing via n8n/IFTTT/Zapier
-- Self-hosted alternatives (Activepieces, Windmill, Node-RED)
+- Self-hosted alternatives (Activepieces, Windmill, Node-RED, Shakudo)
 - Developer-focused options (Pipedream, custom endpoints)
+- AI-powered automation (Lindy, Activepieces AI)
 
 ## Research Sources
 
@@ -474,5 +503,7 @@ Content-Type: application/json
 | [Node-RED](https://nodered.org/) | :books: Low-code flow-based automation |
 | [Pipedream](https://pipedream.com/) | :books: Developer automation platform |
 | [Bit Flows](https://bit-flows.com/) | :books: WordPress-based self-hosted automation |
+| [Shakudo](https://www.shakudo.io/) | :books: AI workflow automation platform |
+| [Lindy AI](https://www.lindy.ai/) | :books: AI agent platform for automation |
 | [Go net/http package](https://pkg.go.dev/net/http) | :books: HTTP client |
 | [Main flow](https://github.com/mpolatcan/ccbell/blob/main/cmd/ccbell/main.go) | :books: Main flow |

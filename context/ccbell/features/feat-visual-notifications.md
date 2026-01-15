@@ -148,6 +148,7 @@ Steps required in ccbell repository:
 | notify-send | Linux | Linux desktop notifications (libnotify) | `[Yes]` |
 | dunstify | Linux | Enhanced notifications for Dunst | `[No]` |
 | beeep | Go | Cross-platform Go notification library (macOS, Linux) | `[No]` |
+| gorush | 1.10.0+ | Push notification server (APNs, FCM) | `[No]` |
 
 ## Research Details
 
@@ -162,6 +163,38 @@ No new hooks needed - visual notifications integrated into main flow.
 ### Audio Playback
 
 Visual notifications work alongside or instead of audio.
+
+### GoPush - Push Notification Server
+
+**gorush** is a Go push notification server that supports multiple platforms:
+
+- **URL**: https://github.com/appleboy/gorush
+- **Install**: `go install github.com/appleboy/gorush@latest`
+- **Features**:
+  - Apple Push Notification service (APNs)
+  - Firebase Cloud Messaging (FCM)
+  - Simple HTTP API for sending notifications
+  - YAML/JSON configuration
+  - Metrics and logging
+- **Use Case**: Send notifications to mobile devices when Claude Code events trigger
+
+```go
+// gorush API call example
+func SendPushNotification(message, title string) error {
+    payload := map[string]interface{}{
+        "notifications": []map[string]interface{}{
+            {
+                "tokens":   []string{"device_token"},
+                "platform": 1, // 1=iOS, 2=Android
+                "message":  message,
+                "title":    title,
+            },
+        },
+    }
+    // POST to gorush HTTP API
+    return nil
+}
+```
 
 ### Visual Notification Tool Options Research
 
@@ -303,6 +336,7 @@ echo -e "\033[?5h\033[?5l"
 | [Dunst - GitHub](https://github.com/dunst-project/dunst) | :books: Lightweight notification daemon |
 | [Dunst - ArchWiki](https://wiki.archlinux.org/title/Dunst) | :books: Dunst configuration guide |
 | [beeep - Go Packages](https://pkg.go.dev/github.com/gen2brain/beeep) | :books: Cross-platform Go notification library |
+| [gorush - GitHub](https://github.com/appleboy/gorush) | :books: Push notification server (APNs, FCM) |
 | [ANSI Escape Codes - GitHub Gist](https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797) | :books: ANSI escape codes reference |
 | [Terminal Notifications from Scripts](https://swissmacuser.ch/native-macos-notifications-from-terminal-scripts/) | :books: macOS terminal notifications guide |
 | [Linux Desktop Notifications](https://opensource.com/article/22/1/linux-desktop-notifications) | :books: Linux notifications tutorial |

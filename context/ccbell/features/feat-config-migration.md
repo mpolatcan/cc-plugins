@@ -224,11 +224,64 @@ func DryRunMigration(config Config) (MigrationResult, error) {
 - Rollback capability with backup
 - Migration log for audit trail
 
+### File Watching for Config Changes
+
+Use **fsnotify** to watch for config file changes during migration:
+
+```go
+import "github.com/fsnotify/fsnotify"
+
+func WatchConfigMigration(watcher *fsnotify.Watcher, configPath string) error {
+    done := make(chan bool)
+
+    go func() {
+        for {
+            select {
+            case event, ok := <-watcher.Events:
+                if !ok {
+                    return
+                }
+                if event.Op&fsnotify.Write == fsnotify.Write {
+                    // Config file was modified - reload and migrate
+                    config, err := LoadWithMigration(configPath)
+                    if err != nil {
+                        log.Printf("Migration failed: %v", err)
+                        continue
+                    }
+                    log.Printf("Config migrated to version %s", config.Version)
+                }
+            case err, ok := <-watcher.Errors:
+                if !ok {
+                    return
+                }
+                log.Printf("Watcher error: %v", err)
+            }
+        }
+    }()
+
+    // Add config file to watcher
+    err := watcher.Add(configPath)
+    if err != nil {
+        return err
+    }
+
+    <-done
+    return nil
+}
+```
+
+**fsnotify Features**:
+- Cross-platform (Windows, Linux, macOS, BSD)
+- Simple event-based watching
+- No polling required
+- Efficient file system monitoring
+
 ## Research Sources
 
 | Source | Description |
 |--------|-------------|
 | [Semantic Versioning](https://semver.org/) | :books: Version specification |
 | [Go JSON Package](https://pkg.go.dev/encoding/json) | :books: JSON encoding/decoding |
+| [fsnotify - GitHub](https://github.com/fsnotify/fsnotify) | :books: Cross-platform file watching library |
 | [Config loading](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) | :books: Current config loading implementation |
 | [Config validation](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go#L127-L175) | :books: Schema validation approach |
