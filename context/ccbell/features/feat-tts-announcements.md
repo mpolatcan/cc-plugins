@@ -202,9 +202,9 @@ TTS output played through audio player or native command.
   - Fast, local neural TTS
   - Multiple high-quality voices available
   - Easy installation via pip (`pip install piper-tts`)
-  - Cross-platform (Windows, Linux, macOS)
+  - Cross-platform (Linux, macOS)
 - **GitHub**: https://github.com/rhasspy/piper
-- **Best For**: Low-resource environments, Raspberry Pi部署
+- **Best For**: Low-resource environments, Raspberry Pi
 
 #### 5. Orpheus TTS
 - **Parameters**: 3B (Llama-3b backbone)
