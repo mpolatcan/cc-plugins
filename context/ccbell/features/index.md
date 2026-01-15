@@ -19,64 +19,43 @@ Feasible feature ideas for ccbell as a Claude Code plugin. All features are eval
 
 ---
 
-## Features
+## Features (Ordered by Priority, then Complexity)
 
-| Feature | Summary | Benefit | File | Feasibility |
-|---------|---------|---------|------|-------------|
-| **Visual Notifications** 👁️ | Show visual alerts (notifications, terminal bell) | Accessibility + noise-restricted environments | [feat-visual-notifications.md](feat-visual-notifications.md) | ✅ Compatible |
-| **Per-Workspace Config** 📂 | Project-specific notification settings | Context-aware notifications per workspace | [feat-per-workspace-config.md](feat-per-workspace-config.md) | ✅ Compatible |
-| **Webhooks** 🔗 | HTTP notifications to Slack, IFTTT, etc. | Team awareness + automation triggers | [feat-webhooks.md](feat-webhooks.md) | ⚠️ Needs timeout handling |
-| **Sound Packs** 🎁 | Bundle sounds for all events | One-click themed notification setups | [feat-sound-packs.md](feat-sound-packs.md) | ✅ Compatible |
-| **Event Filtering** 🔍 | Conditional notifications | Focus on relevant events only | [feat-event-filtering.md](feat-event-filtering.md) | ✅ Compatible |
-| **Quick Disable** ⏸️ | Temporary silence for 15min/1hr/4hr | Instant focus without config changes | [feat-quick-disable.md](feat-quick-disable.md) | ✅ Compatible |
-| **Weekday/Weekend Schedules** 📅 | Different quiet hours per day type | Work-life balance automation | [feat-weekday-weekend-schedules.md](feat-weekday-weekend-schedules.md) | ✅ Compatible |
-| **Sound Preview** 👂 | Hear sounds before selecting | Informed configuration choices | [feat-sound-preview.md](feat-sound-preview.md) | ✅ Compatible |
-| **TTS Announcements** 🗣️ | Spoken event notifications | Accessibility + rich context | [feat-tts-announcements.md](feat-tts-announcements.md) | ⚠️ External deps required |
-| **Sound Randomization** 🎲 | Cycle through multiple sounds | Reduced notification fatigue | [feat-sound-randomization.md](feat-sound-randomization.md) | ✅ Compatible |
-| **Export/Import Config** 📤 | Share configuration files | Team standardization + backup | [feat-export-import-config.md](feat-export-import-config.md) | ✅ Compatible |
-| **Notification Stacking** 📚 | Queue rapid events sequentially | Clearer, non-overlapping sounds | [feat-notification-stacking.md](feat-notification-stacking.md) | ✅ Compatible |
-| **Notification Throttling** 🚦 | Limit notifications per time window | Reduced audio chaos | [feat-notification-throttling.md](feat-notification-throttling.md) | ✅ Compatible |
-| **Cooldown Status** ⏱️ | Show time until next notification | Transparent behavior + debugging | [feat-cooldown-status.md](feat-cooldown-status.md) | ✅ Compatible |
-| **Config Validation** ✅ | Check config for errors | Faster debugging + error prevention | [feat-config-validation.md](feat-config-validation.md) | ✅ Compatible |
-| **Config Migration** 📁 | Auto-update old config formats | Zero-downtime upgrades | [feat-config-migration.md](feat-config-migration.md) | ✅ Compatible |
-| **Notification Logging** 📋 | Log all notification events | Debugging + pattern analysis | [feat-notification-logging.md](feat-notification-logging.md) | ✅ Compatible |
-| **Minimal Mode** 🎯 | Simplified configuration | Faster onboarding + reduced decisions | [feat-minimal-mode.md](feat-minimal-mode.md) | ✅ Compatible |
-| **Event Aliases** 🔄 | Custom event names | Personalized workflow + team standards | [feat-event-aliases.md](feat-event-aliases.md) | ✅ Compatible |
-| **Sound Validation** 🔎 | Check sound files before use | Proactive issue detection | [feat-sound-validation.md](feat-sound-validation.md) | ✅ Compatible |
-| **Global Volume Override** 🔊 | CLI flag for volume | Session-based volume control | [feat-global-volume-override.md](feat-global-volume-override.md) | ✅ Compatible |
-| **Dry-Run Mode** 🧪 | Test without playing sounds | Noise-free debugging + CI integration | [feat-dry-run-mode.md](feat-dry-run-mode.md) | ✅ Compatible |
-| **DnD Integration** 🔕 | Respect system Do Not Disturb | Seamless focus + meeting-friendly | [feat-dnd-integration.md](feat-dnd-integration.md) | ✅ Compatible |
+| Feature | Summary | Priority | Complexity | File | Feasibility |
+|---------|---------|----------|------------|------|-------------|
+| **Visual Notifications** 👁️ | Show visual alerts (notifications, terminal bell) | 🔴 High | 🟢 Low | [feat-visual-notifications.md](feat-visual-notifications.md) | ✅ Compatible |
+| **Webhooks** 🔗 | HTTP notifications to Slack, IFTTT, etc. | 🔴 High | 🟡 Medium | [feat-webhooks.md](feat-webhooks.md) | ⚠️ Needs timeout handling |
+| **Sound Packs** 🎁 | Bundle sounds for all events | 🟡 Medium | 🟢 Low | [feat-sound-packs.md](feat-sound-packs.md) | ✅ Compatible |
+| **Config Validation** ✅ | Check config for errors | 🟡 Medium | 🟢 Low | [feat-config-validation.md](feat-config-validation.md) | ✅ Compatible |
+| **Event Filtering** 🔍 | Conditional notifications | 🟡 Medium | 🟢 Low | [feat-event-filtering.md](feat-event-filtering.md) | ✅ Compatible |
+| **Quick Disable** ⏸️ | Temporary silence for 15min/1hr/4hr | 🟡 Medium | 🟢 Low | [feat-quick-disable.md](feat-quick-disable.md) | ✅ Compatible |
+| **Export/Import Config** 📤 | Share configuration files | 🟡 Medium | 🟢 Low | [feat-export-import-config.md](feat-export-import-config.md) | ✅ Compatible |
+| **Event Aliases** 🔄 | Custom event names | 🟡 Medium | 🟢 Low | [feat-event-aliases.md](feat-event-aliases.md) | ✅ Compatible |
+| **Sound Validation** 🔎 | Check sound files before use | 🟡 Medium | 🟢 Low | [feat-sound-validation.md](feat-sound-validation.md) | ✅ Compatible |
+| **Dry-Run Mode** 🧪 | Test without playing sounds | 🟡 Medium | 🟢 Low | [feat-dry-run-mode.md](feat-dry-run-mode.md) | ✅ Compatible |
+| **Per-Workspace Config** 📂 | Project-specific notification settings | 🟡 Medium | 🟢 Low | [feat-per-workspace-config.md](feat-per-workspace-config.md) | ✅ Compatible |
+| **Weekday/Weekend Schedules** 📅 | Different quiet hours per day type | 🟡 Medium | 🟢 Low | [feat-weekday-weekend-schedules.md](feat-weekday-weekend-schedules.md) | ✅ Compatible |
+| **Sound Preview** 👂 | Hear sounds before selecting | 🟡 Medium | 🟢 Low | [feat-sound-preview.md](feat-sound-preview.md) | ✅ Compatible |
+| **Sound Randomization** 🎲 | Cycle through multiple sounds | 🟡 Medium | 🟢 Low | [feat-sound-randomization.md](feat-sound-randomization.md) | ✅ Compatible |
+| **DnD Integration** 🔕 | Respect system Do Not Disturb | 🟢 Low | 🟢 Low | [feat-dnd-integration.md](feat-dnd-integration.md) | ✅ Compatible |
+| **Global Volume Override** 🔊 | CLI flag for volume | 🟢 Low | 🟢 Low | [feat-global-volume-override.md](feat-global-volume-override.md) | ✅ Compatible |
+| **Cooldown Status** ⏱️ | Show time until next notification | 🟢 Low | 🟢 Low | [feat-cooldown-status.md](feat-cooldown-status.md) | ✅ Compatible |
+| **Minimal Mode** 🎯 | Simplified configuration | 🟢 Low | 🟢 Low | [feat-minimal-mode.md](feat-minimal-mode.md) | ✅ Compatible |
+| **Notification Logging** 📋 | Log all notification events | 🟢 Low | 🟢 Low | [feat-notification-logging.md](feat-notification-logging.md) | ✅ Compatible |
+| **Notification Stacking** 📚 | Queue rapid events sequentially | 🟢 Low | 🟡 Medium | [feat-notification-stacking.md](feat-notification-stacking.md) | ✅ Compatible |
+| **Notification Throttling** 🚦 | Limit notifications per time window | 🟢 Low | 🟡 Medium | [feat-notification-throttling.md](feat-notification-throttling.md) | ✅ Compatible |
+| **Config Migration** 📁 | Auto-update old config formats | 🟢 Low | 🟡 Medium | [feat-config-migration.md](feat-config-migration.md) | ✅ Compatible |
+| **TTS Announcements** 🗣️ | Spoken event notifications | 🟢 Low | 🔴 High | [feat-tts-announcements.md](feat-tts-announcements.md) | ⚠️ External deps required |
 
 ---
 
-## Implementation Priorities
+## Priority & Complexity Legend
 
-### Phase 1: Quick Wins (High Impact, Low Effort)
-
-1. **Visual Notifications** 👁️ - High impact, uses built-in tools
-2. **Per-Workspace Config** 📂 - Simple file check in CWD
-3. **Quick Disable** ⏸️ - Timestamp-based toggle
-4. **Event Aliases** 🔄 - Simple mapping
-5. **Dry-Run Mode** 🧪 - Test without playing sounds
-6. **Sound Preview** 👂 - Quick `afplay` with duration
-7. **Config Validation** ✅ - Enhance existing checks
-8. **Sound Validation** 🔎 - File existence checks
-
-### Phase 2: Medium Effort
-
-1. **Sound Packs** 🎁 - Download from GitHub releases
-2. **Weekday/Weekend Schedules** 📅 - `date +%u` check
-3. **DnD Integration** 🔕 - Check macOS `defaults read`
-4. **Event Filtering** 🔍 - Regex/token filtering
-5. **Export/Import Config** 📤 - JSON serialization
-6. **Sound Randomization** 🎲 - Simple randomization
-
-### Phase 3: External Dependencies
-
-1. **Webhooks** 🔗 - `curl` based, needs timeout handling
-2. **TTS Announcements** 🗣️ - macOS `say` only
-3. **Notification Stacking** 📚 - Queue to temp file
-4. **Notification Logging** 📋 - Append to log file
+| Symbol | Priority Meaning | Complexity Meaning |
+|--------|------------------|-------------------|
+| 🔴 High | Core feature, high user demand | Significant implementation effort |
+| 🟡 Medium | Useful enhancement | Moderate implementation effort |
+| 🟢 Low | Nice to have, lower urgency | Simple implementation |
 
 ---
 
@@ -86,7 +65,55 @@ Feasible feature ideas for ccbell as a Claude Code plugin. All features are eval
 |--------|---------|
 | ✅ Compatible | Fully compatible with Claude Code plugin constraints |
 | ⚠️ Needs Attention | Requires careful implementation (timeout, platform-specific) |
-| ❌ Not Compatible | Removed - not feasible for Claude Code plugin |
+| ❌ Not Compatible | Not feasible for Claude Code plugin |
+
+---
+
+## Implementation Roadmap
+
+### Phase 1: Quick Wins (High Priority, Low Complexity)
+
+Features that deliver immediate value with minimal effort.
+
+| Feature | Why Quick |
+|---------|-----------|
+| **Visual Notifications** 👁️ | Uses built-in tools (`osascript`, `notify-send`) |
+| **Config Validation** ✅ | Extends existing checks |
+| **Event Aliases** 🔄 | Simple mapping logic |
+| **Quick Disable** ⏸️ | Timestamp-based toggle |
+| **Sound Preview** 👂 | Single `afplay` call with duration |
+| **Sound Validation** 🔎 | File existence check |
+| **Dry-Run Mode** 🧪 | Skip audio playback |
+| **Per-Workspace Config** 📂 | Check for config in CWD |
+
+### Phase 2: Medium Effort (Medium Priority)
+
+Features that require more planning but deliver solid value.
+
+| Feature | Complexity | Notes |
+|---------|------------|-------|
+| **Webhooks** 🔗 | 🟡 Medium | Needs timeout handling |
+| **Sound Packs** 🎁 | 🟢 Low | Download from GitHub |
+| **Event Filtering** 🔍 | 🟢 Low | Regex/token filtering |
+| **Export/Import Config** 📤 | 🟢 Low | JSON serialization |
+| **Sound Randomization** 🎲 | 🟢 Low | Simple randomization |
+| **Weekday/Weekend Schedules** 📅 | 🟢 Low | `date +%u` check |
+| **DnD Integration** 🔕 | 🟢 Low | Check `defaults read` (macOS) |
+
+### Phase 3: Advanced (Low Priority or High Complexity)
+
+Features with external dependencies or significant complexity.
+
+| Feature | Complexity | Notes |
+|---------|------------|-------|
+| **TTS Announcements** 🗣️ | 🔴 High | Requires TTS engine (`say`, `piper`, `kokoro`) |
+| **Notification Stacking** 📚 | 🟡 Medium | Queue management |
+| **Notification Throttling** 🚦 | 🟡 Medium | Time window tracking |
+| **Config Migration** 📁 | 🟡 Medium | Format versioning |
+| **Notification Logging** 📋 | 🟢 Low | File append |
+| **Minimal Mode** 🎯 | 🟢 Low | UI simplification |
+| **Global Volume Override** 🔊 | 🟢 Low | CLI flag |
+| **Cooldown Status** ⏱️ | 🟢 Low | Time calculation |
 
 ---
 
