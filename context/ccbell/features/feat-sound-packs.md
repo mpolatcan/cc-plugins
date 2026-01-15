@@ -20,7 +20,7 @@ Allow users to browse, preview, and install sound packs that bundle sounds for a
 6. [Repository Impact](#repository-impact)
    - [cc-plugins](#cc-plugins)
    - [ccbell](#ccbell)
-7. [Implementation](#implementation)
+7. [Implementation Plan](#implementation-plan)
    - [cc-plugins](#cc-plugins-1)
    - [ccbell](#ccbell-1)
 8. [External Dependencies](#external-dependencies-1)
@@ -110,34 +110,30 @@ Files that may be affected in ccbell:
 | `audio/player.go` | :speaker: Extend ResolveSoundPath() for pack scheme |
 | `hooks/*.go` | :hook: Hook implementations (no change) |
 
-## Implementation
+## Implementation Plan
 
 ### cc-plugins
 
 Steps required in cc-plugins repository:
 
-```bash
-# 1. Update plugin.json version
-# 2. Update ccbell.sh if needed
-# 3. Add/update command documentation
-# 4. Add/update hooks configuration
-# 5. Add new sound files if applicable
-```
+1. Update plugin.json version
+2. Update ccbell.sh if needed
+3. Add/update command documentation
+4. Add/update hooks configuration
+5. Add new sound files if applicable
 
 ### ccbell
 
 Steps required in ccbell repository:
 
-```bash
-# 1. Add packs section to config structure
-# 2. Create internal/pack/packs.go
-# 3. Implement PackManager with List/Install/Use/Uninstall methods
-# 4. Extend ResolveSoundPath() to handle pack: scheme
-# 5. Add packs command with browse/preview/install/use options
-# 6. Update version in main.go
-# 7. Tag and release vX.X.X
-# 8. Sync version to cc-plugins
-```
+1. Add packs section to config structure
+2. Create internal/pack/packs.go
+3. Implement PackManager with List/Install/Use/Uninstall methods
+4. Extend ResolveSoundPath() to handle pack: scheme
+5. Add packs command with browse/preview/install/use options
+6. Update version in main.go
+7. Tag and release vX.X.X
+8. Sync version to cc-plugins
 
 ## External Dependencies
 

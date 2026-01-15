@@ -20,7 +20,7 @@ Play spoken announcements instead of (or alongside) audio files. Announce events
 6. [Repository Impact](#repository-impact)
    - [cc-plugins](#cc-plugins)
    - [ccbell](#ccbell)
-7. [Implementation](#implementation)
+7. [Implementation Plan](#implementation-plan)
    - [cc-plugins](#cc-plugins-1)
    - [ccbell](#ccbell-1)
 8. [External Dependencies](#external-dependencies-1)
@@ -110,35 +110,31 @@ Files that may be affected in ccbell:
 | `audio/player.go` | :speaker: TTS integration with audio playback |
 | `hooks/*.go` | :hook: Hook implementations (no change) |
 
-## Implementation
+## Implementation Plan
 
 ### cc-plugins
 
 Steps required in cc-plugins repository:
 
-```bash
-# 1. Update plugin.json version
-# 2. Update ccbell.sh if needed
-# 3. Add/update command documentation
-# 4. Add/update hooks configuration
-# 5. Add new sound files if applicable
-```
+1. Update plugin.json version
+2. Update ccbell.sh if needed
+3. Add/update command documentation
+4. Add/update hooks configuration
+5. Add new sound files if applicable
 
 ### ccbell
 
 Steps required in ccbell repository:
 
-```bash
-# 1. Add tts section to config structure
-# 2. Create internal/tts/tts.go
-# 3. Implement TTSManager with Speak() method
-# 4. Support multiple engines: say (macOS), piper, kokoro
-# 5. Add caching for generated speech
-# 6. Add tts command with configure/voices/test options
-# 7. Update version in main.go
-# 8. Tag and release vX.X.X
-# 9. Sync version to cc-plugins
-```
+1. Add tts section to config structure
+2. Create internal/tts/tts.go
+3. Implement TTSManager with Speak() method
+4. Support multiple engines: say (macOS), piper, kokoro
+5. Add caching for generated speech
+6. Add tts command with configure/voices/test options
+7. Update version in main.go
+8. Tag and release vX.X.X
+9. Sync version to cc-plugins
 
 ## External Dependencies
 

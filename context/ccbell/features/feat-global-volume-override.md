@@ -20,7 +20,7 @@ Temporarily adjust notification volume without modifying the config file, using 
 6. [Repository Impact](#repository-impact)
    - [cc-plugins](#cc-plugins)
    - [ccbell](#ccbell)
-7. [Implementation](#implementation)
+7. [Implementation Plan](#implementation-plan)
    - [cc-plugins](#cc-plugins-1)
    - [ccbell](#ccbell-1)
 8. [External Dependencies](#external-dependencies-1)
@@ -110,31 +110,27 @@ Files that may be affected in ccbell:
 | `audio/player.go` | :speaker: Accept volume override in Play() |
 | `hooks/*.go` | :hook: Hook implementations (no change) |
 
-## Implementation
+## Implementation Plan
 
 ### cc-plugins
 
 Steps required in cc-plugins repository:
 
-```bash
-# 1. Update plugin.json version
-# 2. Update ccbell.sh if needed
-# 3. Add/update command documentation
-# 4. Add/update hooks configuration
-# 5. Add new sound files if applicable
-```
+1. Update plugin.json version
+2. Update ccbell.sh if needed
+3. Add/update command documentation
+4. Add/update hooks configuration
+5. Add new sound files if applicable
 
 ### ccbell
 
 Steps required in ccbell repository:
 
-```bash
-# 1. Add -v/--volume flag to main command
-# 2. Pass volume override to player.Play()
-# 3. Update version in main.go
-# 4. Tag and release vX.X.X
-# 5. Sync version to cc-plugins
-```
+1. Add -v/--volume flag to main command
+2. Pass volume override to player.Play()
+3. Update version in main.go
+4. Tag and release vX.X.X
+5. Sync version to cc-plugins
 
 ## External Dependencies
 

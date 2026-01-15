@@ -20,7 +20,7 @@ Run ccbell in dry run mode to validate configuration and logic without playing s
 6. [Repository Impact](#repository-impact)
    - [cc-plugins](#cc-plugins)
    - [ccbell](#ccbell)
-7. [Implementation](#implementation)
+7. [Implementation Plan](#implementation-plan)
    - [cc-plugins](#cc-plugins-1)
    - [ccbell](#ccbell-1)
 8. [External Dependencies](#external-dependencies-1)
@@ -110,32 +110,28 @@ Files that may be affected in ccbell:
 | `audio/player.go` | :speaker: Audio playback logic (add dry-run support) |
 | `hooks/*.go` | :hook: Hook implementations (no change) |
 
-## Implementation
+## Implementation Plan
 
 ### cc-plugins
 
 Steps required in cc-plugins repository:
 
-```bash
-# 1. Update plugin.json version
-# 2. Update ccbell.sh if needed
-# 3. Add/update command documentation
-# 4. Add/update hooks configuration
-# 5. Add new sound files if applicable
-```
+1. Update plugin.json version
+2. Update ccbell.sh if needed
+3. Add/update command documentation
+4. Add/update hooks configuration
+5. Add new sound files if applicable
 
 ### ccbell
 
 Steps required in ccbell repository:
 
-```bash
-# 1. Add --dry-run flag to main command
-# 2. Skip player.Play() when dry-run is true
-# 3. Print event, sound, volume, and skip reasons
-# 4. Update version in main.go
-# 5. Tag and release vX.X.X
-# 6. Sync version to cc-plugins
-```
+1. Add --dry-run flag to main command
+2. Skip player.Play() when dry-run is true
+3. Print event, sound, volume, and skip reasons
+4. Update version in main.go
+5. Tag and release vX.X.X
+6. Sync version to cc-plugins
 
 ## External Dependencies
 

@@ -20,7 +20,7 @@ Brief one-line description of the feature.
 6. [Repository Impact](#repository-impact)
    - [cc-plugins](#cc-plugins)
    - [ccbell](#ccbell)
-7. [Implementation](#implementation)
+7. [Implementation Plan](#implementation-plan)
    - [cc-plugins](#cc-plugins-1)
    - [ccbell](#ccbell-1)
 8. [External Dependencies](#external-dependencies-1)
@@ -110,33 +110,29 @@ Files that may be affected in ccbell:
 | `audio/player.go` | :speaker: Audio playback logic |
 | `hooks/*.go` | :hook: Hook implementations |
 
-## Implementation
+## Implementation Plan
 
 ### cc-plugins
 
 Steps required in cc-plugins repository:
 
-```bash
-# 1. Update plugin.json version
-# 2. Update ccbell.sh if needed
-# 3. Add/update command documentation
-# 4. Add/update hooks configuration
-# 5. Add new sound files if applicable
-```
+1. Update plugin.json version
+2. Update ccbell.sh if needed
+3. Add/update command documentation
+4. Add/update hooks configuration
+5. Add new sound files if applicable
 
 ### ccbell
 
 Steps required in ccbell repository:
 
-```bash
-# 1. Implement feature in Go code
-# 2. Update configuration handling
-# 3. Add necessary hooks
-# 4. Test audio playback
-# 5. Update version in main.go
-# 6. Tag and release vX.X.X
-# 7. Sync version to cc-plugins
-```
+1. Implement feature in Go code
+2. Update configuration handling
+3. Add necessary hooks
+4. Test audio playback
+5. Update version in main.go
+6. Tag and release vX.X.X
+7. Sync version to cc-plugins
 
 ## External Dependencies
 
