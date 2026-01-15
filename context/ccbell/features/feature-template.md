@@ -1,7 +1,7 @@
 ---
 name: FEATURE_NAME
 description: Brief description of the feature
-category: Control | Audio | Configuration | Utility | Integration | Events
+category: sound | notification | config | core
 ---
 
 # Feature: Feature Name

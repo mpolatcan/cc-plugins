@@ -1,7 +1,7 @@
 ---
 name: Dry Run Mode
 description: Run ccbell in dry run mode to validate configuration and logic without playing sounds
-category: Utility
+category: core
 ---
 
 # Feature: Dry Run Mode

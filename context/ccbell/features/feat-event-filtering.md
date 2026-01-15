@@ -1,7 +1,7 @@
 ---
 name: Event Filtering
 description: Only trigger notifications when specific conditions are met
-category: Control
+category: notification
 ---
 
 # Feature: Event Filtering

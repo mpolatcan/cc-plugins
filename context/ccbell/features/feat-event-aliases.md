@@ -1,7 +1,7 @@
 ---
 name: Event Aliases
 description: Define custom event names that map to existing events for flexibility
-category: Utility
+category: core
 ---
 
 # Feature: Event Aliases

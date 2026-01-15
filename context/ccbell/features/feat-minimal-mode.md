@@ -1,7 +1,7 @@
 ---
 name: Minimal Mode
 description: Simplified configuration mode with fewer options for users who want simplicity
-category: Configuration
+category: config
 ---
 
 # Feature: Minimal Mode

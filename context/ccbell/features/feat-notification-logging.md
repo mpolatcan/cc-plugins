@@ -1,7 +1,7 @@
 ---
 name: Notification Logging
 description: Maintain a detailed log of all notification events for debugging and analysis
-category: Utility
+category: core
 ---
 
 # Feature: Notification Logging
