@@ -24,7 +24,8 @@ Brief one-line description of the feature.
    - [cc-plugins](#cc-plugins-1)
    - [ccbell](#ccbell-1)
 8. [External Dependencies](#external-dependencies-1)
-9. [Research Sources](#research-sources)
+9. [Research Details](#research-details)
+10. [Research Sources](#research-sources)
 
 ## Summary
 
@@ -143,6 +144,18 @@ Steps required in ccbell repository:
 |------------|---------|---------|----------|
 | `` | | | `[Yes]` / `[No]` |
 | `` | | | `[Yes]` / `[No]` |
+
+## Research Details
+
+Document the findings from research:
+
+### Claude Code Plugins
+
+### Claude Code Hooks
+
+### Audio Playback
+
+### Other Findings
 
 ## Research Sources
 
