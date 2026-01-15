@@ -67,9 +67,10 @@ How will audio playback be handled?
 
 | Aspect | Description |
 |--------|-------------|
-| :speaker: afplay | macOS native audio player (already used) |
-| :computer: Platform Support | Considerations for other platforms |
-| :musical_note: Audio Formats | Supported audio format requirements |
+| :speaker: afplay (macOS) | macOS native audio player |
+| :speaker: mpv/paplay/aplay/ffplay (Linux) | Linux audio players (auto-detected) |
+| :computer: Platform Support | Cross-platform (macOS, Linux) |
+| :musical_note: Audio Formats | AIFF, MP3, WAV supported |
 
 ### External Dependencies
 

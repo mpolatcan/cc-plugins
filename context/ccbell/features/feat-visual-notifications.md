@@ -65,7 +65,8 @@ How will audio playback be handled?
 
 | Aspect | Description |
 |--------|-------------|
-| :speaker: afplay | Not affected - visual notifications alongside audio |
+| :speaker: afplay (macOS) | macOS native audio player |
+| :speaker: mpv/paplay/aplay/ffplay (Linux) | Linux audio players (auto-detected) |
 | :computer: Platform Support | macOS (osascript/terminal-notifier), Linux (notify-send) |
 | :musical_note: Audio Formats | No audio format changes |
 

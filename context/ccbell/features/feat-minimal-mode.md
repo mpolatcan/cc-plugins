@@ -65,7 +65,8 @@ How will audio playback be handled?
 
 | Aspect | Description |
 |--------|-------------|
-| :speaker: afplay | Not affected by this feature |
+| :speaker: afplay (macOS) | macOS native audio player | |
+| :speaker: mpv/paplay/aplay/ffplay (Linux) | Linux audio players (auto-detected) |
 | :computer: Platform Support | Cross-platform compatible |
 | :musical_note: Audio Formats | No audio format changes |
 

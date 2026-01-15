@@ -65,7 +65,8 @@ How will audio playback be handled?
 
 | Aspect | Description |
 |--------|-------------|
-| :speaker: afplay | TTS output played through afplay or native TTS |
+| :speaker: afplay (macOS) | macOS native audio player | |
+| :speaker: mpv/paplay/aplay/ffplay (Linux) | Linux audio players (auto-detected) |
 | :computer: Platform Support | macOS `say`, Linux Piper/Kokoro |
 | :musical_note: Audio Formats | TTS generates audio on demand |
 

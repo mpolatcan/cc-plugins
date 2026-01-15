@@ -167,6 +167,7 @@ Preview mode adds loop control for volume testing scenarios.
 #### Loop Control Options
 
 **afplay (macOS)**
+| :speaker: mpv/paplay/aplay/ffplay (Linux) | Linux audio players (auto-detected) |
 - No native loop option
 - Use `-t 0` for infinite duration with external loop control
 - Alternative: run afplay in background, kill on signal
