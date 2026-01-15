@@ -32,6 +32,12 @@ Allow users to browse, preview, and install sound packs that bundle sounds for a
 
 Allow users to browse, preview, and install sound packs that bundle sounds for all notification events. Distributed via GitHub releases with one-click installation.
 
+**How it works:**
+- **Curation**: Claude Code curates sounds based on themes (e.g., `!curate retro`)
+- **Distribution**: Packs published as GitHub releases with `pack.json` + sounds/*.aiff
+- **Storage**: `pack.json` in git (small), sounds in release assets (binary)
+- **Installation**: Users run `/ccbell:packs install minimal` - no API keys needed
+
 ## Benefit
 
 | Aspect | Description |
@@ -471,23 +477,24 @@ Create a CI/CD pipeline in a separate `ccbell-sound-packs` repository that:
 ### Architecture
 
 ```
-┌─────────────────────┐     ┌──────────────────────┐     ┌─────────────────────┐
-│  ccbell-sound-packs  │     │   CI Pipeline        │ │   GitHub Releases   │
-│   Repository        │────▶│   (GitHub Actions)   │────▶│   (Pack Downloads)  │
-│                     │     │                      │ │                     │
-│ ├── packs/          │     │ ├── Query Providers  │ │   ├── minimal-v1    │
-│ │   ├── minimal/    │     │ ├── Download Sounds  │ │   ├── classic-v1    │
-│ │   │   └── pack.json│    │ ├── Convert Format   │ │   └── futuristic-v1 │
-│ │   ├── classic/    │     │ └── Create Release   │ │                     │
-│ │   └── ...         │     │                      │ └─────────────────────┘
-│ └── .github/workflows/                              │
-│       └── ci.yml                                    │
-└─────────────────────┘                                    │
-       │                                                  │
-       │ /ccbell:packs install minimal                   │
-       ▼                                                  │
-┌─────────────────────┐                                   │
-│   ccbell Plugin     │◀──────────────────────────────────┘
+┌─────────────────────────┐     ┌──────────────────────────┐     ┌─────────────────────┐
+│   ccbell-sound-packs    │     │   Theme Curation         │ │   GitHub Releases   │
+│     Repository          │────▶│   (Claude Code + GitHub) │────▶│   (Pack Downloads)  │
+│                         │     │                          │ │                     │
+│ ├── packs/              │     │ ├── !curate retro        │ │   ├── retro-v1      │
+│ │   ├── minimal/        │     │ ├── Theme input UI       │ │   ├── minimal-v1    │
+│ │   │   └── pack.json   │     │ ├── Search Pixabay       │ │   └── ...           │
+│ │   ├── retro/          │     │ ├── Create pack.json     │ │                     │
+│ │   └── ...             │     │ └── Release assets       │ │                     │
+│ └── .github/workflows/  │     │                          │ └─────────────────────┘
+│       └── theme-        │                              │
+│           curation.yml  │                              │
+└─────────────────────────┘                                    │
+         │                                                    │
+         │ /ccbell:packs install retro                       │
+         ▼                                                    │
+┌─────────────────────┐                                       │
+│   ccbell Plugin     │◀──────────────────────────────────────┘
 │                     │     Uses existing pack mechanism
 │ └── packs command   │     No API keys needed!
 └─────────────────────┘
@@ -499,78 +506,84 @@ Create a CI/CD pipeline in a separate `ccbell-sound-packs` repository that:
 
 | Trigger | Description |
 |---------|-------------|
-| Scheduled | Weekly/monthly curation updates |
-| Manual | On-demand pack updates |
-| Tag | Create new pack version |
+| Issue Comment | Comment `!curate retro` to trigger theme curation |
+| Manual | GitHub Actions UI with theme input |
+| Scheduled | Optional: weekly/monthly curation runs |
 
-#### Pipeline Steps
+#### Claude Code Theme Curation
 
-```yaml
-# .github/workflows/curate.yml
-name: Curation Pipeline
+The pipeline uses **Claude Code GitHub Action** to intelligently curate sounds based on themes:
 
-on:
-  schedule:
-    - cron: '0 0 1 * *'  # Monthly on 1st
-  workflow_dispatch:
-    inputs:
-      provider:
-        description: 'Provider to query (freesound, pixabay)'
-        required: false
-        default: 'pixabay'
-
-jobs:
-  curate:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Query Pixabay
-        run: |
-          # Query and download top-rated notification sounds
-          curl "https://pixabay.com/api/?q=notification&category=sound-effects&key=$PIXABAY_API_KEY"
-
-      - name: Convert to AIFF
-        run: |
-          # Convert MP3/WAV to AIFF for macOS compatibility
-          for f in downloads/*.{mp3,wav}; do
-            ffmpeg -i "$f" "${f%.*}.aiff"
-          done
-
-      - name: Create Pack
-        run: |
-          # Create pack.json with metadata
-          # Package sounds into release
-
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+**Trigger via Issue Comment:**
+```markdown
+!curate retro
 ```
+
+Claude Code will:
+1. Parse theme from comment
+2. Search Pixabay for theme-matching sounds
+3. Download and convert to AIFF format
+4. Create `pack.json` with full metadata
+5. Create GitHub Release with sounds
+6. Commit only `pack.json` to git (sounds stay in release assets)
+7. Comment with result
+
+**Trigger via GitHub Actions UI:**
+1. Go to Actions → "Theme Curation with Claude"
+2. Click "Run workflow"
+3. Enter theme: "retro", "futuristic", "lofi", "nature", etc.
+4. Claude Code does the rest!
+
+#### Storage Architecture
+
+```
+Git Repository (pack metadata only)
+├── packs/
+│   ├── retro/pack.json        # Committed to git
+│   ├── minimal/pack.json
+│   └── ...
+└── .github/workflows/
+
+GitHub Releases (binary assets)
+├── retro-v1.0.0.zip           # Contains pack.json + sounds/*.aiff
+├── minimal-v1.0.0.zip
+└── ...
+```
+
+**Why this approach?**
+
+| Aspect | Solution |
+|--------|----------|
+| Repo size | Stays small (no binary bloat) |
+| Version control | pack.json changes tracked in git |
+| Fast clone | Users don't download all sounds |
+| ccbell reads | From release assets |
 
 #### Provider Integration
 
-| Provider | Auth | Rate Limit | Daily Limit | Notes |
-|----------|------|------------|-------------|-------|
-| **Pixabay** | API Key (env) | 100 req/min | ~144,000 | Easiest, no OAuth |
-| **Freesound** | API Key (env) | 60 req/min | 2,000 | OAuth required for download |
+| Provider | Auth | Rate Limit | Notes |
+|----------|------|------------|-------|
+| **Pixabay** | API Key (env) | 100 req/min | Primary source, no OAuth |
+| **Freesound** | API Key (env) | 60 req/min | Future enhancement |
 
-**CI Configuration:**
+**Required Repository Secrets:**
 ```bash
-# Repository secrets
-PIXABAY_API_KEY=your_free_api_key
-FREESOUND_API_KEY=your_api_key
-# OAuth only needed if Freesound sounds are curated
+ANTHROPIC_API_KEY=     # For Claude Code GitHub Action
+PIXABAY_API_KEY=       # For sound searches
+GH_TOKEN=              # For creating releases and committing
 ```
 
 ### Repository Impact
 
-#### New Repository: ccbell-sound-packs
+#### ccbell-sound-packs Repository
 
-| File | Description |
-|------|-------------|
-| `packs/*/pack.json` | Pack metadata |
-| `packs/*/*.aiff` | Curated sounds |
-| `.github/workflows/ci.yml` | Curation pipeline |
-| `scripts/curate.sh` | Download and package script |
+| File | Description | Status |
+|------|-------------|--------|
+| `packs/*/pack.json` | Pack metadata (in git) | ✅ Implemented |
+| `.github/workflows/theme-curation.yml` | Claude Code theme curation | ✅ Implemented |
+| `.github/workflows/curate.yml` | Curation pipeline (optional) | ✅ Exists |
+| `scripts/sound-pack-curator.sh` | Shell script for manual curation | ✅ Exists |
+| `README.md` | Documentation | ✅ Updated |
 
 #### ccbell (No Changes)
 
@@ -587,30 +600,31 @@ FREESOUND_API_KEY=your_api_key
 
 ### Implementation Plan
 
-#### Phase 1: CI Pipeline Setup
+#### Phase 1: CI Pipeline Setup ✅ Complete
 
-1. Set up `ccbell-sound-packs` repository (exists at `../ccbell-sound-packs`)
-2. Add GitHub Actions workflow
-3. Configure Pixabay API key (free)
-4. Create initial `minimal` pack
+1. ✅ Set up `ccbell-sound-packs` repository
+2. ✅ Add `theme-curation.yml` workflow with Claude Code integration
+3. ✅ Configure required secrets (ANTHROPIC_API_KEY, PIXABAY_API_KEY, GH_TOKEN)
+4. ✅ Create initial `minimal` pack with pack.json
 
-#### Phase 2: Provider Integration
+#### Phase 2: Claude Code Integration ✅ Complete
 
-1. Add Pixabay query to pipeline
-2. Add Freesound (optional, requires OAuth)
-3. Add format conversion (MP3/WAV → AIFF)
+1. ✅ Theme-based sound curation via `!curate theme` comments
+2. ✅ GitHub Actions UI trigger for on-demand curation
+3. ✅ Automatic pack.json creation with full metadata
+4. ✅ Release asset creation with sounds/*.aiff
 
-#### Phase 3: Automation
+#### Phase 3: Storage Optimization ✅ Complete
 
-1. Schedule weekly/monthly runs
-2. Add quality filters (min duration, max size)
-3. Add license verification
+1. ✅ Store only pack.json in git (metadata)
+2. ✅ Store sounds in release assets (binary)
+3. ✅ Keep repository small and fast to clone
 
-#### Phase 4: Community Contributions
+#### Phase 4: Community Contributions (Future)
 
 1. Accept PRs for new packs
-2. Document pack creation guide
-3. Add contribution guidelines
+2. Add local pack support for user-created sounds
+3. Document pack creation guide
 
 ### Research Sources
 
