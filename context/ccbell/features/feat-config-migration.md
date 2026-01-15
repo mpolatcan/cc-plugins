@@ -1,6 +1,7 @@
 ---
 name: Config Migration
 description: Automatically update old config formats to newer versions while preserving settings
+category: Configuration
 ---
 
 # Feature: Config Migration

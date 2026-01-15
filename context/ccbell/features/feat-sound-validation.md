@@ -1,6 +1,7 @@
 ---
 name: Sound Validation
 description: Check sound files and configuration for issues before use
+category: Utility
 ---
 
 # Feature: Sound Validation

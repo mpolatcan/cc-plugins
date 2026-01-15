@@ -1,6 +1,7 @@
 ---
 name: Quick Disable
 description: Temporarily disable notifications for 15min, 1hr, 4hr without changing the full configuration
+category: Control
 ---
 
 # Feature: Quick Disable

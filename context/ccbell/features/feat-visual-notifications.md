@@ -1,6 +1,7 @@
 ---
 name: Visual Notifications
 description: Show visual notifications (macOS Notification Center, terminal bell) when Claude Code events trigger
+category: Integration
 ---
 
 # Feature: Visual Notifications

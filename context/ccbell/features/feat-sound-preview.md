@@ -1,6 +1,7 @@
 ---
 name: Sound Preview
 description: Preview mode during configuration that lets users hear sounds before saving their selection
+category: Audio
 ---
 
 # Feature: Sound Preview

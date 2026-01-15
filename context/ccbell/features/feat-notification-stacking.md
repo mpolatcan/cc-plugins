@@ -1,6 +1,7 @@
 ---
 name: Notification Stacking
 description: When multiple events fire quickly, queue them and play sequentially instead of overlapping
+category: Control
 ---
 
 # Feature: Notification Stacking

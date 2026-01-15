@@ -1,6 +1,7 @@
 ---
 name: Sound Packs
 description: Allow users to browse, preview, and install sound packs that bundle sounds for all notification events
+category: Audio
 ---
 
 # Feature: Sound Packs

@@ -1,6 +1,7 @@
 ---
 name: TTS Announcements
 description: Play spoken announcements instead of or alongside audio files
+category: Audio
 ---
 
 # Feature: TTS Announcements

@@ -1,6 +1,7 @@
 ---
 name: Global Volume Override
 description: Temporarily adjust notification volume without modifying the config file
+category: Audio
 ---
 
 # Feature: Global Volume Override

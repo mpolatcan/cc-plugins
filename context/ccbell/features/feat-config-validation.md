@@ -1,6 +1,7 @@
 ---
 name: Config Validation
 description: Check config file for JSON syntax errors and schema issues before applying changes
+category: Configuration
 ---
 
 # Feature: Config Validation

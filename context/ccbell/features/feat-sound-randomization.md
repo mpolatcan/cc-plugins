@@ -1,6 +1,7 @@
 ---
 name: Sound Randomization
 description: Allow users to define multiple sounds that are randomly selected when an event triggers
+category: Audio
 ---
 
 # Feature: Sound Randomization

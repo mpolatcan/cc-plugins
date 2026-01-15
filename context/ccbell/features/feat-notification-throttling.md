@@ -1,6 +1,7 @@
 ---
 name: Notification Throttling
 description: Prevent notification spam by limiting the total number of notifications within a configurable time window
+category: Control
 ---
 
 # Feature: Notification Throttling

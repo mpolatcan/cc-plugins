@@ -1,6 +1,7 @@
 ---
 name: Session Hook Sounds
 description: Add sound notifications for SessionStart and SessionEnd Claude Code hook events
+category: Events
 ---
 
 # Feature: Session Hook Sounds
