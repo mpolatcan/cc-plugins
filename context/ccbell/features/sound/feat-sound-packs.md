@@ -423,7 +423,7 @@ Pack sounds resolved via `pack:` scheme in sound configuration.
 
 ## Feature: Auto-Generated Sound Packs via CI Pipeline
 
-Instead of integrating download functionality into ccbell binary, create a CI pipeline in `ccbell-soundpacks` repository that:
+Instead of integrating download functionality into ccbell binary, create a CI pipeline in `ccbell-sound-packs` repository that:
 1. Queries sound providers (Freesound, Pixabay) periodically
 2. Downloads and curates sounds
 3. Creates sound packs
@@ -444,7 +444,7 @@ Instead of integrating download functionality into ccbell binary, create a CI pi
 
 ### Summary
 
-Create a CI/CD pipeline in a separate `ccbell-soundpacks` repository that:
+Create a CI/CD pipeline in a separate `ccbell-sound-packs` repository that:
 - Periodically queries free sound providers (Freesound, Pixabay)
 - Downloads and curates high-quality notification sounds
 - Packages them into sound packs
@@ -472,7 +472,7 @@ Create a CI/CD pipeline in a separate `ccbell-soundpacks` repository that:
 
 ```
 ┌─────────────────────┐     ┌──────────────────────┐     ┌─────────────────────┐
-│  ccbell-soundpacks  │     │   CI Pipeline        │ │   GitHub Releases   │
+│  ccbell-sound-packs  │     │   CI Pipeline        │ │   GitHub Releases   │
 │   Repository        │────▶│   (GitHub Actions)   │────▶│   (Pack Downloads)  │
 │                     │     │                      │ │                     │
 │ ├── packs/          │     │ ├── Query Providers  │ │   ├── minimal-v1    │
@@ -563,7 +563,7 @@ FREESOUND_API_KEY=your_api_key
 
 ### Repository Impact
 
-#### New Repository: ccbell-soundpacks
+#### New Repository: ccbell-sound-packs
 
 | File | Description |
 |------|-------------|
@@ -589,7 +589,7 @@ FREESOUND_API_KEY=your_api_key
 
 #### Phase 1: CI Pipeline Setup
 
-1. Create `ccbell-soundpacks` repository
+1. Set up `ccbell-sound-packs` repository (exists at `../ccbell-sound-packs`)
 2. Add GitHub Actions workflow
 3. Configure Pixabay API key (free)
 4. Create initial `minimal` pack
