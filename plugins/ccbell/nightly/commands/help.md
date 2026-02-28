@@ -55,6 +55,7 @@ other windows without constantly checking if Claude is done.
 | /ccbell-nightly:disable | Disable all notifications |
 | /ccbell-nightly:status | Show current configuration |
 | /ccbell-nightly:profile | Switch between sound profiles |
+| /ccbell-nightly:packs | Browse, install, and manage sound packs |
 | /ccbell-nightly:validate | Run installation diagnostics |
 | /ccbell-nightly:help | Show this help |
 
@@ -80,6 +81,13 @@ Prevent notification spam with per-event cooldowns:
 - Set minimum seconds between same event notifications
 - Example: `"cooldown": 5` means at least 5 seconds between sounds
 
+### Sound Packs
+Install AI-generated themed sound packs:
+- Browse available packs: `/ccbell-nightly:packs browse`
+- Install a pack: `/ccbell-nightly:packs install minimal`
+- Apply pack sounds: `/ccbell-nightly:packs use minimal`
+- Generate your own at [ccbell-sound-generator](https://huggingface.co/spaces/mpolatcan/ccbell-sound-generator)
+
 ### Debug Mode
 Enable logging for troubleshooting:
 - Logs written to `~/.claude/ccbell-nightly.log`
@@ -91,6 +99,11 @@ Enable logging for troubleshooting:
 Pre-packaged sounds included with the plugin. These work consistently across all platforms.
 
 Available: `bundled:stop`, `bundled:permission_prompt`, `bundled:idle_prompt`, `bundled:subagent`
+
+### Sound Pack Sounds
+Use sounds from installed packs. Packs bundle themed sounds for all events.
+
+Format: `pack:pack_id:sound_file` (e.g., `pack:minimal:stop.wav`)
 
 ### Custom Sounds
 Use your own audio files (MP3, WAV, AIFF, M4A).

@@ -25,7 +25,8 @@ Nightly/pre-release build of ccbell - audio notifications for Claude Code events
 - **Quiet Hours** - Do-not-disturb time windows
 - **Cooldowns** - Debounce rapid notifications
 - **Cross-Platform** - macOS and Linux support
-- **Flexible Sounds** - Bundled sounds, custom audio files
+- **Sound Packs** - AI-generated themed sound packs via [ccbell-sound-generator](https://huggingface.co/spaces/mpolatcan/ccbell-sound-generator)
+- **Flexible Sounds** - Bundled sounds, sound packs, custom audio files
 
 ## Installation
 
@@ -54,6 +55,7 @@ Nightly/pre-release build of ccbell - audio notifications for Claude Code events
 | `/ccbell-nightly:disable` | Disable all notifications |
 | `/ccbell-nightly:status` | Show current configuration |
 | `/ccbell-nightly:profile` | Switch between sound profiles |
+| `/ccbell-nightly:packs` | Browse, install, and manage sound packs |
 | `/ccbell-nightly:validate` | Run installation diagnostics |
 | `/ccbell-nightly:help` | Show help and documentation |
 

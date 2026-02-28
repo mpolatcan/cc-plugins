@@ -86,26 +86,60 @@ Preview sounds from a pack before installing:
 
 ## Sound Pack Format
 
-Sound packs are distributed as GitHub releases containing:
-- `pack.json` - Pack metadata and event mapping
-- Sound files for each event (`.aiff`, `.wav`, `.mp3`)
+Sound packs are distributed as GitHub releases on [ccbell-sound-packs](https://github.com/mpolatcan/ccbell-sound-packs) containing:
+- `pack.json` - Pack manifest with metadata, event mapping, and generation info
+- Individual WAV sound files for each event (44.1kHz stereo)
+
+Packs can be generated using the [ccbell-sound-generator](https://huggingface.co/spaces/mpolatcan/ccbell-sound-generator) web app, which uses AI (Stable Audio Open) to create themed notification sounds.
 
 Example `pack.json`:
 ```json
 {
   "id": "minimal",
   "name": "Minimal",
-  "description": "Subtle notification sounds",
-  "author": "ccbell",
+  "description": "Clean, professional notification sounds",
+  "author": "ccbell-sound-generator",
   "version": "1.0.0",
   "events": {
-    "stop": "stop.aiff",
-    "permission_prompt": "permission.aiff",
-    "idle_prompt": "idle.aiff",
-    "subagent": "subagent.aiff"
+    "stop": "stop.wav",
+    "subagent": "subagent.wav",
+    "permission_prompt": "permission_prompt.wav",
+    "idle_prompt": "idle_prompt.wav",
+    "session_start": "session_start.wav",
+    "session_end": "session_end.wav",
+    "pre_tool_use": "pre_tool_use.wav",
+    "post_tool_use": "post_tool_use.wav",
+    "subagent_start": "subagent_start.wav",
+    "user_prompt_submit": "user_prompt_submit.wav"
+  },
+  "prompts": {
+    "stop": "completion chime, minimal, pure melodic tone, subtle, 2.0 seconds, 44.1kHz stereo",
+    "subagent": "soft confirmation ding, minimal, clean bell, refined, 1.5 seconds, 44.1kHz stereo"
+  },
+  "source": {
+    "provider": "ccbell-sound-generator",
+    "model": "stable-audio-open-small",
+    "license": "stabilityai/stable-audio-open-1.0"
   }
 }
 ```
+
+### Supported Events
+
+| Event | Description |
+|-------|-------------|
+| `stop` | Claude finishes responding |
+| `subagent` | Background agent completes |
+| `permission_prompt` | Claude needs your permission |
+| `idle_prompt` | Claude is waiting for input |
+| `session_start` | New Claude Code session started |
+| `session_end` | Claude Code session ended |
+| `pre_tool_use` | Before a tool call executes |
+| `post_tool_use` | After a tool completes |
+| `subagent_start` | New subagent spawned |
+| `user_prompt_submit` | User submitted a new prompt |
+
+A pack does not need to include sounds for all events. Missing events will fall back to the default bundled sounds.
 
 ## Sound Path Format
 
@@ -116,8 +150,8 @@ pack:pack_id:sound_file
 
 Example:
 ```
-pack:minimal:stop.aiff
-pack:minimal:permission.aiff
+pack:minimal:stop.wav
+pack:minimal:permission_prompt.wav
 ```
 
 ## Managing Packs
@@ -145,8 +179,8 @@ You can mix sounds from different packs:
 ```json
 {
   "events": {
-    "stop": "pack:classic:stop.aiff",
-    "permission_prompt": "pack:futuristic:permission.aiff"
+    "stop": "pack:classic:stop.wav",
+    "permission_prompt": "pack:futuristic:permission_prompt.wav"
   }
 }
 ```
@@ -179,23 +213,44 @@ If browsing fails, check your internet connection. Packs are fetched from GitHub
 
 ## Creating Custom Packs
 
-To create a custom sound pack:
+### Using ccbell-sound-generator (Recommended)
 
-1. Create a directory with your sound files
-2. Create a `pack.json` file with metadata
+Generate AI-powered sound packs via the web app:
+1. Visit [ccbell-sound-generator](https://huggingface.co/spaces/mpolatcan/ccbell-sound-generator)
+2. Select a theme (Sci-Fi, Retro 8-bit, Nature, Minimal, etc.)
+3. Generate sounds for each event
+4. Publish directly to GitHub releases
+
+### Manual Creation
+
+1. Create a directory with your WAV sound files
+2. Create a `pack.json` file with metadata (only `id`, `name`, `version`, and `events` are required)
 3. Create a GitHub release with the pack files
 
 Example pack structure:
 ```
 my-pack/
 ├── pack.json
-├── stop.aiff
-├── permission_prompt.aiff
-├── idle_prompt.aiff
-└── subagent.aiff
+├── stop.wav
+├── subagent.wav
+├── permission_prompt.wav
+├── idle_prompt.wav
+├── session_start.wav
+├── session_end.wav
+├── pre_tool_use.wav
+├── post_tool_use.wav
+├── subagent_start.wav
+└── user_prompt_submit.wav
 ```
 
-Release as `my-pack-v1.0.0` on GitHub with `pack.json` as a release asset.
+Release as `my-pack-v1.0.0` on the [ccbell-sound-packs](https://github.com/mpolatcan/ccbell-sound-packs) repository with `pack.json` and individual WAV files as release assets.
+
+### Local Packs
+
+You can also create a local pack without publishing:
+1. Create a directory in `~/.claude/ccbell/packs/my-pack/`
+2. Add `pack.json` and sound files
+3. Use with `/ccbell:packs use my-pack`
 
 ## See Also
 
