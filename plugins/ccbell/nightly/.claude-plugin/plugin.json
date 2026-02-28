@@ -1,0 +1,13 @@
+{
+  "name": "ccbell-nightly",
+  "description": "Nightly build of ccbell - Audio notifications for Claude Code events (pre-release, for testing new features)",
+  "version": "0.3.0-nightly.1",
+  "author": {
+    "name": "Mutlu Polatcan",
+    "email": "mpolatcan@gmail.com"
+  },
+  "repository": "https://github.com/mpolatcan/ccbell",
+  "homepage": "https://github.com/mpolatcan/cc-plugins/tree/main/plugins/ccbell/nightly",
+  "keywords": ["sound", "notification", "bell", "audio", "alert", "productivity", "profiles", "quiet-hours", "cooldown", "sound-packs", "golang", "nightly", "beta", "pre-release"],
+  "license": "MIT"
+}

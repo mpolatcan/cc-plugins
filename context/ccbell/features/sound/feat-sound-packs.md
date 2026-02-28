@@ -1,12 +1,15 @@
 ---
 name: Sound Packs
-description: Allow users to browse, preview, and install sound packs that bundle sounds for all notification events
+description: Allow users to browse, preview, and install AI-generated sound packs that bundle sounds for all notification events
 category: sound
 ---
 
 # Feature: Sound Packs
 
-Allow users to browse, preview, and install sound packs that bundle sounds for all notification events. Sound packs are distributed via GitHub releases.
+Allow users to browse, preview, and install sound packs that bundle sounds for all notification events. Sound packs come from two sources:
+
+- **Official packs**: Curated by the admin, distributed via GitHub releases on [ccbell-sound-packs](https://github.com/mpolatcan/ccbell-sound-packs)
+- **User-generated packs**: Created by any user via [ccbell-sound-generator](https://huggingface.co/spaces/mpolatcan/ccbell-sound-generator), installed directly via download URL
 
 ## Table of Contents
 
@@ -21,32 +24,47 @@ Allow users to browse, preview, and install sound packs that bundle sounds for a
 6. [Repository Impact](#repository-impact)
    - [cc-plugins](#cc-plugins)
    - [ccbell](#ccbell)
-7. [Implementation Plan](#implementation-plan)
+7. [Sound Pack Format](#sound-pack-format)
+   - [pack.json Schema](#packjson-schema)
+   - [Supported Events](#supported-events)
+   - [Release Asset Structure](#release-asset-structure)
+8. [Architecture](#architecture)
+   - [ccbell-sound-generator](#ccbell-sound-generator)
+   - [ccbell-sound-packs](#ccbell-sound-packs)
+   - [Theme Presets](#theme-presets)
+9. [Implementation Plan](#implementation-plan)
    - [cc-plugins](#cc-plugins-1)
    - [ccbell](#ccbell-1)
-8. [External Dependencies](#external-dependencies-1)
-9. [Research Details](#research-details)
-10. [Research Sources](#research-sources)
+10. [Custom User Packs](#custom-user-packs)
+11. [Research Sources](#research-sources)
 
 ## Summary
 
 Allow users to browse, preview, and install sound packs that bundle sounds for all notification events. Distributed via GitHub releases with one-click installation.
+
+**How it works:**
+- **Generation**: AI-powered web app ([ccbell-sound-generator](https://huggingface.co/spaces/mpolatcan/ccbell-sound-generator)) generates sounds using Stable Audio Open models
+- **Official distribution**: Admin publishes curated packs as GitHub releases on [ccbell-sound-packs](https://github.com/mpolatcan/ccbell-sound-packs) with `index.json` catalog
+- **User distribution**: Generator provides a download URL for any user's pack (zip with `pack.json` + `*.wav`)
+- **Installation**:
+  - Official: `/ccbell:packs install minimal` (from catalog)
+  - User-generated: `/ccbell:packs install --url <download_url>` (from generator)
 
 ## Benefit
 
 | Aspect | Description |
 |--------|-------------|
 | :bust_in_silhouette: User Impact | Install complete sound themes with a single command |
-| :memo: Use Cases | Community creativity, consistent experience |
-| :dart: Value Proposition | One-click variety, easy discovery |
+| :memo: Use Cases | AI-generated themes, community creativity, consistent experience |
+| :dart: Value Proposition | One-click variety, easy discovery, no manual sound creation |
 
 ## Priority & Complexity
 
 | Aspect | Assessment |
 |--------|------------|
-| :rocket: Priority | 🔴 High | |
-| :construction: Complexity | 🟡 Medium | |
-| :warning: Risk Level | 🟡 Medium | |
+| :rocket: Priority | High |
+| :construction: Complexity | Medium |
+| :warning: Risk Level | Medium |
 
 ## Feasibility
 
@@ -67,12 +85,10 @@ How will audio playback be handled?
 | Aspect | Description |
 |--------|-------------|
 | :speaker: afplay | Extends ResolveSoundPath() to handle `pack:` scheme |
-| :computer: Platform Support | Cross-platform compatible |
-| :musical_note: Audio Formats | Supports bundled sound formats |
+| :computer: Platform Support | Cross-platform compatible (afplay on macOS, aplay/paplay on Linux) |
+| :musical_note: Audio Format | WAV (44.1kHz stereo PCM) |
 
 ### External Dependencies
-
-Are external tools or libraries required?
 
 HTTP client for downloading packs from GitHub releases.
 
@@ -80,25 +96,49 @@ HTTP client for downloading packs from GitHub releases.
 
 Describe how this feature integrates with the existing ccbell plugin:
 
-| Aspect | Description |
-|--------|-------------|
-| :hand: User Interaction | Users run `/ccbell:packs browse`, `/ccbell:packs install minimal` |
-| :wrench: Configuration | Adds `packs` section and `pack:` sound scheme support |
-| :gear: Default Behavior | Browses pack index from GitHub releases |
+| Aspect | Production (`ccbell`) | Nightly (`ccbell-nightly`) |
+|--------|----------------------|---------------------------|
+| :hand: Official Packs | `/ccbell:packs browse`, `/ccbell:packs install minimal` | `/ccbell-nightly:packs browse`, `/ccbell-nightly:packs install minimal` |
+| :hand: User Packs | `/ccbell:packs install --url <url>` | `/ccbell-nightly:packs install --url <url>` |
+| :wrench: Configuration | Adds `packs` and `activePack` to `~/.claude/ccbell.config.json` | Adds `packs` and `activePack` to `~/.claude/ccbell-nightly.config.json` |
+| :file_folder: Packs Directory | `~/.claude/ccbell/packs/` | `~/.claude/ccbell-nightly/packs/` |
+| :gear: Default Behavior | Browses official pack index from ccbell-sound-packs | Browses official pack index from ccbell-sound-packs |
+
+### Nightly Variant Isolation
+
+The nightly variant achieves pack directory isolation via the `CCBELL_PACKS_DIR` environment variable exported by the nightly `ccbell.sh` script:
+
+```bash
+export CCBELL_PACKS_DIR="$HOME/.claude/ccbell-nightly/packs"
+```
+
+The nightly binary reads this env var (falling back to the default `~/.claude/ccbell/packs/` if not set).
 
 ## Repository Impact
 
 ### cc-plugins
 
-Files that may be affected in cc-plugins:
+Files that may be affected in cc-plugins (both production and nightly variants):
+
+#### Production (`plugins/ccbell/production/`)
 
 | File | Description |
 |------|-------------|
-| `plugins/ccbell/.claude-plugin/plugin.json` | :package: Plugin manifest (version bump) |
-| `plugins/ccbell/scripts/ccbell.sh` | :arrow_down: Download script (version sync) |
-| `plugins/ccbell/hooks/hooks.json` | :hook: Hook definitions (no change) |
-| `plugins/ccbell/commands/*.md` | :page_facing_up: Add `packs.md` command doc |
-| `plugins/ccbell/sounds/` | :sound: Audio files (no change) |
+| `plugins/ccbell/production/.claude-plugin/plugin.json` | :package: Plugin manifest (version bump) |
+| `plugins/ccbell/production/scripts/ccbell.sh` | :arrow_down: Download script (version sync) |
+| `plugins/ccbell/production/hooks/hooks.json` | :hook: Hook definitions (no change) |
+| `plugins/ccbell/production/commands/*.md` | :page_facing_up: Add `packs.md` command doc |
+| `plugins/ccbell/production/sounds/` | :sound: Audio files (no change) |
+
+#### Nightly (`plugins/ccbell/nightly/`)
+
+| File | Description |
+|------|-------------|
+| `plugins/ccbell/nightly/.claude-plugin/plugin.json` | :package: Plugin manifest (version bump) |
+| `plugins/ccbell/nightly/scripts/ccbell.sh` | :arrow_down: Download script (version sync, exports `CCBELL_PACKS_DIR`) |
+| `plugins/ccbell/nightly/hooks/hooks.json` | :hook: Hook definitions (no change) |
+| `plugins/ccbell/nightly/commands/*.md` | :page_facing_up: Add `packs.md` command doc (uses `/ccbell-nightly:` prefix) |
+| `plugins/ccbell/nightly/sounds/` | :sound: Audio files (no change) |
 
 ### ccbell
 
@@ -107,494 +147,472 @@ Files that may be affected in ccbell:
 | File | Description |
 |------|-------------|
 | `main.go` | :rocket: Main entry point (version bump) |
-| `config/config.go` | :wrench: Add `packs` section |
+| `config/config.go` | :wrench: Add `packs` and `activePack` sections |
 | `audio/player.go` | :speaker: Extend ResolveSoundPath() for pack scheme |
 | `hooks/*.go` | :hook: Hook implementations (no change) |
+
+## Sound Pack Format
+
+### pack.json Schema
+
+Each sound pack is defined by a `pack.json` manifest published as a GitHub release asset:
+
+```json
+{
+  "id": "sci-fi-ambient",
+  "name": "Sci-Fi Ambient",
+  "description": "Futuristic digital notification sounds",
+  "author": "ccbell-sound-generator",
+  "version": "1.0.0",
+  "events": {
+    "stop": "stop.wav",
+    "subagent": "subagent.wav",
+    "permission_prompt": "permission_prompt.wav",
+    "idle_prompt": "idle_prompt.wav",
+    "session_start": "session_start.wav",
+    "session_end": "session_end.wav",
+    "pre_tool_use": "pre_tool_use.wav",
+    "post_tool_use": "post_tool_use.wav",
+    "subagent_start": "subagent_start.wav",
+    "user_prompt_submit": "user_prompt_submit.wav"
+  },
+  "prompts": {
+    "stop": "completion chime, sci-fi, digital synthesizer, technological, 2.0 seconds, 44.1kHz stereo",
+    "subagent": "soft confirmation ding, sci-fi, ...",
+    "..."
+  },
+  "source": {
+    "provider": "ccbell-sound-generator",
+    "model": "stable-audio-open-small",
+    "license": "stabilityai/stable-audio-open-1.0"
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Pack slug used in install commands and release tags |
+| `name` | string | Human-readable display name |
+| `description` | string | Short description of the pack |
+| `author` | string | Pack creator (defaults to `ccbell-sound-generator`) |
+| `version` | string | SemVer version string |
+| `events` | object | Maps event names to WAV filenames |
+| `prompts` | object | Maps event names to the AI prompt used for generation |
+| `source` | object | Generation metadata (provider, model, license) |
+
+### Supported Events
+
+The generator supports 10 pack-relevant events mapped to Claude Code hook types:
+
+| Event Name | Hook Type | Matcher | Description | Category |
+|------------|-----------|---------|-------------|----------|
+| `stop` | `Stop` | - | Main agent finished its task | Core |
+| `subagent` | `SubagentStop` | `*` | Subagent finished its task | Core |
+| `permission_prompt` | `Notification` | `permission_prompt` | Tool needs user permission | Core |
+| `idle_prompt` | `Notification` | `idle_prompt` | Agent waiting for user input | Core |
+| `session_start` | `SessionStart` | - | New Claude Code session started | Session |
+| `session_end` | `SessionEnd` | - | Claude Code session ended | Session |
+| `pre_tool_use` | `PreToolUse` | `*` | Before a tool call executes | Tool |
+| `post_tool_use` | `PostToolUse` | `*` | After a tool completes | Tool |
+| `subagent_start` | `SubagentStart` | `*` | New subagent spawned | Agent |
+| `user_prompt_submit` | `UserPromptSubmit` | - | User submitted a new prompt | Agent |
+
+> **Note:** `permission_prompt` and `idle_prompt` are **matchers** under the `Notification` hook event, not standalone hook types. The `Notification` event also supports `auth_success` and `elicitation_dialog` matchers which may be relevant for future pack events. Claude Code has 17+ hook event types in total; this table lists only the events relevant to sound packs.
+
+### Release Asset Structure
+
+Each pack is published as a GitHub release on [ccbell-sound-packs](https://github.com/mpolatcan/ccbell-sound-packs):
+
+- **Release tag**: `{pack_id}-v{version}` (e.g., `minimal-v1.0.0`)
+- **Assets**: `pack.json` + individual `{event_name}.wav` files (not zipped)
+
+```
+Release: minimal-v1.0.0
+├── pack.json                    # Pack manifest
+├── stop.wav                     # 44.1kHz stereo WAV
+├── subagent.wav
+├── permission_prompt.wav
+├── idle_prompt.wav
+├── session_start.wav
+├── session_end.wav
+├── pre_tool_use.wav
+├── post_tool_use.wav
+├── subagent_start.wav
+└── user_prompt_submit.wav
+```
+
+**Audio Specifications:**
+- Format: WAV (PCM)
+- Sample Rate: 44.1 kHz
+- Channels: Stereo
+- Size: ~500KB-5MB per file (varies by duration and model)
+
+## Architecture
+
+### ccbell-sound-generator
+
+A full-stack web application for AI-powered sound generation, deployed as two separate HuggingFace Spaces:
+
+| Space | URL | Access | Purpose |
+|-------|-----|--------|---------|
+| **Public** | [ccbell-sound-generator](https://huggingface.co/spaces/mpolatcan/ccbell-sound-generator) | All users | Generate + download packs |
+| **Admin** | [ccbell-sound-generator-admin](https://huggingface.co/spaces/mpolatcan/ccbell-sound-generator-admin) (private) | Admin only | Generate + download + publish official packs |
+
+Both spaces share the same codebase. The admin space has the GitHub token configured as a HuggingFace secret, enabling the `/api/publish` endpoint. The public space does not have this token, so `/api/publish` is unavailable.
+
+**CI/CD Deployment:**
+
+Both spaces are deployed from the same [ccbell-sound-generator](https://github.com/mpolatcan/ccbell-sound-generator) repository via a single GitHub Actions workflow using a matrix strategy:
+
+```yaml
+# .github/workflows/deploy.yml (simplified)
+strategy:
+  fail-fast: false
+  matrix:
+    include:
+      - space: ccbell-sound-generator
+      - space: ccbell-sound-generator-admin
+```
+
+| Trigger | Description |
+|---------|-------------|
+| Version tag push (`v*.*.*`) | Automatic deploy on release |
+| `workflow_dispatch` | Manual deploy with optional version input |
+
+| Secret | Purpose |
+|--------|---------|
+| `HF_TOKEN` | Write access to both HuggingFace Spaces |
+| `HF_USERNAME` | HuggingFace username |
+
+Deploy jobs run in parallel with `fail-fast: false` — if one space fails, the other still deploys.
+
+| Component | Technology |
+|-----------|------------|
+| Backend | FastAPI (Python 3.11+), uvicorn |
+| Frontend | React 19, TypeScript, Vite 6, Tailwind CSS, shadcn/ui |
+| AI Models | Stable Audio Open (Small: 341M params, 1.0: 1.1B params) |
+| Audio | torchaudio, PyTorch (CPU) |
+| Publishing | PyGithub (admin space only, publish to ccbell-sound-packs releases) |
+| Deployment | HuggingFace Spaces (Docker SDK, free CPU tier) |
+
+**API Endpoints:**
+
+| Method | Endpoint | Purpose | Public Space | Admin Space |
+|--------|----------|---------|:---:|:---:|
+| `GET` | `/api/themes` | List available theme presets | Yes | Yes |
+| `GET` | `/api/hooks` | List supported hook types | Yes | Yes |
+| `POST` | `/api/generate` | Start audio generation (returns job_id) | Yes | Yes |
+| `GET` | `/api/audio/{job_id}` | Download generated WAV file | Yes | Yes |
+| `WS` | `/api/ws/{job_id}` | Real-time generation progress | Yes | Yes |
+| `GET` | `/api/download/{pack_id}` | Download pack as zip (pack.json + WAVs) | Yes | Yes |
+| `POST` | `/api/publish` | Publish pack to GitHub release + update index.json | No | Yes |
+
+**Publish Endpoint Availability:**
+
+The `/api/publish` endpoint checks for a `GITHUB_TOKEN` environment variable at startup. If the token is not configured (public space), the endpoint returns `403 Forbidden` and the "Publish" button is hidden in the UI. This is the only difference between the two spaces.
+
+**User Flow (public space):**
+
+```
+User selects theme + hook types + duration + model
+          │
+          ▼
+POST /api/generate → AudioGenerationJob
+          │
+          ▼
+Stable Audio Open model generates audio
+(stages: loading_model → preparing → generating → processing_audio → saving → completed)
+          │
+          ▼
+WAV file stored in /tmp/ccbell-audio/{job_id}.wav
+          │
+          ▼
+GET /api/download/{pack_id} → Returns zip file (pack.json + {event}.wav files)
+          │
+          ▼
+Generator UI shows install command:
+  /ccbell:packs install --url https://huggingface.co/.../api/download/{pack_id}
+```
+
+**Admin Flow (admin space → official packs):**
+
+```
+Admin generates sounds (same flow as above)
+          │
+          ▼
+POST /api/publish → Creates GitHub Release on ccbell-sound-packs
+                     with pack.json + {event}.wav assets
+                   → Updates index.json in repo with new pack entry
+```
+
+### ccbell-sound-packs
+
+Repository: [mpolatcan/ccbell-sound-packs](https://github.com/mpolatcan/ccbell-sound-packs)
+
+Stores a pack index in git and sound files as release assets:
+
+```
+Git Repository (index only)
+├── index.json                    # Pack catalog - updated by generator on publish
+└── README.md
+
+GitHub Releases (binary assets)
+├── minimal-v1.0.0               # pack.json + stop.wav + subagent.wav + ...
+├── sci-fi-v1.0.0                # pack.json + stop.wav + subagent.wav + ...
+└── ...
+```
+
+#### index.json Schema
+
+The `index.json` file is the single source of truth for pack discovery. It is updated by the ccbell-sound-generator when a pack is published. The `/ccbell:packs browse` command fetches this file to list available packs.
+
+```json
+{
+  "version": 1,
+  "updated_at": "2026-03-01T12:00:00Z",
+  "packs": [
+    {
+      "id": "minimal",
+      "name": "Minimal",
+      "description": "Clean, professional notification sounds",
+      "author": "ccbell-sound-generator",
+      "version": "1.0.0",
+      "release_tag": "minimal-v1.0.0",
+      "events": ["stop", "subagent", "permission_prompt", "idle_prompt"],
+      "source": {
+        "model": "stable-audio-open-small",
+        "theme": "minimal"
+      }
+    },
+    {
+      "id": "sci-fi",
+      "name": "Sci-Fi Ambient",
+      "description": "Futuristic digital notification sounds",
+      "author": "ccbell-sound-generator",
+      "version": "1.0.0",
+      "release_tag": "sci-fi-v1.0.0",
+      "events": ["stop", "subagent", "permission_prompt", "idle_prompt"],
+      "source": {
+        "model": "stable-audio-open-small",
+        "theme": "sci-fi"
+      }
+    }
+  ]
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `version` | number | Index schema version (currently `1`) |
+| `updated_at` | string | ISO 8601 timestamp of last update |
+| `packs[].id` | string | Pack slug used in install commands |
+| `packs[].name` | string | Human-readable display name |
+| `packs[].description` | string | Short description |
+| `packs[].author` | string | Pack creator |
+| `packs[].version` | string | SemVer version |
+| `packs[].release_tag` | string | GitHub release tag for downloading assets |
+| `packs[].events` | array | List of event names included in the pack |
+| `packs[].source` | object | Generation metadata (model, theme) |
+
+| Aspect | Solution |
+|--------|----------|
+| Repo size | Stays small (single JSON index, no binaries) |
+| Browse speed | Single fetch of `index.json` via raw URL |
+| Install | Uses `release_tag` to download assets from GitHub Releases |
+| Fast clone | Users don't download any sounds |
+| Index updates | Generator appends/updates entries on publish |
+
+### Theme Presets
+
+The generator includes 7 built-in themes + custom prompt support:
+
+| Theme | ID | Description | Style |
+|-------|----|-------------|-------|
+| Sci-Fi | `sci-fi` | Futuristic digital sounds | Digital synth, oscillator, modular synth |
+| Retro 8-bit | `retro-8bit` | Classic video game chiptune | Chiptune synth, square/pulse/triangle waves |
+| Nature | `nature` | Organic natural elements | Wind chimes, wood percussion, kalimba |
+| Minimal | `minimal` | Clean, professional tones | Pure melodic tone, glass chimes, bells |
+| Mechanical | `mechanical` | Industrial metallic textures | Metal percussion, anvil, spring resonance |
+| Ambient | `ambient` | Warm atmospheric sounds | Synth pads, reverb piano, string ensemble |
+| Jazz | `jazz` | Smooth jazz tones | Muted trumpet, upright bass, vibraphone |
+| Custom | `custom` | User-written prompts | Free-form text input |
+
+Each theme has **tiered prompt components** (simple, standard, detailed) controlling generation richness:
+- **Simple**: 1-2 descriptors per category (fastest generation)
+- **Standard**: 2-3 descriptors (balanced)
+- **Detailed**: 3-5 descriptors (richest output)
+
+Prompt assembly pattern:
+```
+"{sound_character}, {style}, {instruments}, {mood}, {duration} seconds, {quality}"
+```
+
+**AI Models:**
+
+| Model | Parameters | Max Duration | Default Steps | Sampler |
+|-------|-----------|--------------|---------------|---------|
+| Small | 341M | 11.0s | 8 | pingpong |
+| 1.0 | 1.1B | 47.0s | 100 | dpmpp-3m-sde |
 
 ## Implementation Plan
 
 ### cc-plugins
 
-Steps required in cc-plugins repository:
+Steps required in cc-plugins repository (for **both** production and nightly variants):
 
-1. Update plugin.json version
-2. Update ccbell.sh if needed
-3. Add/update command documentation
-4. Add/update hooks configuration
-5. Add new sound files if applicable
+1. Update `plugin.json` version in both `production/` and `nightly/`
+2. Update `ccbell.sh` if needed (nightly exports `CCBELL_PACKS_DIR`)
+3. Add/update `packs.md` command documentation in both variants
+4. Add `sound-packs` keyword to both `plugin.json` manifests
+5. Add/update hooks configuration if new events are hooked
 
 ### ccbell
 
 Steps required in ccbell repository:
 
-1. Add packs section to config structure
-2. Create internal/pack/packs.go
+1. Add `packs` and `activePack` fields to config structure
+2. Create `internal/pack/packs.go`
 3. Implement PackManager with List/Install/Use/Uninstall methods
-4. Extend ResolveSoundPath() to handle pack: scheme
+4. Extend ResolveSoundPath() to handle `pack:` scheme
 5. Add packs command with browse/preview/install/use options
-6. Update version in main.go
-7. Tag and release vX.X.X
-8. Sync version to cc-plugins
+6. Implement dual install modes:
+   - **Catalog install**: Download pack.json + WAV assets from GitHub releases (official packs)
+   - **URL install**: Download zip from any URL, extract to packs dir (user-generated packs)
+7. Read packs directory from `CCBELL_PACKS_DIR` env var (default: `~/.claude/ccbell/packs/`)
+8. Update version in main.go
+9. Tag and release (stable for production, pre-release for nightly)
+10. Sync version to cc-plugins for both variants
 
-## External Dependencies
+**Installed Pack Layout (production):**
 
-| Dependency | Version | Purpose | Required |
-|------------|---------|---------|----------|
-| None | HTTP client | Download packs from GitHub | ❌ |
+```
+~/.claude/ccbell/packs/
+├── minimal/
+│   ├── pack.json
+│   ├── stop.wav
+│   ├── subagent.wav
+│   ├── permission_prompt.wav
+│   ├── idle_prompt.wav
+│   └── ...
+├── sci-fi/
+│   ├── pack.json
+│   └── ...
+└── ...
+```
+
+**Installed Pack Layout (nightly):**
+
+```
+~/.claude/ccbell-nightly/packs/
+├── minimal/
+│   ├── pack.json
+│   ├── stop.wav
+│   └── ...
+└── ...
+```
+
+## User-Generated Packs
+
+Any user can create and install their own sound packs via the [ccbell-sound-generator](https://huggingface.co/spaces/mpolatcan/ccbell-sound-generator) web app.
+
+### Generator-to-ccbell Flow
+
+```
+1. Visit ccbell-sound-generator
+2. Select theme + events + duration + model
+3. Generate sounds
+4. Click "Download Pack"
+5. Generator shows install command:
+
+   /ccbell:packs install --url https://huggingface.co/.../api/download/{pack_id}
+
+6. Run the command in Claude Code → pack installed
+```
+
+No GitHub account, no forking, no publishing. The generator serves the pack zip directly.
+
+### Download Pack Format
+
+The generator's `/api/download/{pack_id}` endpoint returns a zip file:
+
+```
+my-pack.zip
+├── pack.json
+├── stop.wav
+├── subagent.wav
+├── permission_prompt.wav
+├── idle_prompt.wav
+└── ...
+```
+
+ccbell extracts the zip to `~/.claude/ccbell/packs/{pack_id}/` (or `~/.claude/ccbell-nightly/packs/{pack_id}/` for nightly).
+
+### Temporary Storage
+
+Generated packs are stored temporarily on the generator server (`/tmp/ccbell-audio/`). Download URLs are ephemeral - users should install promptly after generation. If the URL expires, the user can regenerate the pack.
+
+### Manual Local Packs
+
+Users can also create packs manually without the generator:
+
+1. Create a directory in `~/.claude/ccbell/packs/my-pack/` (or `~/.claude/ccbell-nightly/packs/my-pack/`)
+2. Add `pack.json` and WAV sound files
+3. Use with `/ccbell:packs use my-pack`
+
+Minimum `pack.json` for local packs (only `id`, `name`, `version`, and `events` are required):
+
+```json
+{
+  "id": "my-custom-pack",
+  "name": "My Custom Pack",
+  "version": "1.0.0",
+  "events": {
+    "stop": "stop.wav",
+    "permission_prompt": "permission_prompt.wav"
+  }
+}
+```
 
 ## Status
 
 | Status | Description |
 |--------|-------------|
-| ✅ | macOS supported |
-| ✅ | Linux supported |
-| ✅ | No external dependencies (uses Go stdlib) |
-| ✅ | Cross-platform compatible |
-
-## Research Details
-
-### Claude Code Plugins
-
-Plugin manifest supports commands. New packs command can be added.
-
-### Claude Code Hooks
-
-No new hooks needed - sound packs integrated into config.
-
-### Audio Playback
-
-Pack sounds resolved via `pack:` scheme in sound configuration.
-
-### Free Sound Pack Sources Research
-
-#### 1. Freesound (Recommended - Community-Driven)
-- **URL**: https://freesound.org/
-- **Sounds**: 700,000+ Creative Commons licensed sounds
-- **License**: Creative Commons (various: CC0, CC-BY, CC-BY-NC)
-- **API**: Free API available for non-commercial use
-- **Categories**: Field recordings, sound effects, musical samples
-- **Best For**: High-quality, diverse sound effects with community curation
-- **Note**: Celebrating 20 years in 2025, one of the largest collaborative sound databases
-
-#### 2. Pixabay Audio (Recommended - Royalty-Free)
-- **URL**: https://pixabay.com/sound-effects/
-- **Sounds**: 110,000+ royalty-free sound effects
-- **License**: Pixabay License (free for commercial use)
-- **API**: Available via Pixabay API
-- **Categories**: Notification, alarm, alert, modern sounds
-- **Notification Sounds**: 1,455+ notification-specific sounds
-- **Best For**: Production-ready sounds without attribution requirements
-
-#### 3. Mixkit (Recommended - License Clarity)
-- **URL**: https://mixkit.co/free-sound-effects/
-- **Sounds**: 1,000+ free sound effects
-- **License**: Mixkit License (free for commercial use)
-- **Categories**: Notification, alerts, bell, tones
-- **Notification Sounds**: 36 dedicated notification sounds
-- **Best For**: Clean, modern notification sounds with clear licensing
-
-#### 4. Notification Sounds (Notification-Focused)
-- **URL**: https://notificationsounds.com/
-- **Sounds**: Hundreds of original notification sounds
-- **License**: Proprietary (free for personal use)
-- **Categories**: Mobile ringtones, UI sounds, alerts
-- **Best For**: Mobile-style notification tones
-
-#### 5. Zedge (Mobile Notifications)
-- **URL**: https://www.zedge.net/
-- **Sounds**: 100+ notification ringtones for 2025
-- **License**: Free for personal use
-- **Platform**: Mobile-focused (Android, iOS apps available)
-- **Best For**: Trendy mobile notification sounds
-
-#### 6. SoundBible (Variety)
-- **URL**: https://soundbible.com/
-- **Sounds**: Thousands of free sound effects
-- **License**: Creative Commons + Public Domain
-- **Formats**: WAV, MP3
-- **Categories**: Static, modern, customer sounds
-- **Best For**: Quick downloads without sign-up required
-
-#### 7. Free To Use Sounds
-- **URL**: https://www.freetousesounds.com/
-- **Sounds**: 15,000+ sound recordings
-- **License**: Royalty-free for commercial use
-- **Categories**: Field recordings, SFX, ambiences
-- **Best For**: Professional-quality field recordings
-
-#### 8. GitHub-Based Sound Packs
-
-**akx/Notifications**
-- **URL**: https://github.com/akx/Notifications
-- **License**: Dual license (flexible)
-- **Content**: Hand-crafted, subtle notification tones
-- **Best For**: Minimalist, clean notification sounds
-
-**EdgeTX Sound Packs**
-- **URL**: https://github.com/EdgeTX/edgetx-sdcard-sounds
-- **Releases**: Regular sound pack updates (v2.11.3, Aug 2025)
-- **Best For**: Structured, organized sound packs
-
-**Fris0uman/CDDA-Soundpacks**
-- **URL**: https://github.com/Fris0uman/CDDA-Soundpacks
-- **License**: CC0, CC-BY (properly licensed)
-- **Best For**: CC0-licensed game sound packs
-
-#### 9. Zapsplat (Professional Quality)
-- **URL**: https://www.zapsplat.com/sound-effect-packs/notification-bells/
-- **Sounds**: 62 free notification bell sound effects
-- **License**: Free for commercial use (with attribution)
-- **Categories**: UI alerts, bells, chimes
-- **Best For**: Professional-quality notification bells
-
-#### 10. Free Sounds Library
-- **URL**: https://www.freesoundslibrary.com/
-- **Sounds**: High-quality SFX library
-- **License**: CC0 + CC-BY (check individual files)
-- **Categories**: Notifications, chimes, alerts
-- **Best For**: Attribution-flexible sound selection
-
-#### 11. Uppbeat Sound Effects
-- **URL**: https://uppbeat.io/blog/sound-effects/best-sound-effect-packs
-- **Content**: Blog with curated free sound effect packs
-- **License**: Various (check individual packs)
-- **Categories**: Notification sounds, bells, UI sounds
-- **Best For**: Discovery of curated, themed packs
-
-#### 12. Artlist Notifications
-- **URL**: https://artlist.io/collection/notifications/11517
-- **Sounds**: Professional notification SFX collection
-- **License**: Commercial license included
-- **Categories**: Modern UI notifications, bells
-- **Best For**: Production-ready, polished notification sounds
-
-#### 13. SONNISS GameAudioGDC
-- **URL**: https://sonniss.com/gameaudiogdc/
-- **Content**: Professional game audio archives
-- **License**: Royalty-free, commercially usable
-- **Best For**: High-quality game notification sounds
-
-### Sound Pack Distribution Strategy
-
-#### Recommended Approach: GitHub Releases
-- Host sound packs in dedicated repository (e.g., `ccbell/sound-packs`)
-- Each pack as a release with:
-  - `pack.json` metadata (name, description, author, version)
-  - Individual sound files for each event type
-  - Preview audio files
-- Index file listing available packs from GitHub API
-
-#### Alternative: Dedicated Pack Index
-- Create `ccbell/packs-index` repository
-- JSON index with pack metadata and download URLs
-- Easier pack discovery and browsing
-
-### Sound Pack Features
-
-- Pack index from GitHub releases or dedicated index repository
-- Browse available packs with metadata
-- Preview pack sounds before installation
-- Install/uninstall packs with dependency handling
-- Use pack as active configuration
-- Per-event overrides supported within packs
-- Mix and match sounds from different packs
-
----
-
-## Feature: Download Sounds from Providers
-
-Allow users to download individual sounds directly from free sound providers (Freesound, Pixabay, Mixkit) for use in ccbell notifications.
-
-### Table of Contents
-
-1. [Summary](#summary-1)
-2. [Benefit](#benefit-1)
-3. [Priority & Complexity](#priority--complexity-1)
-4. [Feasibility](#feasibility-1)
-   - [Claude Code](#claude-code-1)
-   - [Audio Player](#audio-player-1)
-   - [External Dependencies](#external-dependencies-1)
-5. [Usage in ccbell Plugin](#usage-in-ccbell-plugin-1)
-6. [Repository Impact](#repository-impact-1)
-   - [cc-plugins](#cc-plugins-1)
-   - [ccbell](#ccbell-1)
-7. [Implementation Plan](#implementation-plan-1)
-   - [cc-plugins](#cc-plugins-2)
-   - [ccbell](#ccbell-2)
-8. [External Dependencies](#external-dependencies-2)
-9. [Research Details](#research-details-1)
-10. [Research Sources](#research-sources-1)
-
-### Summary
-
-Download individual sounds directly from free sound providers (Freesound, Pixabay, Mixkit, etc.) for use in ccbell notifications. Enables direct access to vast sound libraries without manual download workflow.
-
-### Benefit
-
-| Aspect | Description |
-|--------|-------------|
-| :bust_in_silhouette: User Impact | Access 700,000+ sounds directly from ccbell |
-| :memo: Use Cases | Custom notification sounds, creative expression |
-| :dart: Value Proposition | No manual browsing/downloading needed |
-
-### Priority & Complexity
-
-| Aspect | Assessment |
-|--------|------------|
-| :rocket: Priority | 🟡 Medium |
-| :construction: Complexity | 🟡 Medium |
-| :warning: Risk Level | 🟡 Medium |
-
-### Feasibility
-
-#### Claude Code
-
-| Feature | Description |
-|---------|-------------|
-| :keyboard: Commands | New `download` command with provider/search/download options |
-| :hook: Hooks | Uses existing hooks for event handling |
-| :toolbox: Tools | Read, Write, Bash, WebFetch tools for HTTP requests |
-
-#### Audio Player
-
-| Aspect | Description |
-|--------|-------------|
-| :speaker: afplay | Downloaded sounds saved to user sounds directory |
-| :computer: Platform Support | Cross-platform compatible |
-| :musical_note: Audio Formats | AIFF, WAV, MP3 supported |
-
-#### External Dependencies
-
-| Dependency | Version | Purpose | Required |
-|------------|---------|---------|----------|
-| curl/wget | Any | Download sounds from providers | ✅ |
-
-### Usage in ccbell Plugin
-
-| Aspect | Description |
-|--------|-------------|
-| :hand: User Interaction | `/ccbell:download freesound "notification bell"`, `/ccbell:download pixabay --top` |
-| :wrench: Configuration | Adds `downloads` section to track downloaded sounds |
-| :gear: Default Behavior | Downloads to `~/.claude/ccbell/sounds/` |
-
-### Repository Impact
-
-#### cc-plugins
-
-| File | Description |
-|------|-------------|
-| `plugins/ccbell/.claude-plugin/plugin.json` | Plugin manifest (version bump) |
-| `plugins/ccbell/scripts/ccbell.sh` | Download script (version sync) |
-| `plugins/ccbell/hooks/hooks.json` | Hook definitions (no change) |
-| `plugins/ccbell/commands/*.md` | Add `download.md` command doc |
-
-#### ccbell
-
-| File | Description |
-|------|-------------|
-| `main.go` | Main entry point (version bump) |
-| `config/config.go` | Add `downloads` section |
-| `audio/downloader.go` | New - Download manager for sound providers |
-| `hooks/*.go` | Hook implementations (no change) |
-
-### Implementation Plan
-
-#### cc-plugins
-
-1. Update plugin.json version
-2. Update ccbell.sh if needed
-3. Add `download.md` command documentation
-
-#### ccbell
-
-1. Create `internal/download/downloader.go`
-2. Implement Provider interface for each sound source
-3. Add search functionality with query parameters
-4. Implement download with progress tracking
-5. Add `download` command with search/download/list options
-6. Update version in main.go
-7. Tag and release vX.X.X
-8. Sync version to cc-plugins
-
-### External Dependencies
-
-| Dependency | Version | Purpose | Required |
-|------------|---------|---------|----------|
-| curl/wget | Any | HTTP client for downloads | ✅ |
-| jq | Optional | Parse JSON API responses | ❌ |
-
-### Research Details
-
-#### Download Workflow
-
-```
-1. User searches: /ccbell:download freesound "door bell"
-2. ccbell queries Freesound API
-3. Results displayed with preview options
-4. User selects sound by number
-5. Sound downloaded to ~/.claude/ccbell/sounds/
-6. Sound available as custom:sound_name
-```
-
-#### Provider API Support
-
-| Provider | API Required | Search | Download | Notes |
-|----------|--------------|--------|----------|-------|
-| **Freesound** | Yes | ✅ | ✅ | Requires API key, 700K+ sounds |
-| **Pixabay** | Yes | ✅ | ✅ | No API key for basic use, 110K+ sounds |
-| **Mixkit** | No | ❌ | ✅ | Direct download links |
-| **SoundBible** | No | ❌ | ✅ | Direct download, no API |
-| **Zapsplat** | No | ❌ | ✅ | Free tier available |
-
-#### Provider Implementation
-
-##### Freesound API (Recommended - Most Sounds)
-
-- **API URL**: `https://freesound.org/apiv2`
-- **Authentication**: API key required (free registration)
-- **Rate Limit**: 5 requests/second
-- **Search Endpoint**: `GET /search/text/?query={query}&fields=id,name,previews`
-- **Download**: Requires OAuth2 for full download or pre-signed URLs
-
-```bash
-# Search sounds
-curl "https://freesound.org/apiv2/search/text/?q=notification&types=wav&token={API_KEY}"
-
-# Download sound (requires OAuth flow)
-curl -L -o sound.wav "https://freesound.org/apiv2/sounds/{sound_id}/download/"
-```
-
-##### Pixabay API (Recommended - No Auth Required)
-
-- **API URL**: `https://pixabay.com/api/`
-- **Authentication**: Optional API key (higher rate limits)
-- **Rate Limit**: 50 requests/second (with key), 5/sec (without)
-- **Search**: `GET https://pixabay.com/api/?q={query}&category=sound-effects`
-
-```bash
-# Search sounds (no API key needed)
-curl "https://pixabay.com/api/?q=notification+bell&category=sound-effects"
-
-# Download (get from 'audio' field in response)
-curl -L -o sound.mp3 "$(curl -s 'https://pixabay.com/api/?q=bell&category=sound-effects' | jq -r '.hits[0].audio')"
-```
-
-##### Mixkit (Direct Download)
-
-- **URL**: https://mixkit.co/free-sound-effects/
-- **No API**: Scraping required or manual download
-- **Best For**: Pre-curated packs
-
-##### SoundBible (Direct Download)
-
-- **URL**: http://soundbible.com/
-- **No API**: HTML scraping required
-- **Format**: WAV, MP3
-- **License**: Check individual files
-
-#### Download Manager Features
-
-- **Search across multiple providers** with unified results
-- **Preview sounds** before download (where supported)
-- **Progress indicator** for downloads
-- **License display** for each sound
-- **Organize by provider** in local sounds directory
-- **Cache search results** to avoid repeated API calls
-- **Retry failed downloads** with exponential backoff
-
-#### Sound Organization
-
-```
-~/.claude/ccbell/sounds/
-├── custom/              # User's downloaded sounds
-│   ├── freesound/
-│   │   ├── sound_12345.wav
-│   │   └── sound_67890.mp3
-│   ├── pixabay/
-│   │   └── bell_alarm_001.mp3
-│   └── soundbible/
-│       └── door_bell.wav
-└── bundled/             # Default sounds
-    ├── stop.aiff
-    ├── permission_prompt.aiff
-    └── ...
-```
-
-#### Command Interface
-
-```
-/ccbell:download                  # Interactive search mode
-/ccbell:download freesound "bell" # Search Freesound
-/ccbell:download pixabay "chime"  # Search Pixabay
-/ccbell:download list             # List downloaded sounds
-/ccbell:download remove sound_id  # Remove downloaded sound
-/ccbell:download clear            # Clear all downloaded sounds
-```
-
-#### Configuration
-
-```json
-{
-  "downloads": {
-    "defaultProvider": "pixabay",
-    "freesound": {
-      "apiKey": "${FREESOUND_API_KEY}",
-      "enabled": true
-    },
-    "pixabay": {
-      "apiKey": "${PIXABAY_API_KEY}",
-      "enabled": true
-    },
-    "saveDirectory": "~/.claude/ccbell/sounds/custom",
-    "maxConcurrentDownloads": 3
-  }
-}
-```
-
-### Download Features
-
-- **Multi-provider search** (Freesound, Pixabay)
-- **License filtering** (CC0, CC-BY, commercial-friendly)
-- **Format selection** (WAV, MP3, AIFF)
-- **Preview before download** (where supported)
-- **Progress tracking** with visual feedback
-- **Local sound library management** (list, remove, clear)
-- **Cache search results** for faster repeated searches
-- **Retry logic** with exponential backoff
-- **Environment variable** support for API keys
-
-### Research Sources
-
-| Source | Description |
-|--------|-------------|
-| [Freesound API](https://freesound.org/docs/api/) | :books: Freesound API v2 documentation |
-| [Pixabay API](https://pixabay.com/api/docs/) | :books: Pixabay API documentation |
-| [Mixkit Sounds](https://mixkit.co/free-sound-effects/) | :books: Free sound effects |
-| [SoundBible](http://soundbible.com/) | :books: Free sound clips |
-| [Zapsplat](https://www.zapsplat.com/) | :books: Professional sound effects |
-| [Go HTTP Client](https://pkg.go.dev/net/http) | :books: HTTP requests |
-| [jq Manual](https://stedolan.github.io/jq/manual/) | :books: JSON processing |
+| :white_check_mark: | macOS supported |
+| :white_check_mark: | Linux supported |
+| :white_check_mark: | No external dependencies for users (uses Go stdlib) |
+| :white_check_mark: | Cross-platform compatible |
+| :white_check_mark: | AI generation via HuggingFace Spaces (free CPU tier) |
+| :white_check_mark: | WAV format (44.1kHz stereo PCM) |
+
+## External Dependencies
+
+| Dependency | Purpose | Required |
+|------------|---------|----------|
+| GitHub API | Browse and install official packs from releases | For official packs (unauthenticated, 60 req/hr) |
+| ccbell-sound-generator | Generate and download user packs | For user-generated packs |
+
+### GitHub API Rate Limits
+
+| Request Type | Rate Limit | Notes |
+|--------------|------------|-------|
+| Unauthenticated | 60 requests/hour | IP-based, sufficient for pack browsing/install |
+| Authenticated (PAT) | 5,000 requests/hour | Personal Access Token |
+
+> **Note:** User-generated packs installed via `--url` do not use the GitHub API. They download directly from the generator's HuggingFace Spaces endpoint.
 
 ## Research Sources
 
 | Source | Description |
 |--------|-------------|
-| [Freesound](https://freesound.org/) | :books: 700,000+ Creative Commons licensed sounds database |
-| [Pixabay Audio](https://pixabay.com/sound-effects/) | :books: 110,000+ royalty-free sound effects |
-| [Mixkit Sounds](https://mixkit.co/free-sound-effects/) | :books: Free sound effects with Mixkit License |
-| [Notification Sounds](https://notificationsounds.com/) | :books: Mobile notification sounds and ringtones |
-| [Zedge](https://www.zedge.net/) | :books: Mobile ringtones and notification sounds |
-| [SoundBible](https://soundbible.com/) | :books: Free sound clips in WAV and MP3 |
-| [Free To Use Sounds](https://www.freetousesounds.com/) | :books: 15,000+ royalty-free sound recordings |
-| [Zapsplat Notification Bells](https://www.zapsplat.com/sound-effect-packs/notification-bells/) | :books: 62 professional notification bell sounds |
-| [Free Sounds Library](https://www.freesoundslibrary.com/) | :books: High-quality SFX with CC0 + CC-BY |
-| [Uppbeat Sound Effects](https://uppbeat.io/blog/sound-effects/best-sound-effect-packs) | :books: Curated free sound effect packs |
-| [Artlist Notifications](https://artlist.io/collection/notifications/11517) | :books: Professional notification SFX collection |
-| [Freesound API](https://freesound.org/docs/api/) | :books: Freesound API documentation |
-| [akx/Notifications - GitHub](https://github.com/akx/Notifications) | :books: Hand-crafted notification tones |
-| [EdgeTX Sound Packs - GitHub](https://github.com/EdgeTX/edgetx-sdcard-sounds) | :books: Structured sound pack releases |
-| [SONNISS GameAudioGDC](https://sonniss.com/gameaudiogdc/) | :books: Professional game audio archives |
-| [Top 12 Free Sound Effects Sites - SFX Engine](https://sfxengine.com/blog/free-sound-effects-download) | :books: Guide to free sound effects resources |
-| [Current audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Audio player |
-| [Sound path resolution](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | :books: Path resolution |
-| [Config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) | :books: Config structure |
+| [ccbell-sound-generator](https://huggingface.co/spaces/mpolatcan/ccbell-sound-generator) | AI-powered sound generation web app |
+| [ccbell-sound-packs](https://github.com/mpolatcan/ccbell-sound-packs) | Sound pack distribution repository |
+| [Stable Audio Open](https://huggingface.co/stabilityai/stable-audio-open-1.0) | AI model for audio generation |
+| [GitHub REST API Rate Limits](https://docs.github.com/en/rest/overview/rate-limits-for-the-rest-api) | GitHub API rate limits |
+
+### Internal Documentation
+
+| Source | Description |
+|--------|-------------|
+| [Audio player](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | Current audio playback implementation |
+| [Sound path resolution](https://github.com/mpolatcan/ccbell/blob/main/internal/audio/player.go) | Path resolution logic |
+| [Config structure](https://github.com/mpolatcan/ccbell/blob/main/internal/config/config.go) | Configuration schema |

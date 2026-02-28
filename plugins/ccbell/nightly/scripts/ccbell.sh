@@ -1,12 +1,18 @@
 #!/usr/bin/env bash
-# ccbell bootstrap - Downloads ccbell binary if missing, then execs it
+# ccbell-nightly bootstrap - Downloads pre-release ccbell binary if missing, then execs it
+# This is the NIGHTLY variant - uses pre-release tags and separate config/log paths
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_DIR="$(dirname "$SCRIPT_DIR")"
 BINARY="$PLUGIN_DIR/bin/ccbell"
-readonly VERSION="0.2.30"
+readonly VERSION="0.3.0-nightly.1"
 readonly REPO="mpolatcan/ccbell"
+
+# Nightly-specific paths (isolated from stable ccbell)
+export CCBELL_CONFIG="$HOME/.claude/ccbell-nightly.config.json"
+export CCBELL_LOG="$HOME/.claude/ccbell-nightly.log"
+export CCBELL_PACKS_DIR="$HOME/.claude/ccbell-nightly/packs"
 
 # Check if download tool exists
 check_download_tool() {
@@ -17,13 +23,13 @@ check_download_tool() {
 download_binary() {
     [[ -f "$BINARY" ]] && return 0
 
-    check_download_tool || { echo "ccbell: Error: curl or wget required" >&2; exit 1; }
+    check_download_tool || { echo "ccbell-nightly: Error: curl or wget required" >&2; exit 1; }
 
     OS=$(uname -s | tr '[:upper:]' '[:lower:]')
     ARCH=$(uname -m | sed 's/x86_64/amd64/; s/aarch64/arm64/')
     URL="https://github.com/${REPO}/releases/download/v${VERSION}/ccbell-${OS}-${ARCH}.tar.gz"
 
-    echo "ccbell: Downloading..." >&2
+    echo "ccbell-nightly: Downloading pre-release v${VERSION}..." >&2
 
     TMP=$(mktemp).tar.gz
     trap 'rm -f "$TMP"' EXIT
@@ -47,7 +53,7 @@ download_binary() {
         fi
 
         if [[ $attempt -lt $max_attempts ]]; then
-            echo "ccbell: Download failed (attempt $attempt/$max_attempts), retrying in ${delay}s..." >&2
+            echo "ccbell-nightly: Download failed (attempt $attempt/$max_attempts), retrying in ${delay}s..." >&2
             sleep $delay
             delay=$((delay * 2))
         fi
@@ -55,7 +61,7 @@ download_binary() {
     done
 
     if [[ $attempt -gt $max_attempts ]]; then
-        echo "ccbell: Error: Failed to download after $max_attempts attempts" >&2
+        echo "ccbell-nightly: Error: Failed to download after $max_attempts attempts" >&2
         exit 1
     fi
 

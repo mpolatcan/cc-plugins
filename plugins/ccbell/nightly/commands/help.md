@@ -1,0 +1,205 @@
+---
+name: ccbell-nightly:help
+description: Show ccbell-nightly help and documentation
+allowed-tools: ["Read"]
+---
+
+# ccbell-nightly Help
+
+Show help and documentation for the ccbell-nightly plugin.
+
+## Response
+
+**Plugin Root (find latest version):**
+```bash
+# Find ccbell-nightly plugin in any marketplace path
+CCBELL_PATH=$(find "$HOME/.claude/plugins/cache" -mindepth 2 -maxdepth 2 -type d -name "ccbell-nightly" 2>/dev/null | head -1)
+LATEST_VERSION=$(find "$CCBELL_PATH" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | sort -V | tail -1)
+PLUGIN_ROOT="$CCBELL_PATH/$LATEST_VERSION"
+```
+
+Provide the following information:
+
+```
+# ccbell-nightly - Sound Notifications for Claude Code (Nightly)
+
+This is the NIGHTLY/PRE-RELEASE version of ccbell. It uses pre-release binaries
+and a separate configuration, so it can be installed alongside the stable version
+without conflicts.
+
+Play audio notifications when Claude Code events occur, so you can work in
+other windows without constantly checking if Claude is done.
+
+## Differences from Stable (ccbell)
+
+- Uses pre-release binary versions from GitHub
+- Config: `~/.claude/ccbell-nightly.config.json` (separate from stable)
+- Log: `~/.claude/ccbell-nightly.log`
+- Packs: `~/.claude/ccbell-nightly/packs/`
+- Can be installed alongside stable ccbell without conflicts
+
+## Supported Events
+
+- **Stop** - Plays when Claude finishes responding
+- **Permission Prompt** - Plays when Claude needs your permission
+- **Idle Prompt** - Plays when Claude is waiting for input
+- **Subagent** - Plays when a background agent completes
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| /ccbell-nightly:configure | Interactive setup for sounds, events, cooldowns, and quiet hours |
+| /ccbell-nightly:test [event] | Test sounds (all or specific event) |
+| /ccbell-nightly:enable | Enable all notifications |
+| /ccbell-nightly:disable | Disable all notifications |
+| /ccbell-nightly:status | Show current configuration |
+| /ccbell-nightly:profile | Switch between sound profiles |
+| /ccbell-nightly:packs | Browse, install, and manage sound packs |
+| /ccbell-nightly:validate | Run installation diagnostics |
+| /ccbell-nightly:help | Show this help |
+
+## Features
+
+### Sound Profiles
+Create and switch between different notification presets:
+- **default** - Standard settings
+- **focus** - Minimal interruptions
+- **work** - Professional, subtle sounds
+- **loud** - Maximum volume for all events
+- **silent** - All notifications disabled
+
+Use `/ccbell-nightly:profile` to switch profiles.
+
+### Quiet Hours (Do Not Disturb)
+Set time windows when notifications are suppressed:
+- Configure in `/ccbell-nightly:configure`
+- Supports overnight periods (e.g., 22:00 - 07:00)
+
+### Cooldowns (Debounce)
+Prevent notification spam with per-event cooldowns:
+- Set minimum seconds between same event notifications
+- Example: `"cooldown": 5` means at least 5 seconds between sounds
+
+### Sound Packs
+Install AI-generated themed sound packs:
+- Browse available packs: `/ccbell-nightly:packs browse`
+- Install a pack: `/ccbell-nightly:packs install minimal`
+- Apply pack sounds: `/ccbell-nightly:packs use minimal`
+- Generate your own at [ccbell-sound-generator](https://huggingface.co/spaces/mpolatcan/ccbell-sound-generator)
+
+### Debug Mode
+Enable logging for troubleshooting:
+- Logs written to `~/.claude/ccbell-nightly.log`
+- Enable via `/ccbell-nightly:configure` or config file
+
+## Sound Options
+
+### Bundled Sounds
+Pre-packaged sounds included with the plugin. These work consistently across all platforms.
+
+Available: `bundled:stop`, `bundled:permission_prompt`, `bundled:idle_prompt`, `bundled:subagent`
+
+### Sound Pack Sounds
+Use sounds from installed packs. Packs bundle themed sounds for all events.
+
+Format: `pack:pack_id:sound_file` (e.g., `pack:minimal:stop.wav`)
+
+### Custom Sounds
+Use your own audio files (MP3, WAV, AIFF, M4A).
+
+Format: `custom:/path/to/your/sound.mp3`
+
+## Configuration
+
+Config is stored at:
+- Global: `~/.claude/ccbell-nightly.config.json`
+
+### Full Config Example
+
+```json
+{
+  "enabled": true,
+  "debug": false,
+  "activeProfile": "default",
+  "activePack": null,
+  "quietHours": {
+    "start": "22:00",
+    "end": "07:00"
+  },
+  "events": {
+    "stop": {
+      "enabled": true,
+      "sound": "bundled:stop",
+      "volume": 0.5,
+      "cooldown": 0
+    },
+    "permission_prompt": {
+      "enabled": true,
+      "sound": "bundled:permission_prompt",
+      "volume": 0.7,
+      "cooldown": 0
+    },
+    "idle_prompt": {
+      "enabled": true,
+      "sound": "bundled:idle_prompt",
+      "volume": 0.5,
+      "cooldown": 0
+    },
+    "subagent": {
+      "enabled": true,
+      "sound": "bundled:subagent",
+      "volume": 0.5,
+      "cooldown": 0
+    }
+  },
+  "profiles": {
+    "work": {
+      "quietHours": {
+        "start": "22:00",
+        "end": "07:00"
+      },
+      "events": {
+        "stop": { "sound": "bundled:stop", "volume": 0.3 }
+      }
+    }
+  }
+}
+```
+
+## Cross-Platform Support
+
+- **macOS:** Full support (uses afplay)
+- **Linux:** Requires mpv, paplay, aplay, or ffplay
+
+## Quick Start
+
+1. Run `/ccbell-nightly:enable` to enable with defaults
+2. Run `/ccbell-nightly:test` to verify sounds work
+3. Run `/ccbell-nightly:configure` to customize
+
+## Troubleshooting
+
+**Sounds not playing?**
+1. Check if currently in quiet hours
+2. Check cooldown settings
+3. Run `/ccbell-nightly:status` to verify config
+4. Enable debug mode and check `~/.claude/ccbell-nightly.log`
+5. Verify bundled sounds exist in the plugin's sounds/ directory
+6. Run `/ccbell-nightly:validate` to diagnose installation issues
+
+**Too many notifications?**
+Configure cooldowns in `/ccbell-nightly:configure` to add delays between sounds.
+
+## Installation
+
+**Via Marketplace:**
+/plugin marketplace add mpolatcan/cc-plugins
+/plugin install ccbell-nightly
+
+The installer automatically downloads the correct pre-release binary for your platform.
+
+## Source Code
+
+The ccbell binary is built from: https://github.com/mpolatcan/ccbell
+```

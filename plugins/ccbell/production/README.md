@@ -9,7 +9,8 @@ Audio notifications for Claude Code events. Get notified when Claude finishes re
 - **Quiet Hours** - Do-not-disturb time windows
 - **Cooldowns** - Debounce rapid notifications
 - **Cross-Platform** - macOS and Linux support
-- **Flexible Sounds** - Bundled sounds, custom audio files
+- **Sound Packs** - AI-generated themed sound packs via [ccbell-sound-generator](https://huggingface.co/spaces/mpolatcan/ccbell-sound-generator)
+- **Flexible Sounds** - Bundled sounds, sound packs, custom audio files
 
 ## Installation
 
@@ -38,6 +39,7 @@ Audio notifications for Claude Code events. Get notified when Claude finishes re
 | `/ccbell:disable` | Disable all notifications |
 | `/ccbell:status` | Show current configuration |
 | `/ccbell:profile` | Switch between sound profiles |
+| `/ccbell:packs` | Browse, install, and manage sound packs |
 | `/ccbell:validate` | Run installation diagnostics |
 | `/ccbell:help` | Show help and documentation |
 
@@ -66,6 +68,10 @@ Audio notifications for Claude Code events. Get notified when Claude finishes re
 
 Pre-packaged sounds included with the plugin: `bundled:stop`, `bundled:permission_prompt`, `bundled:idle_prompt`, `bundled:subagent`
 
+### Sound Pack Sounds
+
+Use sounds from installed packs: `pack:pack_id:sound_file` (e.g., `pack:minimal:stop.wav`)
+
 ### Custom Sounds
 
 Use your own audio files (MP3, WAV, AIFF, M4A): `custom:/path/to/sound.mp3`
@@ -82,6 +88,7 @@ Config file:
   "enabled": true,
   "debug": false,
   "activeProfile": "default",
+  "activePack": null,
   "quietHours": {
     "start": "22:00",
     "end": "07:00"
@@ -121,6 +128,7 @@ Config file:
 |--------|------|---------|-------------|
 | `enabled` | boolean | true | Global on/off |
 | `debug` | boolean | false | Enable logging |
+| `activePack` | string | - | Active sound pack ID (e.g., "minimal") |
 | `quietHours.start` | string | - | Start of quiet period (HH:MM) |
 | `quietHours.end` | string | - | End of quiet period (HH:MM) |
 | `events.<event>.enabled` | boolean | true | Enable event |
