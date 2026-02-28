@@ -88,6 +88,7 @@ Config file:
   "enabled": true,
   "debug": false,
   "activeProfile": "default",
+  "activePack": null,
   "quietHours": {
     "start": "22:00",
     "end": "07:00"
@@ -127,6 +128,7 @@ Config file:
 |--------|------|---------|-------------|
 | `enabled` | boolean | true | Global on/off |
 | `debug` | boolean | false | Enable logging |
+| `activePack` | string | - | Active sound pack ID (e.g., "minimal") |
 | `quietHours.start` | string | - | Start of quiet period (HH:MM) |
 | `quietHours.end` | string | - | End of quiet period (HH:MM) |
 | `events.<event>.enabled` | boolean | true | Enable event |

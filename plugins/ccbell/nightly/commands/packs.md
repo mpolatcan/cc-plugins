@@ -7,37 +7,59 @@ allowed-tools: ["Read", "Write", "Bash", "WebFetch", "AskUserQuestion"]
 
 # Sound Packs for ccbell-nightly
 
-Browse, preview, and install sound packs that bundle sounds for all notification events. Sound packs are distributed via GitHub releases.
+Browse, preview, and install sound packs that bundle sounds for all notification events. Install official curated packs from the catalog, or install user-generated packs directly from the [ccbell-sound-generator](https://huggingface.co/spaces/mpolatcan/ccbell-sound-generator) via URL.
 
 ## Quick Start
 
 ```bash
-/ccbell-nightly:packs browse        # Browse available sound packs
-/ccbell-nightly:packs preview minimal  # Preview pack sounds before installing
-/ccbell-nightly:packs list          # List installed sound packs
-/ccbell-nightly:packs install minimal  # Install a sound pack
-/ccbell-nightly:packs use minimal      # Apply pack sounds to events (auto-updates config)
+/ccbell-nightly:packs browse                    # Browse official sound packs
+/ccbell-nightly:packs preview minimal           # Preview pack sounds before installing
+/ccbell-nightly:packs list                      # List installed sound packs
+/ccbell-nightly:packs install minimal           # Install an official pack from catalog
+/ccbell-nightly:packs install --url <url>       # Install a user-generated pack from URL
+/ccbell-nightly:packs use minimal               # Apply pack sounds to events (auto-updates config)
 ```
 
 ## Commands
 
-### Browse Available Packs
+### Browse Official Packs
 
-List all available sound packs from GitHub releases:
+List all available official sound packs:
 
 ```bash
 /ccbell-nightly:packs browse
 ```
 
-This fetches the latest sound packs from the ccbell-soundpacks repository and displays:
-- Pack name and description
-- Author information
-- Version
-- Events included in the pack
+**How to implement:**
+
+1. Fetch the pack index using WebFetch:
+   - URL: `https://raw.githubusercontent.com/mpolatcan/ccbell-sound-packs/main/index.json`
+   - This returns a JSON catalog of all official packs
+
+2. Parse the response and display each pack:
+
+```
+## Official Sound Packs
+
+| Pack | Description | Version | Events |
+|------|-------------|---------|--------|
+| minimal | Clean, professional notification sounds | 1.0.0 | stop, subagent, permission_prompt, idle_prompt |
+| sci-fi | Futuristic digital notification sounds | 1.0.0 | stop, subagent, permission_prompt, idle_prompt |
+| ... | ... | ... | ... |
+
+Install a pack: /ccbell-nightly:packs install <pack_id>
+Preview a pack: /ccbell-nightly:packs preview <pack_id>
+
+Generate your own: https://huggingface.co/spaces/mpolatcan/ccbell-sound-generator
+```
+
+3. If the fetch fails (network error), inform the user and suggest checking their connection
 
 ### Install a Sound Pack
 
-Download and install a sound pack:
+#### From official catalog
+
+Install an official pack by ID:
 
 ```bash
 /ccbell-nightly:packs install <pack_id>
@@ -49,6 +71,34 @@ Example:
 /ccbell-nightly:packs install classic
 /ccbell-nightly:packs install futuristic
 ```
+
+**How to implement:**
+
+1. Fetch `index.json` from `https://raw.githubusercontent.com/mpolatcan/ccbell-sound-packs/main/index.json`
+2. Find the pack entry by `pack_id`, get the `release_tag`
+3. Download pack assets from the GitHub release using the release tag
+4. Extract to `~/.claude/ccbell-nightly/packs/<pack_id>/`
+
+#### From URL (user-generated packs)
+
+Install a pack from a download URL (e.g., from ccbell-sound-generator):
+
+```bash
+/ccbell-nightly:packs install --url <download_url>
+```
+
+Example:
+```bash
+/ccbell-nightly:packs install --url https://huggingface.co/spaces/mpolatcan/ccbell-sound-generator/api/download/my-pack
+```
+
+**How to implement:**
+
+1. Download the zip file from the provided URL using Bash (`curl`)
+2. Extract the zip to a temporary directory
+3. Read `pack.json` from the extracted files to get the `id`
+4. Move the extracted files to `~/.claude/ccbell-nightly/packs/<pack_id>/`
+5. Confirm installation to the user
 
 ### Use a Sound Pack
 
@@ -211,46 +261,39 @@ If issues persist, reinstall the pack:
 
 If browsing fails, check your internet connection. Packs are fetched from GitHub releases.
 
-## Creating Custom Packs
+## Creating Your Own Packs
 
 ### Using ccbell-sound-generator (Recommended)
 
-Generate AI-powered sound packs via the web app:
+Generate AI-powered sound packs via the web app and install directly:
 1. Visit [ccbell-sound-generator](https://huggingface.co/spaces/mpolatcan/ccbell-sound-generator)
 2. Select a theme (Sci-Fi, Retro 8-bit, Nature, Minimal, etc.)
 3. Generate sounds for each event
-4. Publish directly to GitHub releases
+4. Click "Download Pack" - the generator shows an install command
+5. Run the command in Claude Code:
+   ```bash
+   /ccbell-nightly:packs install --url https://huggingface.co/.../api/download/my-pack
+   ```
 
-### Manual Creation
+### Manual Local Packs
 
-1. Create a directory with your WAV sound files
-2. Create a `pack.json` file with metadata (only `id`, `name`, `version`, and `events` are required)
-3. Create a GitHub release with the pack files
-
-Example pack structure:
-```
-my-pack/
-├── pack.json
-├── stop.wav
-├── subagent.wav
-├── permission_prompt.wav
-├── idle_prompt.wav
-├── session_start.wav
-├── session_end.wav
-├── pre_tool_use.wav
-├── post_tool_use.wav
-├── subagent_start.wav
-└── user_prompt_submit.wav
-```
-
-Release as `my-pack-v1.0.0` on the [ccbell-sound-packs](https://github.com/mpolatcan/ccbell-sound-packs) repository with `pack.json` and individual WAV files as release assets.
-
-### Local Packs
-
-You can also create a local pack without publishing:
+Create a pack manually without the generator:
 1. Create a directory in `~/.claude/ccbell-nightly/packs/my-pack/`
-2. Add `pack.json` and sound files
+2. Add `pack.json` and WAV sound files
 3. Use with `/ccbell-nightly:packs use my-pack`
+
+Minimum `pack.json` (only `id`, `name`, `version`, and `events` are required):
+```json
+{
+  "id": "my-pack",
+  "name": "My Pack",
+  "version": "1.0.0",
+  "events": {
+    "stop": "stop.wav",
+    "permission_prompt": "permission_prompt.wav"
+  }
+}
+```
 
 ## See Also
 

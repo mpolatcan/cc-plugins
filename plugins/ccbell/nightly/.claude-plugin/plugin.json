@@ -8,6 +8,6 @@
   },
   "repository": "https://github.com/mpolatcan/ccbell",
   "homepage": "https://github.com/mpolatcan/cc-plugins/tree/main/plugins/ccbell/nightly",
-  "keywords": ["sound", "notification", "bell", "audio", "alert", "productivity", "profiles", "quiet-hours", "cooldown", "golang", "nightly", "beta", "pre-release"],
+  "keywords": ["sound", "notification", "bell", "audio", "alert", "productivity", "profiles", "quiet-hours", "cooldown", "sound-packs", "golang", "nightly", "beta", "pre-release"],
   "license": "MIT"
 }

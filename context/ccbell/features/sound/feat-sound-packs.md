@@ -6,7 +6,10 @@ category: sound
 
 # Feature: Sound Packs
 
-Allow users to browse, preview, and install sound packs that bundle sounds for all notification events. Sound packs are AI-generated via [ccbell-sound-generator](https://huggingface.co/spaces/mpolatcan/ccbell-sound-generator) and distributed via GitHub releases on the [ccbell-sound-packs](https://github.com/mpolatcan/ccbell-sound-packs) repository.
+Allow users to browse, preview, and install sound packs that bundle sounds for all notification events. Sound packs come from two sources:
+
+- **Official packs**: Curated by the admin, distributed via GitHub releases on [ccbell-sound-packs](https://github.com/mpolatcan/ccbell-sound-packs)
+- **User-generated packs**: Created by any user via [ccbell-sound-generator](https://huggingface.co/spaces/mpolatcan/ccbell-sound-generator), installed directly via download URL
 
 ## Table of Contents
 
@@ -41,9 +44,11 @@ Allow users to browse, preview, and install sound packs that bundle sounds for a
 
 **How it works:**
 - **Generation**: AI-powered web app ([ccbell-sound-generator](https://huggingface.co/spaces/mpolatcan/ccbell-sound-generator)) generates sounds using Stable Audio Open models
-- **Distribution**: Packs published as GitHub releases on [ccbell-sound-packs](https://github.com/mpolatcan/ccbell-sound-packs) with `pack.json` + `*.wav` assets
-- **Storage**: `pack.json` manifests in git (small), sound files as release assets (binary)
-- **Installation**: Users run `/ccbell:packs install minimal` - no API keys needed
+- **Official distribution**: Admin publishes curated packs as GitHub releases on [ccbell-sound-packs](https://github.com/mpolatcan/ccbell-sound-packs) with `index.json` catalog
+- **User distribution**: Generator provides a download URL for any user's pack (zip with `pack.json` + `*.wav`)
+- **Installation**:
+  - Official: `/ccbell:packs install minimal` (from catalog)
+  - User-generated: `/ccbell:packs install --url <download_url>` (from generator)
 
 ## Benefit
 
@@ -91,25 +96,49 @@ HTTP client for downloading packs from GitHub releases.
 
 Describe how this feature integrates with the existing ccbell plugin:
 
-| Aspect | Description |
-|--------|-------------|
-| :hand: User Interaction | Users run `/ccbell:packs browse`, `/ccbell:packs install minimal` |
-| :wrench: Configuration | Adds `packs` section and `pack:` sound scheme support |
-| :gear: Default Behavior | Browses pack index from GitHub releases |
+| Aspect | Production (`ccbell`) | Nightly (`ccbell-nightly`) |
+|--------|----------------------|---------------------------|
+| :hand: Official Packs | `/ccbell:packs browse`, `/ccbell:packs install minimal` | `/ccbell-nightly:packs browse`, `/ccbell-nightly:packs install minimal` |
+| :hand: User Packs | `/ccbell:packs install --url <url>` | `/ccbell-nightly:packs install --url <url>` |
+| :wrench: Configuration | Adds `packs` and `activePack` to `~/.claude/ccbell.config.json` | Adds `packs` and `activePack` to `~/.claude/ccbell-nightly.config.json` |
+| :file_folder: Packs Directory | `~/.claude/ccbell/packs/` | `~/.claude/ccbell-nightly/packs/` |
+| :gear: Default Behavior | Browses official pack index from ccbell-sound-packs | Browses official pack index from ccbell-sound-packs |
+
+### Nightly Variant Isolation
+
+The nightly variant achieves pack directory isolation via the `CCBELL_PACKS_DIR` environment variable exported by the nightly `ccbell.sh` script:
+
+```bash
+export CCBELL_PACKS_DIR="$HOME/.claude/ccbell-nightly/packs"
+```
+
+The nightly binary reads this env var (falling back to the default `~/.claude/ccbell/packs/` if not set).
 
 ## Repository Impact
 
 ### cc-plugins
 
-Files that may be affected in cc-plugins:
+Files that may be affected in cc-plugins (both production and nightly variants):
+
+#### Production (`plugins/ccbell/production/`)
 
 | File | Description |
 |------|-------------|
-| `plugins/ccbell/.claude-plugin/plugin.json` | :package: Plugin manifest (version bump) |
-| `plugins/ccbell/scripts/ccbell.sh` | :arrow_down: Download script (version sync) |
-| `plugins/ccbell/hooks/hooks.json` | :hook: Hook definitions (no change) |
-| `plugins/ccbell/commands/*.md` | :page_facing_up: Add `packs.md` command doc |
-| `plugins/ccbell/sounds/` | :sound: Audio files (no change) |
+| `plugins/ccbell/production/.claude-plugin/plugin.json` | :package: Plugin manifest (version bump) |
+| `plugins/ccbell/production/scripts/ccbell.sh` | :arrow_down: Download script (version sync) |
+| `plugins/ccbell/production/hooks/hooks.json` | :hook: Hook definitions (no change) |
+| `plugins/ccbell/production/commands/*.md` | :page_facing_up: Add `packs.md` command doc |
+| `plugins/ccbell/production/sounds/` | :sound: Audio files (no change) |
+
+#### Nightly (`plugins/ccbell/nightly/`)
+
+| File | Description |
+|------|-------------|
+| `plugins/ccbell/nightly/.claude-plugin/plugin.json` | :package: Plugin manifest (version bump) |
+| `plugins/ccbell/nightly/scripts/ccbell.sh` | :arrow_down: Download script (version sync, exports `CCBELL_PACKS_DIR`) |
+| `plugins/ccbell/nightly/hooks/hooks.json` | :hook: Hook definitions (no change) |
+| `plugins/ccbell/nightly/commands/*.md` | :page_facing_up: Add `packs.md` command doc (uses `/ccbell-nightly:` prefix) |
+| `plugins/ccbell/nightly/sounds/` | :sound: Audio files (no change) |
 
 ### ccbell
 
@@ -118,7 +147,7 @@ Files that may be affected in ccbell:
 | File | Description |
 |------|-------------|
 | `main.go` | :rocket: Main entry point (version bump) |
-| `config/config.go` | :wrench: Add `packs` section |
+| `config/config.go` | :wrench: Add `packs` and `activePack` sections |
 | `audio/player.go` | :speaker: Extend ResolveSoundPath() for pack scheme |
 | `hooks/*.go` | :hook: Hook implementations (no change) |
 
@@ -173,20 +202,22 @@ Each sound pack is defined by a `pack.json` manifest published as a GitHub relea
 
 ### Supported Events
 
-The generator supports all 10 Claude Code hook types:
+The generator supports 10 pack-relevant events mapped to Claude Code hook types:
 
-| Event Name | Hook Type | Description | Category |
-|------------|-----------|-------------|----------|
-| `stop` | `Stop` | Main agent finished its task | Core |
-| `subagent` | `SubagentStop` | Subagent finished its task | Core |
-| `permission_prompt` | `PermissionPrompt` | Tool needs user permission | Core |
-| `idle_prompt` | `IdlePrompt` | Agent waiting for user input | Core |
-| `session_start` | `SessionStart` | New Claude Code session started | Session |
-| `session_end` | `SessionEnd` | Claude Code session ended | Session |
-| `pre_tool_use` | `PreToolUse` | Before a tool call executes | Tool |
-| `post_tool_use` | `PostToolUse` | After a tool completes | Tool |
-| `subagent_start` | `SubagentStart` | New subagent spawned | Agent |
-| `user_prompt_submit` | `UserPromptSubmit` | User submitted a new prompt | Agent |
+| Event Name | Hook Type | Matcher | Description | Category |
+|------------|-----------|---------|-------------|----------|
+| `stop` | `Stop` | - | Main agent finished its task | Core |
+| `subagent` | `SubagentStop` | `*` | Subagent finished its task | Core |
+| `permission_prompt` | `Notification` | `permission_prompt` | Tool needs user permission | Core |
+| `idle_prompt` | `Notification` | `idle_prompt` | Agent waiting for user input | Core |
+| `session_start` | `SessionStart` | - | New Claude Code session started | Session |
+| `session_end` | `SessionEnd` | - | Claude Code session ended | Session |
+| `pre_tool_use` | `PreToolUse` | `*` | Before a tool call executes | Tool |
+| `post_tool_use` | `PostToolUse` | `*` | After a tool completes | Tool |
+| `subagent_start` | `SubagentStart` | `*` | New subagent spawned | Agent |
+| `user_prompt_submit` | `UserPromptSubmit` | - | User submitted a new prompt | Agent |
+
+> **Note:** `permission_prompt` and `idle_prompt` are **matchers** under the `Notification` hook event, not standalone hook types. The `Notification` event also supports `auth_success` and `elicitation_dialog` matchers which may be relevant for future pack events. Claude Code has 17+ hook event types in total; this table lists only the events relevant to sound packs.
 
 ### Release Asset Structure
 
@@ -220,7 +251,40 @@ Release: minimal-v1.0.0
 
 ### ccbell-sound-generator
 
-A full-stack web application deployed on [HuggingFace Spaces](https://huggingface.co/spaces/mpolatcan/ccbell-sound-generator) for AI-powered sound generation.
+A full-stack web application for AI-powered sound generation, deployed as two separate HuggingFace Spaces:
+
+| Space | URL | Access | Purpose |
+|-------|-----|--------|---------|
+| **Public** | [ccbell-sound-generator](https://huggingface.co/spaces/mpolatcan/ccbell-sound-generator) | All users | Generate + download packs |
+| **Admin** | [ccbell-sound-generator-admin](https://huggingface.co/spaces/mpolatcan/ccbell-sound-generator-admin) (private) | Admin only | Generate + download + publish official packs |
+
+Both spaces share the same codebase. The admin space has the GitHub token configured as a HuggingFace secret, enabling the `/api/publish` endpoint. The public space does not have this token, so `/api/publish` is unavailable.
+
+**CI/CD Deployment:**
+
+Both spaces are deployed from the same [ccbell-sound-generator](https://github.com/mpolatcan/ccbell-sound-generator) repository via a single GitHub Actions workflow using a matrix strategy:
+
+```yaml
+# .github/workflows/deploy.yml (simplified)
+strategy:
+  fail-fast: false
+  matrix:
+    include:
+      - space: ccbell-sound-generator
+      - space: ccbell-sound-generator-admin
+```
+
+| Trigger | Description |
+|---------|-------------|
+| Version tag push (`v*.*.*`) | Automatic deploy on release |
+| `workflow_dispatch` | Manual deploy with optional version input |
+
+| Secret | Purpose |
+|--------|---------|
+| `HF_TOKEN` | Write access to both HuggingFace Spaces |
+| `HF_USERNAME` | HuggingFace username |
+
+Deploy jobs run in parallel with `fail-fast: false` — if one space fails, the other still deploys.
 
 | Component | Technology |
 |-----------|------------|
@@ -228,21 +292,26 @@ A full-stack web application deployed on [HuggingFace Spaces](https://huggingfac
 | Frontend | React 19, TypeScript, Vite 6, Tailwind CSS, shadcn/ui |
 | AI Models | Stable Audio Open (Small: 341M params, 1.0: 1.1B params) |
 | Audio | torchaudio, PyTorch (CPU) |
-| Publishing | PyGithub (publish to ccbell-sound-packs releases) |
+| Publishing | PyGithub (admin space only, publish to ccbell-sound-packs releases) |
 | Deployment | HuggingFace Spaces (Docker SDK, free CPU tier) |
 
-**Key API Endpoints:**
+**API Endpoints:**
 
-| Method | Endpoint | Purpose |
-|--------|----------|---------|
-| `GET` | `/api/themes` | List available theme presets |
-| `GET` | `/api/hooks` | List supported hook types |
-| `POST` | `/api/generate` | Start audio generation (returns job_id) |
-| `GET` | `/api/audio/{job_id}` | Download generated WAV file |
-| `WS` | `/api/ws/{job_id}` | Real-time generation progress |
-| `POST` | `/api/publish` | Publish pack to GitHub release |
+| Method | Endpoint | Purpose | Public Space | Admin Space |
+|--------|----------|---------|:---:|:---:|
+| `GET` | `/api/themes` | List available theme presets | Yes | Yes |
+| `GET` | `/api/hooks` | List supported hook types | Yes | Yes |
+| `POST` | `/api/generate` | Start audio generation (returns job_id) | Yes | Yes |
+| `GET` | `/api/audio/{job_id}` | Download generated WAV file | Yes | Yes |
+| `WS` | `/api/ws/{job_id}` | Real-time generation progress | Yes | Yes |
+| `GET` | `/api/download/{pack_id}` | Download pack as zip (pack.json + WAVs) | Yes | Yes |
+| `POST` | `/api/publish` | Publish pack to GitHub release + update index.json | No | Yes |
 
-**Generation Flow:**
+**Publish Endpoint Availability:**
+
+The `/api/publish` endpoint checks for a `GITHUB_TOKEN` environment variable at startup. If the token is not configured (public space), the endpoint returns `403 Forbidden` and the "Publish" button is hidden in the UI. This is the only difference between the two spaces.
+
+**User Flow (public space):**
 
 ```
 User selects theme + hook types + duration + model
@@ -258,23 +327,33 @@ Stable Audio Open model generates audio
 WAV file stored in /tmp/ccbell-audio/{job_id}.wav
           │
           ▼
+GET /api/download/{pack_id} → Returns zip file (pack.json + {event}.wav files)
+          │
+          ▼
+Generator UI shows install command:
+  /ccbell:packs install --url https://huggingface.co/.../api/download/{pack_id}
+```
+
+**Admin Flow (admin space → official packs):**
+
+```
+Admin generates sounds (same flow as above)
+          │
+          ▼
 POST /api/publish → Creates GitHub Release on ccbell-sound-packs
                      with pack.json + {event}.wav assets
+                   → Updates index.json in repo with new pack entry
 ```
 
 ### ccbell-sound-packs
 
 Repository: [mpolatcan/ccbell-sound-packs](https://github.com/mpolatcan/ccbell-sound-packs)
 
-Stores pack metadata in git and sound files as release assets:
+Stores a pack index in git and sound files as release assets:
 
 ```
-Git Repository (metadata only)
-├── packs/
-│   ├── minimal/pack.json         # Committed to git
-│   ├── sci-fi/pack.json
-│   ├── retro-8bit/pack.json
-│   └── ...
+Git Repository (index only)
+├── index.json                    # Pack catalog - updated by generator on publish
 └── README.md
 
 GitHub Releases (binary assets)
@@ -283,12 +362,65 @@ GitHub Releases (binary assets)
 └── ...
 ```
 
+#### index.json Schema
+
+The `index.json` file is the single source of truth for pack discovery. It is updated by the ccbell-sound-generator when a pack is published. The `/ccbell:packs browse` command fetches this file to list available packs.
+
+```json
+{
+  "version": 1,
+  "updated_at": "2026-03-01T12:00:00Z",
+  "packs": [
+    {
+      "id": "minimal",
+      "name": "Minimal",
+      "description": "Clean, professional notification sounds",
+      "author": "ccbell-sound-generator",
+      "version": "1.0.0",
+      "release_tag": "minimal-v1.0.0",
+      "events": ["stop", "subagent", "permission_prompt", "idle_prompt"],
+      "source": {
+        "model": "stable-audio-open-small",
+        "theme": "minimal"
+      }
+    },
+    {
+      "id": "sci-fi",
+      "name": "Sci-Fi Ambient",
+      "description": "Futuristic digital notification sounds",
+      "author": "ccbell-sound-generator",
+      "version": "1.0.0",
+      "release_tag": "sci-fi-v1.0.0",
+      "events": ["stop", "subagent", "permission_prompt", "idle_prompt"],
+      "source": {
+        "model": "stable-audio-open-small",
+        "theme": "sci-fi"
+      }
+    }
+  ]
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `version` | number | Index schema version (currently `1`) |
+| `updated_at` | string | ISO 8601 timestamp of last update |
+| `packs[].id` | string | Pack slug used in install commands |
+| `packs[].name` | string | Human-readable display name |
+| `packs[].description` | string | Short description |
+| `packs[].author` | string | Pack creator |
+| `packs[].version` | string | SemVer version |
+| `packs[].release_tag` | string | GitHub release tag for downloading assets |
+| `packs[].events` | array | List of event names included in the pack |
+| `packs[].source` | object | Generation metadata (model, theme) |
+
 | Aspect | Solution |
 |--------|----------|
-| Repo size | Stays small (no binary bloat) |
-| Version control | pack.json changes tracked in git |
-| Fast clone | Users don't download all sounds |
-| ccbell reads | From release assets via GitHub API |
+| Repo size | Stays small (single JSON index, no binaries) |
+| Browse speed | Single fetch of `index.json` via raw URL |
+| Install | Uses `release_tag` to download assets from GitHub Releases |
+| Fast clone | Users don't download any sounds |
+| Index updates | Generator appends/updates entries on publish |
 
 ### Theme Presets
 
@@ -326,29 +458,32 @@ Prompt assembly pattern:
 
 ### cc-plugins
 
-Steps required in cc-plugins repository:
+Steps required in cc-plugins repository (for **both** production and nightly variants):
 
-1. Update plugin.json version
-2. Update ccbell.sh if needed
-3. Add/update command documentation for `packs` command
-4. Add/update hooks configuration
+1. Update `plugin.json` version in both `production/` and `nightly/`
+2. Update `ccbell.sh` if needed (nightly exports `CCBELL_PACKS_DIR`)
+3. Add/update `packs.md` command documentation in both variants
+4. Add `sound-packs` keyword to both `plugin.json` manifests
+5. Add/update hooks configuration if new events are hooked
 
 ### ccbell
 
 Steps required in ccbell repository:
 
-1. Add packs section to config structure
+1. Add `packs` and `activePack` fields to config structure
 2. Create `internal/pack/packs.go`
 3. Implement PackManager with List/Install/Use/Uninstall methods
 4. Extend ResolveSoundPath() to handle `pack:` scheme
 5. Add packs command with browse/preview/install/use options
-6. Download pack.json + WAV assets from GitHub releases
-7. Store installed packs in `~/.claude/ccbell/packs/{pack_id}/`
+6. Implement dual install modes:
+   - **Catalog install**: Download pack.json + WAV assets from GitHub releases (official packs)
+   - **URL install**: Download zip from any URL, extract to packs dir (user-generated packs)
+7. Read packs directory from `CCBELL_PACKS_DIR` env var (default: `~/.claude/ccbell/packs/`)
 8. Update version in main.go
-9. Tag and release
-10. Sync version to cc-plugins
+9. Tag and release (stable for production, pre-release for nightly)
+10. Sync version to cc-plugins for both variants
 
-**Installed Pack Layout:**
+**Installed Pack Layout (production):**
 
 ```
 ~/.claude/ccbell/packs/
@@ -365,35 +500,66 @@ Steps required in ccbell repository:
 └── ...
 ```
 
-## Custom User Packs
-
-Custom user packs allow users to create and use their own sound packs without the generator.
-
-### Local Pack Directory
+**Installed Pack Layout (nightly):**
 
 ```
-~/.claude/ccbell/packs/
-├── my-custom-pack/
+~/.claude/ccbell-nightly/packs/
+├── minimal/
 │   ├── pack.json
 │   ├── stop.wav
-│   ├── permission_prompt.wav
 │   └── ...
+└── ...
 ```
 
-**Pros**:
-- No network required
-- Full user control
-- No authentication needed
-- Fast iteration
-- Compatible with AI-generated or manually sourced sounds
+## User-Generated Packs
 
-**Cons**:
-- No discovery/browsing
-- Manual configuration
+Any user can create and install their own sound packs via the [ccbell-sound-generator](https://huggingface.co/spaces/mpolatcan/ccbell-sound-generator) web app.
 
-### Minimum pack.json for Local Packs
+### Generator-to-ccbell Flow
 
-Local packs only require core fields:
+```
+1. Visit ccbell-sound-generator
+2. Select theme + events + duration + model
+3. Generate sounds
+4. Click "Download Pack"
+5. Generator shows install command:
+
+   /ccbell:packs install --url https://huggingface.co/.../api/download/{pack_id}
+
+6. Run the command in Claude Code → pack installed
+```
+
+No GitHub account, no forking, no publishing. The generator serves the pack zip directly.
+
+### Download Pack Format
+
+The generator's `/api/download/{pack_id}` endpoint returns a zip file:
+
+```
+my-pack.zip
+├── pack.json
+├── stop.wav
+├── subagent.wav
+├── permission_prompt.wav
+├── idle_prompt.wav
+└── ...
+```
+
+ccbell extracts the zip to `~/.claude/ccbell/packs/{pack_id}/` (or `~/.claude/ccbell-nightly/packs/{pack_id}/` for nightly).
+
+### Temporary Storage
+
+Generated packs are stored temporarily on the generator server (`/tmp/ccbell-audio/`). Download URLs are ephemeral - users should install promptly after generation. If the URL expires, the user can regenerate the pack.
+
+### Manual Local Packs
+
+Users can also create packs manually without the generator:
+
+1. Create a directory in `~/.claude/ccbell/packs/my-pack/` (or `~/.claude/ccbell-nightly/packs/my-pack/`)
+2. Add `pack.json` and WAV sound files
+3. Use with `/ccbell:packs use my-pack`
+
+Minimum `pack.json` for local packs (only `id`, `name`, `version`, and `events` are required):
 
 ```json
 {
@@ -405,16 +571,6 @@ Local packs only require core fields:
     "permission_prompt": "permission_prompt.wav"
   }
 }
-```
-
-The `prompts` and `source` fields are optional for local packs (they are auto-populated by the generator for published packs).
-
-### Future Commands
-
-```bash
-/ccbell:packs create my-pack    # Scaffold a new local pack
-/ccbell:packs add stop.wav      # Add sounds to pack
-/ccbell:packs local my-pack     # Use local pack
 ```
 
 ## Status
@@ -432,8 +588,8 @@ The `prompts` and `source` fields are optional for local packs (they are auto-po
 
 | Dependency | Purpose | Required |
 |------------|---------|----------|
-| GitHub API | Download packs from releases | Yes (unauthenticated, 60 req/hr) |
-| ccbell-sound-generator | Generate new packs | No (optional, for pack creators) |
+| GitHub API | Browse and install official packs from releases | For official packs (unauthenticated, 60 req/hr) |
+| ccbell-sound-generator | Generate and download user packs | For user-generated packs |
 
 ### GitHub API Rate Limits
 
@@ -441,6 +597,8 @@ The `prompts` and `source` fields are optional for local packs (they are auto-po
 |--------------|------------|-------|
 | Unauthenticated | 60 requests/hour | IP-based, sufficient for pack browsing/install |
 | Authenticated (PAT) | 5,000 requests/hour | Personal Access Token |
+
+> **Note:** User-generated packs installed via `--url` do not use the GitHub API. They download directly from the generator's HuggingFace Spaces endpoint.
 
 ## Research Sources
 

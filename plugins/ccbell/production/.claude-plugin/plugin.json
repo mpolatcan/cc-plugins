@@ -8,6 +8,6 @@
   },
   "repository": "https://github.com/mpolatcan/ccbell",
   "homepage": "https://github.com/mpolatcan/cc-plugins/tree/main/plugins/ccbell/production",
-  "keywords": ["sound", "notification", "bell", "audio", "alert", "productivity", "profiles", "quiet-hours", "cooldown", "golang"],
+  "keywords": ["sound", "notification", "bell", "audio", "alert", "productivity", "profiles", "quiet-hours", "cooldown", "sound-packs", "golang"],
   "license": "MIT"
 }

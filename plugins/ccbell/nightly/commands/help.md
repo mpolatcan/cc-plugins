@@ -122,6 +122,7 @@ Config is stored at:
   "enabled": true,
   "debug": false,
   "activeProfile": "default",
+  "activePack": null,
   "quietHours": {
     "start": "22:00",
     "end": "07:00"

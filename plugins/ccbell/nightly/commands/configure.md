@@ -17,8 +17,9 @@ ccbell-nightly uses bundled sounds by default for consistent cross-platform supp
 - `bundled:idle_prompt` - Claude is waiting for input
 - `bundled:subagent` - Background agent completed
 
-You can also use custom sounds:
+You can also use sound pack sounds or custom sounds:
 
+- `pack:pack_id:sound_file` - Sound from an installed pack (e.g., `pack:minimal:stop.wav`)
 - `custom:/path/to/your/sound.mp3` - Absolute path to audio file
 
 ## Configuration Steps
@@ -149,6 +150,7 @@ Create the configuration file at `~/.claude/ccbell-nightly.config.json`:
   "enabled": true,
   "debug": false,
   "activeProfile": "default",
+  "activePack": null,
   "quietHours": {
     "start": "22:00",
     "end": "07:00"
@@ -189,6 +191,7 @@ After writing the config, confirm to the user and offer to test the sounds with 
 ## Sound Specification Formats
 
 - `bundled:stop`, `bundled:permission_prompt`, `bundled:idle_prompt`, `bundled:subagent` - Bundled sounds (recommended)
+- `pack:pack_id:sound_file` - Sound pack sounds (e.g., `pack:minimal:stop.wav`)
 - `custom:/path/to/sound.mp3` - Custom audio file (absolute path required)
 
 ## Configuration Options Reference
@@ -198,6 +201,7 @@ After writing the config, confirm to the user and offer to test the sounds with 
 | `enabled` | boolean | true | Global on/off switch |
 | `debug` | boolean | false | Enable debug logging |
 | `activeProfile` | string | "default" | Active sound profile |
+| `activePack` | string | - | Active sound pack ID (e.g., "minimal") |
 | `quietHours.start` | string | - | Start of quiet period (HH:MM) |
 | `quietHours.end` | string | - | End of quiet period (HH:MM) |
 | `events.<event>.enabled` | boolean | true | Enable this event |

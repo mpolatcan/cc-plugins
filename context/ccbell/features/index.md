@@ -25,7 +25,7 @@ Feasible feature ideas for ccbell as a Claude Code plugin. All features are eval
 |---------|---------|----------|------------|----------|------|-------------|-------------|
 | **Visual Notifications** 👁️ | Show visual alerts (notifications, terminal bell) | 🔴 High | 🟢 Low | 🔔 notification | [notification/feat-visual-notifications.md](notification/feat-visual-notifications.md) | ✅ Compatible | ⬜ |
 | **Webhooks** 🔗 | HTTP notifications to Slack, IFTTT, etc. | 🔴 High | 🟡 Medium | 🔔 notification | [notification/feat-webhooks.md](notification/feat-webhooks.md) | ⚠️ Needs timeout handling | ⬜ |
-| **Sound Packs** 🎁 | Bundle sounds for all events | 🟡 Medium | 🟢 Low | 🔊 sound | [sound/feat-sound-packs.md](sound/feat-sound-packs.md) | ✅ Compatible | ⬜ |
+| **Sound Packs** 🎁 | Bundle sounds for all events | 🟡 Medium | 🟢 Low | 🔊 sound | [sound/feat-sound-packs.md](sound/feat-sound-packs.md) | ✅ Compatible | 🟡 |
 | **Config Validation** ✅ | Check config for errors | 🟡 Medium | 🟢 Low | ⚙️ config | [config/feat-config-validation.md](config/feat-config-validation.md) | ✅ Compatible | ⬜ |
 | **Event Filtering** 🔍 | Conditional notifications | 🟡 Medium | 🟢 Low | 🔔 notification | [notification/feat-event-filtering.md](notification/feat-event-filtering.md) | ✅ Compatible | ⬜ |
 | **Quick Disable** ⏸️ | Temporary silence for 15min/1hr/4hr | 🟡 Medium | 🟢 Low | 🔔 notification | [notification/feat-quick-disable.md](notification/feat-quick-disable.md) | ✅ Compatible | ⬜ |
@@ -114,7 +114,7 @@ Features that require more planning but deliver solid value.
 | Feature | Complexity | Notes |
 |---------|------------|-------|
 | **Webhooks** 🔗 | 🟡 Medium | Needs timeout handling |
-| **Sound Packs** 🎁 | 🟢 Low | Download from GitHub |
+| **Sound Packs** 🎁 | 🟢 Low | Download from GitHub (plugin scaffolding complete, binary feature in progress) |
 | **Event Filtering** 🔍 | 🟢 Low | Regex/token filtering |
 | **Export/Import Config** 📤 | 🟢 Low | JSON serialization |
 | **Sound Randomization** 🎲 | 🟢 Low | Simple randomization |

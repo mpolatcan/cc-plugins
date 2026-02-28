@@ -230,6 +230,7 @@ Distributes audio notifications for:
 | `/ccbell:disable` | Disable all notifications |
 | `/ccbell:status` | Show current configuration |
 | `/ccbell:profile` | Switch between sound profiles |
+| `/ccbell:packs` | Browse, install, and manage sound packs |
 | `/ccbell:validate` | Run installation diagnostics |
 | `/ccbell:help` | Show help and documentation |
 
@@ -247,6 +248,7 @@ Same feature set as production but uses pre-release binaries and isolated config
 | `/ccbell-nightly:disable` | Disable all notifications |
 | `/ccbell-nightly:status` | Show current configuration |
 | `/ccbell-nightly:profile` | Switch between sound profiles |
+| `/ccbell-nightly:packs` | Browse, install, and manage sound packs |
 | `/ccbell-nightly:validate` | Run installation diagnostics |
 | `/ccbell-nightly:help` | Show help and documentation |
 

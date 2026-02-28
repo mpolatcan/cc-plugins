@@ -68,6 +68,30 @@ Nightly/pre-release build of ccbell - audio notifications for Claude Code events
 | `idle_prompt` | Claude is waiting for input |
 | `subagent` | Background agent completes |
 
+## Sound Profiles
+
+| Profile | Description |
+|---------|-------------|
+| `default` | Standard settings - all events enabled at medium volume |
+| `focus` | Minimal interruptions - only permission prompts at low volume |
+| `work` | Professional mode - subtle sounds for all events |
+| `loud` | Maximum volume for all events |
+| `silent` | All notifications disabled |
+
+## Sound Options
+
+### Bundled Sounds (Recommended)
+
+Pre-packaged sounds included with the plugin: `bundled:stop`, `bundled:permission_prompt`, `bundled:idle_prompt`, `bundled:subagent`
+
+### Sound Pack Sounds
+
+Use sounds from installed packs: `pack:pack_id:sound_file` (e.g., `pack:minimal:stop.wav`)
+
+### Custom Sounds
+
+Use your own audio files (MP3, WAV, AIFF, M4A): `custom:/path/to/sound.mp3`
+
 ## Configuration
 
 Config file: `~/.claude/ccbell-nightly.config.json`
@@ -79,6 +103,7 @@ Config file: `~/.claude/ccbell-nightly.config.json`
   "enabled": true,
   "debug": false,
   "activeProfile": "default",
+  "activePack": null,
   "quietHours": {
     "start": "22:00",
     "end": "07:00"
@@ -111,6 +136,45 @@ Config file: `~/.claude/ccbell-nightly.config.json`
   }
 }
 ```
+
+### Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `enabled` | boolean | true | Global on/off |
+| `debug` | boolean | false | Enable logging |
+| `activePack` | string | - | Active sound pack ID (e.g., "minimal") |
+| `quietHours.start` | string | - | Start of quiet period (HH:MM) |
+| `quietHours.end` | string | - | End of quiet period (HH:MM) |
+| `events.<event>.enabled` | boolean | true | Enable event |
+| `events.<event>.sound` | string | bundled | Sound specification |
+| `events.<event>.volume` | number | 0.5 | Volume 0.0-1.0 |
+| `events.<event>.cooldown` | number | 0 | Seconds between notifications |
+
+## Platform Support
+
+| Platform | Architecture | Audio Backend | Status |
+|----------|--------------|--------------|--------|
+| macOS | x86_64 (Intel) | `afplay` | Full support |
+| macOS | arm64 (Apple Silicon) | `afplay` | Full support |
+| Linux | x86_64 (amd64) | `mpv`, `paplay`, `aplay`, `ffplay` | Requires one |
+| Linux | aarch64 (ARM64) | `mpv`, `paplay`, `aplay`, `ffplay` | Requires one |
+
+### Audio Player Support
+
+| Player | macOS | Linux | Volume Control |
+|--------|-------|-------|----------------|
+| `afplay` | Built-in | - | Fixed |
+| `mpv` | Supported | Supported | Adjustable |
+| `paplay` | - | Supported | Fixed |
+| `aplay` | - | Supported | Fixed |
+| `ffplay` | Supported | Supported | Adjustable |
+
+**Note:** For Linux, install `mpv` (recommended) for best results with volume control:
+- Debian/Ubuntu: `sudo apt install mpv`
+- Fedora: `sudo dnf install mpv`
+- Arch: `sudo pacman -S mpv`
+- macOS (Homebrew): `brew install mpv`
 
 ## Troubleshooting
 
