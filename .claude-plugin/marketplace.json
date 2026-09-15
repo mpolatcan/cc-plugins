@@ -14,6 +14,13 @@
       "source": "./plugins/ccbell",
       "category": "productivity",
       "tags": ["sound", "notification", "audio", "alert"]
+    },
+    {
+      "name": "flowpane",
+      "description": "A live workflow pane - replaces the default Workflow progress list with a phase-by-phase graph or a timeline beside the transcript, showing each agent's state, timing, live token spend, tool calls and prompt",
+      "source": { "source": "github", "repo": "mpolatcan/flowpane" },
+      "category": "productivity",
+      "tags": ["workflow", "visualization", "graph", "timeline", "subagents"]
     }
   ]
 }
